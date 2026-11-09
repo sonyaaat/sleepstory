@@ -61,11 +61,11 @@ export function NightCalendar({
                   <TooltipTrigger asChild>
                     <div
                       tabIndex={0}
-                      aria-label={`${formatDate(d.date)}: ${d.se == null ? "not logged" : `${d.se.toFixed(0)}% sleep efficiency`}`}
+                      aria-label={`${formatDate(d.date)}: ${!d.logged ? "not logged" : d.se == null ? "logged, some answers unknown" : `${d.se.toFixed(0)}% sleep efficiency`}`}
                       className={cn(
                         "flex items-center justify-center rounded-[4px] text-[9px] font-semibold leading-none outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         cell,
-                        b ? [b.tone, b.ink] : "border border-dashed border-muted-foreground/50",
+                        b ? [b.tone, b.ink] : d.logged ? "bg-muted ring-1 ring-border" : "border border-dashed border-muted-foreground/50",
                         wi === 4 && "mt-1.5",
                       )}
                     >
@@ -77,7 +77,9 @@ export function NightCalendar({
                     {d.logged ? (
                       <>
                         <p>
-                          Sleep efficiency {d.se!.toFixed(0)}% · slept {formatDuration(d.tst)}
+                          {d.se == null
+                            ? "Sleep efficiency unknown (some answers were “I don’t know”)"
+                            : `Sleep efficiency ${d.se.toFixed(0)}% · slept ${formatDuration(d.tst)}`}
                         </p>
                         {d.sleepAid && <p>Sleep aid: {AID[d.sleepAid]}</p>}
                         {d.habits.length > 0 && <p>{d.habits.map((h) => HABIT[h]).join(", ")}</p>}
