@@ -172,13 +172,16 @@ export function CheckinFlow({
     FIELD_ORDER.map((k) => {
       // Not asked: "started trying to sleep" is taken as the time they got into bed.
       const src = k === "lightsOut" ? "inBed" : k;
-      return [k, unknown.has(src) ? null : values[src] === "" ? undefined : values[src]];
+      const v = values[src];
+      // Left empty = "I don't know" (null). Only sleep quality must be answered.
+      if (unknown.has(src) || v === undefined || v === "") return [k, k === "quality" ? undefined : null];
+      return [k, v];
     }),
   );
   const parsed = DiaryEntrySchema.safeParse(entryValues);
   const complete = parsed.success;
   const issues = complete ? consistencyIssues(parsed.data) : [];
-  const missing = ASKED_FIELDS.filter((k) => !unknown.has(k) && (values[k] === undefined || values[k] === ""));
+  const qualityMissing = values.quality === undefined || values.quality === "";
 
   const corrected = useMemo(() => {
     if (!extraction) return 0;
@@ -450,7 +453,9 @@ export function CheckinFlow({
                         <HelpCircle className="size-4" /> Don&apos;t know
                       </span>
                     ) : isMissing ? (
-                      <span className="font-semibold text-warn-foreground">Tap to add</span>
+                      <span className="flex items-center gap-1.5 font-semibold whitespace-nowrap text-muted-foreground">
+                        <HelpCircle className="size-4" /> Don&apos;t know
+                      </span>
                     ) : (
                       <span className="flex items-center gap-2 text-right font-semibold">
                         {check && <span className="size-2 rounded-full bg-brand" aria-label="Please check" />}
@@ -458,6 +463,7 @@ export function CheckinFlow({
                       </span>
                     )}
                     {!isMissing && !isUnknown && assumed.has(k) && <span className="text-xs text-muted-foreground">assumed</span>}
+                    {isMissing && <span className="text-xs text-muted-foreground">tap to add</span>}
                   </span>
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted-foreground transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
                     <Pencil className="size-3.5" />
@@ -484,7 +490,7 @@ export function CheckinFlow({
             <span className="size-2 rounded-full bg-brand" /> Please check
           </span>
           <span>assumed = not said, worked out from your other answers</span>
-          <span>Not sure about something? Tap it and choose &ldquo;I don&apos;t know&rdquo;.</span>
+          <span>Not sure? Leave it empty, it counts as &ldquo;I don&apos;t know&rdquo;.</span>
         </p>
 
         <section className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border/60" aria-labelledby="provider-notes">
@@ -574,7 +580,7 @@ export function CheckinFlow({
             disabled={!complete || issues.length > 0}
             onClick={() => setStep(followUp ? "followup" : "habits")}
           >
-            {missing.length ? `Answer ${missing.length} more to continue` : "Yes, that’s right"}
+            {qualityMissing ? "Pick sleep quality to continue" : "Yes, that’s right"}
           </Button>
         </div>
 
