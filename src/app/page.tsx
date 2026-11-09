@@ -18,10 +18,17 @@ export default async function StartPage() {
       <div className="mt-14 space-y-4">
         <MoonMark className="size-16" />
         <h1 className="font-display text-[40px] leading-[1.08]">Tell your night. We&apos;ll do the diary.</h1>
-        <p className="text-[17px] leading-relaxed text-muted-foreground">
-          A one-minute morning check-in by voice or text. Before your visit, your primary care provider gets a
-          one-page Sleep Snapshot, and only if you approve it.
-        </p>
+        <ul className="space-y-2 text-[17px] leading-snug text-muted-foreground">
+          <li>
+            <strong className="font-semibold text-foreground">1 minute</strong> each morning, by voice or text
+          </li>
+          <li>
+            <strong className="font-semibold text-foreground">1-page summary</strong> for your provider
+          </li>
+          <li>
+            Shared <strong className="font-semibold text-foreground">only when you approve</strong>
+          </li>
+        </ul>
       </div>
 
       <div className="mt-10 space-y-3">
