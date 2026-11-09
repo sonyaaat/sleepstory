@@ -34,8 +34,8 @@ src/
     metrics.ts              TIB, TST, SE, medians, period comparison
     questionnaires.ts       ISI and PHQ-2 scoring, red-flag rules
     habits.ts               Habit vs no-habit comparisons
+    checkin.ts              Forgiving streak, follow-up question rule, rough-night filling
     snapshot.ts             Builds the whole Snapshot object from nights + patient
-    streak.ts               Forgiving streak
   adapters/                 Everything that talks to the outside world, behind interfaces
     llm/                    Gateway extractor, rule-based fallback, quote verifier
     speech/                 Browser speech now; Whisper service later

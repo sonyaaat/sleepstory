@@ -80,7 +80,7 @@ There is no evening log. Habits are one screen inside the morning check-in.
 | HAB-03 | **Took a sleep aid** chip, which reveals *Melatonin · Over-the-counter · Prescription* | P0 | Planned | CA (Ontario guideline: medication use matters) |
 | HAB-04 | The AI pre-selects chips mentioned in the story, labelled "from your story"; the patient can remove them | P0 | Planned | Team |
 | HAB-05 | The patient's "usual day" (from onboarding) is shown on the habit screen | P1 | Planned | Notebook (wireframe fig. 8) |
-| HAB-06 | Code compares nights with and without each habit, only when there are at least 5 nights on each side, and labels the result "linked, not proof" with the number of nights | P0 | Planned | CA, Edith |
+| HAB-06 | Code compares nights with and without each habit, only when there are at least 5 nights on each side, and labels the result "linked, not proof" with the number of nights | P0 | Done | CA, Edith |
 | HAB-07 | The patient sees "what seems linked" on My sleep | P1 | Planned | Brenda (patients see their own data) |
 | HAB-08 | Link to the non-tech habit cards ("habit I'm trying this week") so the app can show whether sleep changes | P2 | Planned | Notebook (D4: SleepSnap works alongside habit cards), PO1 (integration question) |
 
@@ -143,9 +143,9 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| SAFE-01 | ISI scoring and bands: 0–7 none, 8–14 subthreshold, 15–21 moderate, 22–28 severe | P0 | Planned | CA |
-| SAFE-02 | PHQ-2 scoring; 3 or more is positive | P0 | Planned | CA |
-| SAFE-03 | Red-flag rules: snoring/stopped breathing → consider sleep apnea assessment; restless legs → consider RLS assessment; dozing while driving → urgent safety discussion; PHQ-2 ≥ 3 → consider PHQ-9 | P0 | Planned | CA |
+| SAFE-01 | ISI scoring and bands: 0–7 none, 8–14 subthreshold, 15–21 moderate, 22–28 severe | P0 | Done | CA |
+| SAFE-02 | PHQ-2 scoring; 3 or more is positive | P0 | Done | CA |
+| SAFE-03 | Red-flag rules: snoring/stopped breathing → consider sleep apnea assessment; restless legs → consider RLS assessment; dozing while driving → urgent safety discussion; PHQ-2 ≥ 3 → consider PHQ-9 | P0 | Done | CA |
 | SAFE-04 | The patient sees a calm message ("some answers are worth discussing with your provider"); the provider sees the flag | P1 | Planned | CA |
 | SAFE-05 | Dozing while driving = yes → an immediate on-screen safety message, not delayed until the visit | P1 | Planned | CA |
 | SAFE-06 | PHQ-2 positive → full PHQ-9 next time. PHQ-9 item 9 (self-harm) → crisis resources shown immediately. | P2 | Planned | CA |
@@ -199,7 +199,7 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | NFR-02 | A check-in can be completed in about 60 seconds | P0 | Planned | CA, Notebook |
 | NFR-03 | The Snapshot is readable in under a minute and prints on one page | P0 | Planned | Notebook, Brenda |
 | NFR-04 | The app works when the AI is unavailable (fallback) | P0 | Planned | Rubric |
-| NFR-05 | Unit tests for metrics, questionnaire scoring, AI-output validation and the fallback parser | P0 | Planned | V0 |
+| NFR-05 | Unit tests for metrics, questionnaire scoring, AI-output validation and the fallback parser | P0 | In progress | V0 |
 | NFR-06 | Accessibility basics: large tap targets, good contrast, labels on every input | P1 | Planned | Notebook (digital literacy) |
 | NFR-07 | Public deployment (Vercel + Postgres) so testers can use their own phones | P2 | Planned | Team |
 | NFR-08 | French version | Later | Planned | CA (bilingual Canada) |

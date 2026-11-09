@@ -56,3 +56,4 @@ CHK-14 reminders · PRV-15 secure email links · PRV-16 EMR export · PRV-17 mul
 | Date | What was done |
 |---|---|
 | 2026-11-08 | Project set up (Next.js, TypeScript, Tailwind, Prisma, zod, Vitest). Gateway access tested. Project documents written. Shared diary schema and time helpers started. |
+| 2026-11-08 | Step 1 done: sleep metrics, period comparison, watch comparison, ISI/PHQ-2 scoring, red flags, habit links, streak and check-in rules, with 35 unit tests. UI library chosen (shadcn/ui). |
