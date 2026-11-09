@@ -34,9 +34,22 @@ describe("rough-night mode", () => {
     expect(assumed).toContain("inBed");
     expect(assumed).not.toContain("solMin");
   });
-  it("derives usual times from the most common past values", () => {
-    const nights = [night({ inBed: "00:30" }), night({ inBed: "00:30" }), night({ inBed: "23:00" })];
-    expect(usualTimesFrom(nights, usual).inBed).toBe("00:30");
+  it("derives usual times from medians, rounded and in order", () => {
+    const nights = [
+      night({ inBed: "00:20", lightsOut: "00:05" }),
+      night({ inBed: "00:35", lightsOut: "00:10" }),
+      night({ inBed: "23:50", lightsOut: "23:55" }),
+    ];
+    const u = usualTimesFrom(nights, usual);
+    expect(u.inBed).toBe("00:15");
+    expect(u.lightsOut).toBe("00:15"); // never before getting into bed
     expect(usualTimesFrom([], usual)).toEqual(usual);
+  });
+  it("produces consistent rough-night fields from Maya's data", async () => {
+    const { mayaNights } = await import("@/db/demo-data");
+    const { consistencyIssues } = await import("@/core/metrics");
+    const u = usualTimesFrom(mayaNights("2026-11-09"), usual);
+    const { fields } = fillRoughNight({ solMin: 120, wasoMin: 120, quality: 1 }, u);
+    expect(consistencyIssues(fields)).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 // Rules used during the morning check-in.
 
 import type { DiaryFields, Night } from "./schema";
-import { addDays } from "./time";
+import { addDays, formatClock, nightMinutes } from "./time";
 
 // ---- Forgiving streak (CHK-01, CHK-08): "5 of the last 7 days", never resets to zero ----
 
@@ -61,21 +61,23 @@ export function fillRoughNight(a: RoughAnswers, usual: UsualTimes) {
   return { fields, assumed };
 }
 
-/** Usual times derived from past nights (most common value of each clock field). */
+/**
+ * Usual times derived from past nights: the median of each clock field, rounded to
+ * 15 minutes, and kept in order (in bed <= lights out, final wake <= out of bed).
+ */
 export function usualTimesFrom(nights: Night[], fallback: UsualTimes): UsualTimes {
-  const mode = (vals: string[], fb: string) => {
-    if (!vals.length) return fb;
-    const counts = new Map<string, number>();
-    for (const v of vals) counts.set(v, (counts.get(v) ?? 0) + 1);
-    return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
-  };
   const full = nights.filter((n) => n.mode === "full");
-  return {
-    inBed: mode(full.map((n) => n.inBed), fallback.inBed),
-    lightsOut: mode(full.map((n) => n.lightsOut), fallback.lightsOut),
-    finalWake: mode(full.map((n) => n.finalWake), fallback.finalWake),
-    outOfBed: mode(full.map((n) => n.outOfBed), fallback.outOfBed),
+  if (!full.length) return fallback;
+  const med = (vals: number[]) => {
+    const s = [...vals].sort((a, b) => a - b);
+    return Math.round(s[Math.floor(s.length / 2)] / 15) * 15;
   };
+  const toClock = (m: number) => formatClock(m + 720); // back from the noon-based timeline
+  const inBed = med(full.map((n) => nightMinutes(n.inBed)));
+  const lightsOut = Math.max(inBed, med(full.map((n) => nightMinutes(n.lightsOut))));
+  const finalWake = Math.max(lightsOut + 60, med(full.map((n) => nightMinutes(n.finalWake))));
+  const outOfBed = Math.max(finalWake, med(full.map((n) => nightMinutes(n.outOfBed))));
+  return { inBed: toClock(inBed), lightsOut: toClock(lightsOut), finalWake: toClock(finalWake), outOfBed: toClock(outOfBed) };
 }
 
 // ---- Late entries (CHK-11): only yesterday's night can be caught up ----
