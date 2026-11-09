@@ -66,3 +66,35 @@ Fill in one row per step during the session.
 - **Step 15:** Did they understand the watch question?
 
 Also record the **total time** and **how many AI answers they corrected** (the app logs both).
+
+## Question 4: Questions for evaluators after the task
+
+**AI and correcting answers**
+
+1. When you saw "Here's what I heard", did you understand that the AI had filled in those answers? How did you know?
+2. Was it clear which answers you could change, and how? What did you think the yellow dots meant?
+3. Did you trust the AI's answers? Was there anything you would have checked or changed if you were really Maya?
+
+**"I don't know" and missing information**
+
+4. When you didn't remember how long you were awake, what did you expect to do? Was "I don't know" easy to find?
+
+**Medicines**
+
+5. Where did you expect to record the melatonin? Was "Took a sleep aid" easy to find, or did you nearly skip it?
+6. If you started a new pill that isn't on your list, would you know how to add it?
+
+**Notes for the provider**
+
+7. Did you notice "Worth telling your provider"? Would you use it to tell your provider something important, like the headache?
+
+**Voice and effort**
+
+8. Did you prefer talking or typing? Why?
+9. Did the hints ("You could mention…") help you know what to say?
+10. Would you do this every morning? What would stop you, especially after a bad night?
+
+**Trust and privacy**
+
+11. Did you understand who will see your answers, and when?
+12. Was anything confusing or worrying? What one thing would you change first?
