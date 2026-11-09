@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Lock, Sparkles, UserRound } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Lock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -45,16 +44,6 @@ export default async function StartPage() {
             </Link>
           </Button>
         )}
-      </div>
-
-      <div className="mt-8 flex items-center gap-3 rounded-3xl bg-card p-4 opacity-80 ring-1 ring-border/60">
-        <UserRound className="size-5 shrink-0 text-muted-foreground" />
-        <div className="text-sm">
-          <p className="font-semibold">
-            Start as myself <Badge variant="secondary" className="ml-1">Coming soon</Badge>
-          </p>
-          <p className="text-muted-foreground">Onboarding with your own answers, in the next prototype.</p>
-        </div>
       </div>
 
       <p className="mt-auto flex items-start gap-2 pt-10 text-xs text-muted-foreground">
