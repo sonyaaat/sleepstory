@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SeChart } from "../se-chart";
+import { ProviderNotes } from "./parts";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
 import { SLEEP_AIDS } from "@/core/schema";
 import type { Snapshot } from "@/core/snapshot";
@@ -73,7 +74,8 @@ function Header({ s }: { s: Snapshot }) {
         </h1>
         <p className="text-sm text-muted-foreground">
           {formatDate(s.from)} – {formatDate(s.to)} · {c.logged} of {c.days} nights logged
-          {c.late > 0 && `, ${c.late} late`} · {s.watchSource}
+          {c.late > 0 && `, ${c.late} late`}
+          {c.partial > 0 && `, ${c.partial} with missing answers`} · {s.watchSource}
         </p>
       </div>
       <p className="text-sm text-muted-foreground">Visit {formatDateLong(s.patient.visitDate)}</p>
@@ -310,6 +312,7 @@ function Words({ s }: { s: Snapshot }) {
             <p>{s.discuss}</p>
           </div>
         )}
+        <ProviderNotes s={s} limit={5} />
       </CardContent>
     </Card>
   );

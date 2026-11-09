@@ -6,7 +6,7 @@ import { SeChart } from "../se-chart";
 import type { Snapshot } from "@/core/snapshot";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
 import { BarPair, DeltaChip, Dumbbell, DumbbellLegend, fmtMin, fmtNum, fmtPct, IsiScale, SegmentBar, Sparkline, WeekDots } from "../viz";
-import { aidChanges, FlagList, METRICS, SnapshotFooter, SnapshotHeader, splitFor, WakeReasonLine } from "./parts";
+import { aidChanges, FlagList, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, splitFor, WakeReasonLine } from "./parts";
 
 function Panel({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
@@ -83,6 +83,7 @@ export function DashboardView({ s }: { s: Snapshot }) {
             <Panel title="Patient wants to discuss" icon={MessageCircle}>
               <p className="text-sm">“{s.discuss}”</p>
               <WakeReasonLine s={s} className="mt-2" />
+              <ProviderNotes s={s} className="mt-3" />
               {s.quotes[0] && <p className="mt-2 text-xs italic text-muted-foreground">Recent note: “{s.quotes[0].text}”</p>}
             </Panel>
           )}

@@ -108,7 +108,8 @@ export function SnapshotHeader({ s, children }: { s: Snapshot; children?: React.
           {s.patient.name}, {s.patient.age}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {formatDate(s.from)} – {formatDate(s.to)} · {c.logged}/{c.days} nights logged · visit {formatDateLong(s.patient.visitDate)}
+          {formatDate(s.from)} – {formatDate(s.to)} · {c.logged}/{c.days} nights logged
+          {c.partial > 0 && ` · ${c.partial} with missing answers`} · visit {formatDateLong(s.patient.visitDate)}
         </p>
       </div>
       {children}
@@ -165,6 +166,25 @@ export function FlagList({ s, compact = false }: { s: Snapshot; compact?: boolea
         ))}
       </ul>
       {clear}
+    </div>
+  );
+}
+
+/** Notes the patient marked as worth telling their provider (AI-extracted, patient-confirmed), newest first. */
+export function ProviderNotes({ s, limit = 3, className }: { s: Snapshot; limit?: number; className?: string }) {
+  const notes = s.providerNotes.slice(0, limit);
+  if (notes.length === 0) return null;
+  return (
+    <div className={cn("space-y-1", className)}>
+      <p className="text-xs text-muted-foreground">Patient flagged for you</p>
+      <ul className="space-y-1">
+        {notes.map((n, i) => (
+          <li key={`${n.date}-${i}`} className="flex gap-2 text-sm">
+            <span className="w-12 shrink-0 text-xs text-muted-foreground tabular-nums">{formatDate(n.date)}</span>
+            <span>{n.text}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

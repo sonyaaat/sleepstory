@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Snapshot } from "@/core/snapshot";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
 import { DeltaChip, fmtMin, fmtNum, IsiScale, Sparkline } from "../viz";
-import { aidChanges, FlagList, METRICS, SnapshotFooter, SnapshotHeader, WakeReasonLine } from "./parts";
+import { aidChanges, FlagList, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, WakeReasonLine } from "./parts";
 
 function Row({ q, children }: { q: string; children: React.ReactNode }) {
   return (
@@ -97,6 +97,7 @@ export function BriefView({ s }: { s: Snapshot }) {
               “{s.discuss}”<span className="block text-xs text-muted-foreground">Patient wants to discuss</span>
             </blockquote>
           )}
+          <ProviderNotes s={s} />
           {s.links.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 text-sm">
               <span className="text-xs text-muted-foreground">Worse nights after:</span>
