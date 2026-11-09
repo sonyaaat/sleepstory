@@ -8,17 +8,59 @@ import { simulatedWatch } from "@/adapters/wearables";
 import { forgivingStreak, weekMornings } from "@/core/checkin";
 import { consistencyIssues, isWatchMismatch, nightMetrics } from "@/core/metrics";
 import { DiaryEntrySchema, HABIT_KEYS, NightSchema, WOKE_REASON_KEYS } from "@/core/schema";
-import { addDays } from "@/core/time";
+import { OnboardingSchema, type OnboardingInput } from "@/core/onboarding";
+import { addDays, formatClock, parseClock } from "@/core/time";
 import { prisma } from "@/db/client";
 import { nightToRow } from "@/db/mappers";
 import { mainPatient, requireSession } from "@/db/queries";
+import type { UsualDay } from "@/db/demo-data";
 import { createSession, endSession, logEvent, nextMorning, resetSession } from "@/db/session";
 
 // ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-07) ----
 
-export async function startAsMaya() {
+/** Start screen: "See how sign-up works" goes through onboarding first; otherwise straight to Maya's morning. */
+export async function startAsMaya(formData: FormData) {
   await createSession("maya");
-  redirect("/patient");
+  redirect(formData.get("next") === "onboarding" ? "/patient/onboarding" : "/patient");
+}
+
+// ---- Onboarding (ONB-01 to ONB-05): Maya's answers are pre-filled; edits really change her data ----
+
+export async function saveOnboarding(input: OnboardingInput): Promise<{ ok: true } | { ok: false; error: string }> {
+  const s = await requireSession();
+  const parsed = OnboardingSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Some answers are missing." };
+  const d = parsed.data;
+  const main = await mainPatient(s.id);
+  if (!main) return { ok: false, error: "No patient in this demo session." };
+
+  const offset = (t: string, min: number) => formatClock(parseClock(t) + min);
+  const usualDay: UsualDay = {
+    ...(main.patient.usualDay ?? { sleepAids: "" }),
+    inBed: d.usual.inBed,
+    lightsOut: offset(d.usual.inBed, 15),
+    finalWake: offset(d.usual.outOfBed, -15),
+    outOfBed: d.usual.outOfBed,
+    caffeine: d.usual.caffeine,
+    alcohol: d.usual.alcohol,
+    exercise: d.usual.exercise,
+    reminderTime: d.reminderTime,
+  };
+  await prisma.patient.update({
+    where: { id: main.patient.id },
+    data: {
+      consentAt: new Date(),
+      visitDate: d.visitDate,
+      watchConnected: d.watchConnected,
+      usualDay: JSON.stringify(usualDay),
+      medications: JSON.stringify(d.medications),
+      isiBaseline: JSON.stringify(d.isi),
+      screening: JSON.stringify(d.screening),
+    },
+  });
+  await logEvent(s.id, "onboarding_done", { durationMs: d.durationMs, screensChanged: d.changed });
+  revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 export async function testerNextMorning() {

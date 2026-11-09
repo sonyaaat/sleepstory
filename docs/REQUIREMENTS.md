@@ -97,11 +97,12 @@ About 2–3 minutes. Each step feeds something used later.
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| ONB-01 | **Privacy in plain language** (what's collected, who sees it, that the patient approves every share, delete anytime) and a consent checkbox | P1 | Planned | Brenda, Rubric (privacy) |
-| ONB-02 | **Baseline ISI** (Insomnia Severity Index, 7 questions, 0–28) | P1 | Planned | CA (Ontario guideline: standard tools) |
-| ONB-03 | **Safety questions:** loud snoring or stopped breathing, restless legs, dozing while driving, PHQ-2 (2 mood questions) | P1 | Planned | CA |
-| ONB-04 | **Your usual day** (caffeine, alcohol, school-night bedtime, exercise) and current sleep aids | P1 | Planned | CA |
-| ONB-05 | **Your care:** provider (simulated), next visit date, reminder time, "Connect watch (demo)" | P1 | Planned | Notebook |
+| ONB-01 | **Privacy in plain language** (what's collected, who sees it, that the patient approves every share, delete anytime) and a consent checkbox | P1 | Done | Brenda, Rubric (privacy) |
+| ONB-02 | **Baseline ISI** (Insomnia Severity Index, 7 questions, 0–28) | P1 | Done | CA (Ontario guideline: standard tools) |
+| ONB-03 | **Safety questions:** loud snoring or stopped breathing, restless legs, dozing while driving, PHQ-2 (2 mood questions) | P1 | Done | CA |
+| ONB-04 | **Your usual day** (caffeine, alcohol, school-night bedtime, exercise) and current sleep aids | P1 | Done | CA |
+| ONB-05 | **Your care:** provider (simulated), next visit date, reminder time, "Connect watch (demo)" | P1 | Done | Notebook |
+| ONB-06 | **Demo onboarding for Maya:** "Try it as Maya, from sign-up" (or "Skip to Maya's morning"); 6 screens with progress dots, every answer pre-filled from Maya's profile and editable; edits are saved to her profile and show up in the check-in and Snapshot; then the normal Maya flow. "Onboarding" in the demo bar replays it. | P0 | Done | Sofiia (demo shows the full journey) |
 
 ## 5. Before the visit (VIS)
 
@@ -153,8 +154,8 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | SAFE-01 | ISI scoring and bands: 0–7 none, 8–14 subthreshold, 15–21 moderate, 22–28 severe | P0 | Done | CA |
 | SAFE-02 | PHQ-2 scoring; 3 or more is positive | P0 | Done | CA |
 | SAFE-03 | Red-flag rules: snoring/stopped breathing → consider sleep apnea assessment; restless legs → consider RLS assessment; dozing while driving → urgent safety discussion; PHQ-2 ≥ 3 → consider PHQ-9 | P0 | Done | CA |
-| SAFE-04 | The patient sees a calm message ("some answers are worth discussing with your provider"); the provider sees the flag | P1 | Planned | CA |
-| SAFE-05 | Dozing while driving = yes → an immediate on-screen safety message, not delayed until the visit | P1 | Planned | CA |
+| SAFE-04 | The patient sees a calm message ("some answers are worth discussing with your provider"); the provider sees the flag | P1 | Done | CA |
+| SAFE-05 | Dozing while driving = yes → an immediate on-screen safety message, not delayed until the visit | P1 | Done | CA |
 | SAFE-06 | PHQ-2 positive → full PHQ-9 next time. PHQ-9 item 9 (self-harm) → crisis resources shown immediately. | P2 | Planned | CA |
 | SAFE-07 | Snoring = yes → STOP-BANG apnea questionnaire | P2 | Planned | CA |
 | SAFE-08 | **Wording rule:** the app never diagnoses or recommends medication changes. It says "consider" or "worth discussing", never "detects". | P0 | Done | CA (Health Canada SaMD) |

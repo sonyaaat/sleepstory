@@ -26,9 +26,12 @@ export default async function StartPage() {
       </div>
 
       <div className="mt-10 space-y-3">
-        <form action={startAsMaya}>
-          <Button variant="brand" size="xl">
-            <Sparkles /> Try it as Maya
+        <form action={startAsMaya} className="space-y-3">
+          <Button variant="brand" size="xl" name="next" value="onboarding">
+            <Sparkles /> Try it as Maya, from sign-up
+          </Button>
+          <Button variant="outline" size="xl" name="next" value="morning" className="border-2">
+            Skip to Maya&apos;s morning
           </Button>
         </form>
         <p className="px-2 text-center text-sm text-muted-foreground">

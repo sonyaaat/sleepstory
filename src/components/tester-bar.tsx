@@ -1,4 +1,5 @@
-import { FlaskConical, RotateCcw, Sunrise, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { ClipboardList, FlaskConical, RotateCcw, Sunrise, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { testerNewTester, testerNextMorning, testerReset } from "@/app/actions";
 import { formatDate } from "@/core/time";
@@ -19,6 +20,11 @@ export function TesterBar({ today }: { today: string }) {
         <TesterSwitch />
         <span className="hidden text-xs text-muted-foreground md:inline">Today: {formatDate(today)}</span>
         <div className="ml-auto flex items-center gap-0.5">
+          <Button asChild size="sm" variant="ghost" aria-label="Replay onboarding" title="Go through Maya's sign-up again">
+            <Link href="/patient/onboarding">
+              <ClipboardList /> <span className="hidden lg:inline">Onboarding</span>
+            </Link>
+          </Button>
           <form action={testerNextMorning}>
             <Button size="sm" variant="ghost" aria-label="Next morning" title="Move the demo date to tomorrow">
               <Sunrise /> <span className="hidden sm:inline">Next morning</span>
