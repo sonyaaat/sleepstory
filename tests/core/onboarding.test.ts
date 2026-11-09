@@ -6,7 +6,7 @@ const valid = {
   visitDate: "2026-11-13",
   reminderTime: "07:30",
   watchConnected: true,
-  usual: { inBed: "00:15", outOfBed: "08:15", caffeine: "Sometimes after 2 pm", alcohol: "Weekends only", exercise: "1–2 times a week" },
+  usual: { inBed: "00:15", outOfBed: "08:15", caffeine: "Sometimes after 2 pm", alcohol: "Weekends only", exercise: "1–2 times a week", other: ["Studies in bed"] },
   medications: [{ name: "Melatonin", kind: "melatonin", startedBy: "self", plan: null }],
   isi: [3, 3, 2, 3, 3, 3, 3],
   screening: { snoringOrApnea: false, restlessLegs: false, drowsyDriving: true, phq2: [2, 1] },
@@ -28,5 +28,8 @@ describe("onboarding", () => {
   });
   it("writes the usual-day line shown on the habit screen", () => {
     expect(usualDayLine(valid.usual)).toBe("caffeine sometimes after 2 pm · alcohol weekends only · exercise 1–2 times a week.");
+    expect(usualDayLine({ ...valid.usual, otherHabits: ["Studies in bed"] })).toBe(
+      "caffeine sometimes after 2 pm · alcohol weekends only · exercise 1–2 times a week · studies in bed.",
+    );
   });
 });

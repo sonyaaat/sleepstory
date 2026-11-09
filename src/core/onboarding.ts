@@ -22,6 +22,8 @@ export const OnboardingSchema = z.object({
     caffeine: z.enum(CAFFEINE_OPTIONS),
     alcohol: z.enum(ALCOHOL_OPTIONS),
     exercise: z.enum(EXERCISE_OPTIONS),
+    /** Any other habits the patient wants to mention, in their own words. */
+    other: z.array(z.string().trim().min(1).max(40)).max(8),
   }),
   medications: z.array(MedicationSchema).max(8),
   isi: IsiAnswersSchema,
@@ -33,6 +35,7 @@ export const OnboardingSchema = z.object({
 export type OnboardingInput = z.infer<typeof OnboardingSchema>;
 
 /** The line shown on the habit screen: "Your usual day: …". */
-export function usualDayLine(u: { caffeine: string; alcohol: string; exercise: string }): string {
-  return `caffeine ${u.caffeine.toLowerCase()} · alcohol ${u.alcohol.toLowerCase()} · exercise ${u.exercise.toLowerCase()}.`;
+export function usualDayLine(u: { caffeine: string; alcohol: string; exercise: string; otherHabits?: string[] }): string {
+  const other = u.otherHabits?.length ? ` · ${u.otherHabits.map((h) => h.toLowerCase()).join(", ")}` : "";
+  return `caffeine ${u.caffeine.toLowerCase()} · alcohol ${u.alcohol.toLowerCase()} · exercise ${u.exercise.toLowerCase()}${other}.`;
 }

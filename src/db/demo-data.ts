@@ -38,6 +38,8 @@ export interface UsualDay {
   sleepAids: string;
   /** Morning reminder time (ONB-05). */
   reminderTime?: string;
+  /** Other habits in the patient's own words (ONB-04). */
+  otherHabits?: string[];
 }
 
 export const PROVIDER_NAME = "Dr. Alex Chen, NP"; // simulated provider
@@ -278,6 +280,7 @@ export const MAYA_USUAL_DAY: UsualDay = {
   exercise: "1–2 times a week",
   sleepAids: "Melatonin sometimes",
   reminderTime: "07:30",
+  otherHabits: ["Studies in bed", "Phone before sleep"],
 };
 
 export function mayaPatient(today: string): DemoPatient {

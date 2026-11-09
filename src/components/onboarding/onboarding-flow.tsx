@@ -207,6 +207,7 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
             <Chips label="Coffee, tea or energy drinks" options={CAFFEINE_OPTIONS} value={usual.caffeine} onChange={(v) => setUsual({ ...usual, caffeine: v })} />
             <Chips label="Alcohol" options={ALCOHOL_OPTIONS} value={usual.alcohol} onChange={(v) => setUsual({ ...usual, alcohol: v })} />
             <Chips label="Exercise" options={EXERCISE_OPTIONS} value={usual.exercise} onChange={(v) => setUsual({ ...usual, exercise: v })} />
+            <OtherHabits value={usual.other} onChange={(other) => setUsual({ ...usual, other })} />
           </SoftCard>
         </>
       )}
@@ -302,6 +303,57 @@ function Chips<T extends string>({ label, options, value, onChange }: { label: s
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
+    </fieldset>
+  );
+}
+
+/** Any habit in the patient's own words: removable pills plus an add box. */
+function OtherHabits({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const [draft, setDraft] = useState("");
+  const add = () => {
+    const h = draft.trim();
+    if (h && !value.some((x) => x.toLowerCase() === h.toLowerCase())) onChange([...value, h.slice(0, 40)].slice(0, 8));
+    setDraft("");
+  };
+  return (
+    <fieldset>
+      <legend className="mb-2 text-sm text-muted-foreground">Other habits</legend>
+      {value.length > 0 && (
+        <ul className="mb-3 flex flex-wrap gap-2">
+          {value.map((h) => (
+            <li key={h} className="flex h-10 items-center gap-1 rounded-full border-2 border-brand bg-brand pr-1 pl-4 text-sm font-semibold text-brand-foreground">
+              {h}
+              <button
+                type="button"
+                aria-label={`Remove ${h}`}
+                onClick={() => onChange(value.filter((x) => x !== h))}
+                className="flex size-7 items-center justify-center rounded-full hover:bg-brand-foreground/10"
+              >
+                <X className="size-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex items-center gap-2">
+        <Input
+          aria-label="Add another habit"
+          placeholder="e.g. late-night gaming, shift work"
+          maxLength={40}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
+            }
+          }}
+          className="h-11 flex-1 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2"
+        />
+        <Button variant="outline" className="h-11 rounded-full px-4" disabled={!draft.trim()} onClick={add}>
+          <Plus /> Add
+        </Button>
+      </div>
     </fieldset>
   );
 }

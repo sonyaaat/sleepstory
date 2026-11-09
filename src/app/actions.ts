@@ -44,6 +44,7 @@ export async function saveOnboarding(input: OnboardingInput): Promise<{ ok: true
     caffeine: d.usual.caffeine,
     alcohol: d.usual.alcohol,
     exercise: d.usual.exercise,
+    otherHabits: d.usual.other,
     reminderTime: d.reminderTime,
   };
   await prisma.patient.update({

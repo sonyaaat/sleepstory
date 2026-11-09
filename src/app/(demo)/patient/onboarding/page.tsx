@@ -27,6 +27,7 @@ export default async function OnboardingPage() {
           caffeine: pick(CAFFEINE_OPTIONS, u?.caffeine, "Before 2 pm only"),
           alcohol: pick(ALCOHOL_OPTIONS, u?.alcohol, "Rarely"),
           exercise: pick(EXERCISE_OPTIONS, u?.exercise, "1–2 times a week"),
+          other: u?.otherHabits ?? [],
         },
         medications: p.medications,
         isi: p.isiBaseline ?? [0, 0, 0, 0, 0, 0, 0],
