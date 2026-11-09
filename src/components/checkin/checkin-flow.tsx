@@ -100,6 +100,11 @@ export function CheckinFlow({
   const storyRef = useRef("");
   storyRef.current = story;
 
+  // Each step is a new screen: start it at the top.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [step]);
+
   useEffect(() => {
     startedAt.current = Date.now();
     logClientEvent("checkin_started", { mode: initialMode }).catch(() => {});

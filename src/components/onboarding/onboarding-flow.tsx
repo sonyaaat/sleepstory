@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { AlertTriangle, Check, Loader2, Lock, Pill, Plus, Sparkles, Watch, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,11 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
   const [screening, setScreening] = useState<Screening>(initial.screening);
   const [saving, startSaving] = useTransition();
   const startedAt = useRef(Date.now());
+
+  // Each step is a new screen: start it at the top.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [step]);
 
   const changedScreens = [
     JSON.stringify(care) !== JSON.stringify({ visitDate: initial.visitDate, reminderTime: initial.reminderTime, watchConnected: initial.watchConnected }),
