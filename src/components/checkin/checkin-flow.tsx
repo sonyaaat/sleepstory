@@ -1031,7 +1031,15 @@ function VoiceScreen({
 }
 
 /** A gentle reminder of what to cover. Deliberately general, so it fits any night. */
-const STORY_HINTS = ["When you went to bed", "How long to fall asleep", "Waking up in the night", "When you got up", "How you feel"];
+const STORY_HINTS = [
+  "When you went to bed",
+  "How long to fall asleep",
+  "Waking up in the night",
+  "When you got up",
+  "How you feel this morning",
+  "Your day yesterday: coffee, stress, screens, exercise",
+  "Any sleep aid or pills",
+];
 
 function StoryHints({ className }: { className?: string }) {
   return (
