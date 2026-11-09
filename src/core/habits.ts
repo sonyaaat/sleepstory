@@ -5,6 +5,8 @@ import type { HabitKey, Night } from "./schema";
 import { HABITS } from "./schema";
 import { median, nightMetrics } from "./metrics";
 
+const se = (n: Night) => nightMetrics(n).sePct;
+
 /** Minimum number of nights on each side before a comparison is shown. */
 export const MIN_NIGHTS_EACH_SIDE = 5;
 /** Ignore differences in median sleep efficiency smaller than this (percentage points). */
@@ -26,11 +28,13 @@ export interface HabitLink {
 export function habitComparisons(nights: Night[]): HabitLink[] {
   const out: HabitLink[] = [];
   for (const h of HABITS) {
-    const withH = nights.filter((n) => n.habits.includes(h.key));
-    const without = nights.filter((n) => !n.habits.includes(h.key));
+    // Only nights where sleep efficiency could be computed
+    const known = nights.filter((n) => se(n) != null);
+    const withH = known.filter((n) => n.habits.includes(h.key));
+    const without = known.filter((n) => !n.habits.includes(h.key));
     if (withH.length < MIN_NIGHTS_EACH_SIDE || without.length < MIN_NIGHTS_EACH_SIDE) continue;
-    const seWith = median(withH.map((n) => nightMetrics(n).sePct))!;
-    const seWithout = median(without.map((n) => nightMetrics(n).sePct))!;
+    const seWith = median(withH.map((n) => se(n)!))!;
+    const seWithout = median(without.map((n) => se(n)!))!;
     out.push({
       habit: h.key,
       label: h.short,
@@ -38,8 +42,8 @@ export function habitComparisons(nights: Night[]): HabitLink[] {
       nightsWithout: without.length,
       seWith,
       seWithout,
-      solWith: median(withH.map((n) => n.solMin))!,
-      solWithout: median(without.map((n) => n.solMin))!,
+      solWith: median(withH.flatMap((n) => (n.solMin == null ? [] : [n.solMin]))) ?? 0,
+      solWithout: median(without.flatMap((n) => (n.solMin == null ? [] : [n.solMin]))) ?? 0,
       seDrop: seWithout - seWith,
     });
   }

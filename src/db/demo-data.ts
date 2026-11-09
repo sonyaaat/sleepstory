@@ -90,6 +90,13 @@ const MAYA_DAY_NOTES: Record<number, string> = {
   52: "Closing shift at the café again.",
 };
 
+// Nights where Maya answered "I don't know" to one question. Keyed by night index.
+const MAYA_UNKNOWN: Record<number, "inBed" | "wasoMin" | "awakenings"> = {
+  13: "wasoMin",
+  29: "inBed",
+  44: "awakenings",
+};
+
 interface NightPlan {
   baseSol: number;
   baseWaso: number;
@@ -171,7 +178,8 @@ export function mayaNights(today: string, seed = 21): Night[] {
       habits,
       sleepAid,
     };
-    const m = nightMetrics(base);
+    const metrics = nightMetrics(base);
+    const m = { sePct: metrics.sePct!, tstMin: metrics.tstMin! }; // generated nights are complete
     const quality = m.sePct < 70 ? 1 : m.sePct < 80 ? 2 : m.sePct < 88 ? 3 : 4;
 
     // Watch counts lying still as sleep: big overestimate on bad nights.
@@ -192,9 +200,13 @@ export function mayaNights(today: string, seed = 21): Night[] {
       ({ text: note, quote } = MAYA_NOTES[noteIdx++]);
     }
 
+    // A few honest "I don't know" answers, like real diaries have (CHK-16).
+    const unknown = MAYA_UNKNOWN[i];
+
     nights.push(
       NightSchema.parse({
         ...base,
+        ...(unknown ? { [unknown]: null } : {}),
         quality,
         wokeReasons: [...new Set(wokeReasons)],
         note,

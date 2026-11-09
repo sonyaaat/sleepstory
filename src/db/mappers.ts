@@ -8,11 +8,21 @@ import type { DemoPatient, UsualDay } from "./demo-data";
 const json = <T,>(s: string | null): T | null => (s ? (JSON.parse(s) as T) : null);
 
 export function nightFromRow(row: NightRow): Night {
-  return NightSchema.parse({ ...row, habits: JSON.parse(row.habits), wokeReasons: JSON.parse(row.wokeReasons) });
+  return NightSchema.parse({
+    ...row,
+    habits: JSON.parse(row.habits),
+    wokeReasons: JSON.parse(row.wokeReasons),
+    providerNotes: JSON.parse(row.providerNotes),
+  });
 }
 
 export function nightToRow(n: Night): Omit<Prisma.NightUncheckedCreateInput, "patientId"> {
-  return { ...n, habits: JSON.stringify(n.habits), wokeReasons: JSON.stringify(n.wokeReasons) };
+  return {
+    ...n,
+    habits: JSON.stringify(n.habits),
+    wokeReasons: JSON.stringify(n.wokeReasons),
+    providerNotes: JSON.stringify(n.providerNotes),
+  };
 }
 
 export interface PatientView {

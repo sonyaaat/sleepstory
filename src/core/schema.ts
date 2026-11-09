@@ -55,6 +55,22 @@ export const DiaryFieldsSchema = z.object({
 export type DiaryFields = z.infer<typeof DiaryFieldsSchema>;
 export type DiaryFieldKey = keyof DiaryFields;
 
+/**
+ * What the patient actually saves. Any answer except sleep quality can be "I don't know"
+ * (null): an honest gap is better than a guess. Metrics skip what they can't compute.
+ */
+export const DiaryEntrySchema = DiaryFieldsSchema.extend({
+  inBed: clock.nullable(),
+  lightsOut: clock.nullable(),
+  solMin: DiaryFieldsSchema.shape.solMin.nullable(),
+  awakenings: DiaryFieldsSchema.shape.awakenings.nullable(),
+  wasoMin: DiaryFieldsSchema.shape.wasoMin.nullable(),
+  finalWake: clock.nullable(),
+  outOfBed: clock.nullable(),
+});
+export type DiaryEntry = z.infer<typeof DiaryEntrySchema>;
+export const UNKNOWABLE: DiaryFieldKey[] = ["inBed", "lightsOut", "solMin", "awakenings", "wasoMin", "finalWake", "outOfBed"];
+
 export const FIELD_META: Record<DiaryFieldKey, { label: string; kind: "clock" | "minutes" | "count" | "quality" }> = {
   inBed: { label: "Got into bed", kind: "clock" },
   lightsOut: { label: "Started trying to sleep", kind: "clock" },
@@ -79,7 +95,7 @@ export const FIELD_ORDER: DiaryFieldKey[] = [
 export const QUALITY_LABELS = ["Very poor", "Poor", "Fair", "Good", "Very good"];
 
 /** A full night as stored and as used by the metrics engine. */
-export const NightSchema = DiaryFieldsSchema.extend({
+export const NightSchema = DiaryEntrySchema.extend({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // evening date of the night
   mode: z.enum(["full", "rough"]).default("full"),
   habits: z.array(z.enum(HABIT_KEYS)).default([]),
@@ -89,6 +105,7 @@ export const NightSchema = DiaryFieldsSchema.extend({
   note: z.string().max(2000).nullable().default(null), // patient's own words (verbatim)
   quote: z.string().max(300).nullable().default(null), // verbatim excerpt, checked against note
   dayNote: z.string().max(500).nullable().default(null), // "anything else different?" in the patient's words (HAB-09)
+  providerNotes: z.array(z.string().trim().min(1).max(200)).max(8).default([]), // "worth telling your provider" (CHK-15)
   lateEntry: z.boolean().default(false),
   watchTstMin: z.number().int().min(0).max(1000).nullable().default(null),
   watchAnswer: z.enum(["lying_awake", "took_off", "not_sure"]).nullable().default(null),

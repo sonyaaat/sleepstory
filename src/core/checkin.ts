@@ -1,6 +1,6 @@
 // Rules used during the morning check-in.
 
-import type { DiaryFields, Night } from "./schema";
+import type { DiaryEntry, DiaryFields, Night } from "./schema";
 import { addDays, formatClock, nightMinutes } from "./time";
 
 // ---- Forgiving streak (CHK-01, CHK-08): "5 of the last 7 days", never resets to zero ----
@@ -41,9 +41,9 @@ export type FollowUp = "woke_reason" | "kept_awake" | null;
 
 export const SLOW_ONSET_MIN = 30;
 
-export function followUpQuestion(f: Pick<DiaryFields, "awakenings" | "solMin">): FollowUp {
-  if (f.awakenings > 0) return "woke_reason";
-  if (f.solMin >= SLOW_ONSET_MIN) return "kept_awake";
+export function followUpQuestion(f: Pick<DiaryEntry, "awakenings" | "solMin">): FollowUp {
+  if (f.awakenings != null && f.awakenings > 0) return "woke_reason";
+  if (f.solMin != null && f.solMin >= SLOW_ONSET_MIN) return "kept_awake";
   return null;
 }
 
@@ -80,7 +80,10 @@ export function fillRoughNight(a: RoughAnswers, usual: UsualTimes) {
  * 15 minutes, and kept in order (in bed <= lights out, final wake <= out of bed).
  */
 export function usualTimesFrom(nights: Night[], fallback: UsualTimes): UsualTimes {
-  const full = nights.filter((n) => n.mode === "full");
+  const full = nights.filter(
+    (n): n is Night & { inBed: string; lightsOut: string; finalWake: string; outOfBed: string } =>
+      n.mode === "full" && n.inBed != null && n.lightsOut != null && n.finalWake != null && n.outOfBed != null,
+  );
   if (!full.length) return fallback;
   const med = (vals: number[]) => {
     const s = [...vals].sort((a, b) => a - b);

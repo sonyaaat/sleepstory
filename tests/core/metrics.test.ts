@@ -91,7 +91,7 @@ describe("periods", () => {
 
   it("reports completeness and late entries", () => {
     const some = [night({ date: "2026-11-01" }), night({ date: "2026-11-03", lateEntry: true })];
-    expect(completeness(some, "2026-11-01", "2026-11-07")).toEqual({ days: 7, logged: 2, late: 1 });
+    expect(completeness(some, "2026-11-01", "2026-11-07")).toEqual({ days: 7, logged: 2, late: 1, partial: 0 });
   });
 
   it("builds a 7-night rolling average", () => {
@@ -118,5 +118,30 @@ describe("watch comparison", () => {
     expect(w.diffMed).toBe(40);
     expect(w.mismatched).toBe(1);
     expect(w.answers.lying_awake).toBe(1);
+  });
+});
+
+describe("\"I don't know\" answers", () => {
+  it("leaves out only the metrics that need the unknown answer", () => {
+    const m = nightMetrics(night({ inBed: null }));
+    expect(m.tibMin).toBeNull();
+    expect(m.sePct).toBeNull();
+    expect(m.tstMin).toBe(430); // total sleep doesn't need bedtime
+    const w = nightMetrics(night({ wasoMin: null }));
+    expect(w.tstMin).toBeNull();
+    expect(w.tibMin).toBe(480);
+  });
+  it("skips unknowns in consistency checks", () => {
+    expect(consistencyIssues(night({ lightsOut: null, finalWake: null }))).toEqual([]);
+  });
+  it("computes medians from the nights that have the answer, and counts partial nights", () => {
+    const list = [night({ date: "2026-11-01", solMin: null }), night({ date: "2026-11-02", solMin: 40 })];
+    const s = periodStats(list, "2026-11-01", "2026-11-07");
+    expect(s.solMed).toBe(40);
+    expect(s.nightsLogged).toBe(2);
+    expect(completeness(list, "2026-11-01", "2026-11-07").partial).toBe(1);
+  });
+  it("never flags a watch mismatch when diary sleep is unknown", () => {
+    expect(isWatchMismatch(night({ wasoMin: null, watchTstMin: 600 }))).toBe(false);
   });
 });

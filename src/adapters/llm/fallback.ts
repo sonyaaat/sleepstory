@@ -76,6 +76,9 @@ function findClock(story: string, triggers: string[], role: ClockRole): { value:
   return null;
 }
 
+const NOTE_PATTERN =
+  /pain|ache|migraine|sick|fever|flu|cough|nause|vomit|medic|pill|prescri|dose|doctor|pharmac|panic|nightmare|snor|stopped breathing|choking|legs|cramp|period|heart|chest|dizz|breath|depress|hopeless|cry|alcohol|weed|cannabis/i;
+
 export function fallbackRaw(story: string) {
   const s = story.replace(/\s+/g, " ");
   const fields: Record<string, { value: string | number; confidence: "high" | "medium" | "low"; assumed: boolean }> = {};
@@ -149,7 +152,15 @@ export function fallbackRaw(story: string) {
   const sentences = story.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter((x) => x.length >= 15 && x.length <= 160);
   const feeling = sentences.find((x) => /felt|feel|mind|thinking|worr|wired|exhausted|tired|lying|anxious|frustrat|couldn't/i.test(x));
 
-  return { fields, habits, sleepAid, ambiguity, quote: feeling ?? null };
+  // Notes for the provider: sentences about health, medicines or big events, kept word for word.
+  const notes = story
+    .split(/(?<=[.!?])\s+/)
+    .map((x) => x.trim())
+    .filter((x) => x.length >= 8 && x.length <= 200 && NOTE_PATTERN.test(x))
+    .slice(0, 3)
+    .map((x) => ({ fact: x, evidence: x }));
+
+  return { fields, habits, sleepAid, ambiguity, quote: feeling ?? null, notes };
 }
 
 export function fallbackExtract(story: string, reason: ExtractionResult["fallbackReason"], ms = 0): ExtractionResult {

@@ -21,7 +21,8 @@ Return ONLY a JSON object with this shape:
   "habits": [keys from: ${HABITS.map((h) => `"${h.key}" (${h.label})`).join(", ")}],
   "sleepAid": one of ${SLEEP_AIDS.map((a) => `"${a.key}"`).join(", ")} or null,
   "ambiguity": null or {"field": field name, "question": short question, "options": [{"label": text, "value": "HH:MM" or minutes}, ...2-3 options]},
-  "quote": null or ONE short phrase copied EXACTLY, word for word, from the patient's text that shows how the night felt
+  "quote": null or ONE short phrase copied EXACTLY, word for word, from the patient's text that shows how the night felt,
+  "notes": up to 3 items [{"fact": "a short note in the patient's own voice, max 8 words", "evidence": "the exact words from the patient's text that say it"}]
 }
 Rules:
 - Times are 24-hour "HH:MM". Bedtimes without am/pm are evening/night (12:30 -> "00:30", 11 -> "23:00"); wake times are morning.
@@ -30,6 +31,7 @@ Rules:
 - assumed: true when a value is derived from another one (e.g. lightsOut = inBed if only bedtime is given; outOfBed = finalWake if only one wake time is given).
 - If a phrase can mean two things (e.g. "woke up around 2": 2 am or 2 hours?), set the field to null and fill "ambiguity".
 - Habits refer to the day before the night. Late caffeine means caffeine after 2 pm or an energy drink.
+- "notes" are things a primary care provider would want to know that are NOT already covered by the diary fields, the habit list or the sleep aid: for example symptoms (pain, headache, nightmares, snoring), a new or changed medicine, illness, mood, or a big life event. Use [] if there are none. Write "fact" as the patient would jot it down, first person or a short phrase, never "Patient reports…" (e.g. "Bad headaches again", "Started a new allergy pill"). "evidence" must be copied word for word from the text. Never invent facts.
 - Never add advice, diagnoses or commentary.`;
 
 export function gatewayConfigured(): boolean {

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, Bot, CalendarDays, Check, Keyboard, Loader2, Mic, Pencil, Square, Watch } from "lucide-react";
+import { AlertTriangle, Bot, CalendarDays, Check, HelpCircle, Keyboard, Loader2, Mic, Pencil, Plus, Square, Stethoscope, Watch, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -18,15 +19,16 @@ import { fillRoughNight, followUpQuestion, type UsualTimes } from "@/core/checki
 import { detectHabits } from "@/core/habit-detect";
 import { consistencyIssues } from "@/core/metrics";
 import {
-  DiaryFieldsSchema,
+  DiaryEntrySchema,
   FIELD_META,
   FIELD_ORDER,
   HABITS,
   QUALITY_LABELS,
   SLEEP_AIDS,
   WOKE_REASONS,
+  UNKNOWABLE,
+  type DiaryEntry,
   type DiaryFieldKey,
-  type DiaryFields,
   type HabitKey,
   type SleepAid,
   type WokeReason,
@@ -72,6 +74,11 @@ export function CheckinFlow({
   const [tookAid, setTookAid] = useState(false);
   const [sleepAid, setSleepAid] = useState<SleepAid | null>(null);
   const [editing, setEditing] = useState<DiaryFieldKey | null>(null);
+  // CHK-16: answers the patient doesn't know are saved as "unknown", never guessed.
+  const [unknown, setUnknown] = useState<Set<DiaryFieldKey>>(new Set());
+  // CHK-15: facts worth telling the provider (from the story, or added by the patient).
+  const [notes, setNotes] = useState<{ text: string; fromStory: boolean }[]>([]);
+  const [noteDraft, setNoteDraft] = useState("");
   const [result, setResult] = useState<Saved | null>(null);
   const [watchAnswered, setWatchAnswered] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -88,6 +95,14 @@ export function CheckinFlow({
   const speech = useSpeech((text) => setStory((s) => (s ? `${s} ${text}` : text)));
   const noteSpeech = useSpeech((text) => changeNote(dayNote ? `${dayNote} ${text}` : text));
   const wakeSpeech = useSpeech((text) => setWakeNote((s) => (s ? `${s} ${text}` : text)));
+  const notesSpeech = useSpeech((text) => setNoteDraft((s) => (s ? `${s} ${text}` : text)));
+
+  function addNote() {
+    const text = noteDraft.trim();
+    if (!text) return;
+    setNotes((n) => [...n, { text: text.slice(0, 200), fromStory: false }].slice(0, 8));
+    setNoteDraft("");
+  }
 
   // ---- Story -> extraction ----
   async function readStory(text = storyRef.current) {
@@ -113,6 +128,8 @@ export function CheckinFlow({
       }
       setValues(v);
       setAssumed(a);
+      setUnknown(new Set());
+      setNotes(r.notes.map((n) => ({ text: n.fact, fromStory: true })));
       setHabits(r.habits);
       setFromStory(r.habits);
       if (r.sleepAid) {
@@ -135,10 +152,13 @@ export function CheckinFlow({
   }
 
   // ---- Review helpers ----
-  const parsed = DiaryFieldsSchema.safeParse(values);
+  const entryValues = Object.fromEntries(
+    FIELD_ORDER.map((k) => [k, unknown.has(k) ? null : values[k] === "" ? undefined : values[k]]),
+  );
+  const parsed = DiaryEntrySchema.safeParse(entryValues);
   const complete = parsed.success;
   const issues = complete ? consistencyIssues(parsed.data) : [];
-  const missing = FIELD_ORDER.filter((k) => values[k] === undefined || values[k] === "");
+  const missing = FIELD_ORDER.filter((k) => !unknown.has(k) && (values[k] === undefined || values[k] === ""));
 
   const corrected = useMemo(() => {
     if (!extraction) return 0;
@@ -147,6 +167,12 @@ export function CheckinFlow({
 
   function setField(k: DiaryFieldKey, v: FieldValue) {
     setValues((prev) => ({ ...prev, [k]: v }));
+    setUnknown((prev) => {
+      if (!prev.has(k)) return prev;
+      const next = new Set(prev);
+      next.delete(k);
+      return next;
+    });
     setAssumed((prev) => {
       const next = new Set(prev);
       next.delete(k);
@@ -198,7 +224,7 @@ export function CheckinFlow({
 
   // ---- Save ----
   function save(normalDay = false) {
-    const fields = DiaryFieldsSchema.parse(values) as DiaryFields;
+    const fields = DiaryEntrySchema.parse(entryValues) as DiaryEntry;
     startSaving(async () => {
       const r = await saveCheckin({
         fields,
@@ -209,6 +235,7 @@ export function CheckinFlow({
         wakeNote: wakeNote.trim() || null,
         story: story.trim() || null,
         dayNote: dayNote.trim() || null,
+        providerNotes: notes.map((n) => n.text.trim()).filter(Boolean),
         quote: extraction?.quote ?? null,
         aiMode: extraction ? extraction.mode : "manual",
         aiFieldsCorrected: corrected,
@@ -387,7 +414,8 @@ export function CheckinFlow({
           {FIELD_ORDER.filter((k) => k !== "quality").map((k) => {
             const f = extraction.fields[k];
             const v = values[k];
-            const isMissing = v === undefined || v === "";
+            const isUnknown = unknown.has(k);
+            const isMissing = !isUnknown && (v === undefined || v === "");
             const unchanged = f && f.value === v;
             const check = !isMissing && unchanged && f.confidence !== "high" && !assumed.has(k);
             const approx = unchanged && f.confidence === "medium";
@@ -401,7 +429,11 @@ export function CheckinFlow({
                 >
                   <span className="text-[15px] text-muted-foreground">{FIELD_META[k].label}</span>
                   <span className="ml-auto flex flex-col items-end">
-                    {isMissing ? (
+                    {isUnknown ? (
+                      <span className="flex items-center gap-1.5 font-semibold whitespace-nowrap text-muted-foreground">
+                        <HelpCircle className="size-4" /> Don&apos;t know
+                      </span>
+                    ) : isMissing ? (
                       <span className="font-semibold text-warn-foreground">Tap to add</span>
                     ) : (
                       <span className="flex items-center gap-2 text-right font-semibold">
@@ -409,7 +441,7 @@ export function CheckinFlow({
                         {formatValue(k, v!, approx)}
                       </span>
                     )}
-                    {!isMissing && assumed.has(k) && <span className="text-xs text-muted-foreground">assumed</span>}
+                    {!isMissing && !isUnknown && assumed.has(k) && <span className="text-xs text-muted-foreground">assumed</span>}
                   </span>
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted-foreground transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
                     <Pencil className="size-3.5" />
@@ -436,7 +468,77 @@ export function CheckinFlow({
             <span className="size-2 rounded-full bg-brand" /> Please check
           </span>
           <span>assumed = not said, worked out from your other answers</span>
+          <span>Not sure about something? Tap it and choose &ldquo;I don&apos;t know&rdquo;.</span>
         </p>
+
+        <section className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border/60" aria-labelledby="provider-notes">
+          <h2 id="provider-notes" className="flex items-center gap-2 font-semibold">
+            <Stethoscope className="size-5 text-primary" /> Worth telling your provider
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {notes.some((n) => n.fromStory)
+              ? "I picked these out of your story. Edit or remove anything, or add your own."
+              : "Anything your provider should know: a symptom, a new medicine, something on your mind."}
+          </p>
+          {notes.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {notes.map((n, i) => (
+                <li key={i} className="flex items-start gap-2 rounded-2xl bg-surface-2 py-1 pr-1 pl-3">
+                  <Textarea
+                    aria-label={`Note ${i + 1}`}
+                    rows={1}
+                    value={n.text}
+                    maxLength={200}
+                    onChange={(e) => setNotes((all) => all.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
+                    className="field-sizing-content min-h-10 flex-1 resize-none border-0 bg-transparent px-0 py-2 text-[15px] leading-snug shadow-none focus-visible:ring-0 dark:bg-transparent"
+                  />
+                  {n.fromStory && <span className="hidden text-xs text-muted-foreground sm:inline">from your story</span>}
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    className="mt-1.5"
+                    aria-label="Remove this note"
+                    onClick={() => setNotes((all) => all.filter((_, j) => j !== i))}
+                  >
+                    <X />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="mt-3 flex items-center gap-2">
+            {notesSpeech.supported && (
+              <button
+                type="button"
+                onClick={notesSpeech.toggle}
+                aria-label={notesSpeech.listening ? "Stop recording" : "Say a note"}
+                className={cn(
+                  "flex size-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95",
+                  notesSpeech.listening ? "animate-pulse bg-[#ff8a7a] text-white" : "bg-brand text-brand-foreground",
+                )}
+              >
+                {notesSpeech.listening ? <Square className="size-4 fill-current" /> : <Mic className="size-5" />}
+              </button>
+            )}
+            <Input
+              aria-label="Add a note for your provider"
+              placeholder="Add a note…"
+              maxLength={200}
+              value={notesSpeech.interim ? `${noteDraft} ${notesSpeech.interim}` : noteDraft}
+              onChange={(e) => setNoteDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addNote();
+                }
+              }}
+              className="h-11 flex-1 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2"
+            />
+            <Button size="icon-lg" variant="outline" className="size-11 rounded-full" aria-label="Add note" disabled={!noteDraft.trim()} onClick={addNote}>
+              <Plus />
+            </Button>
+          </div>
+        </section>
 
         {issues.length > 0 && (
           <div className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
@@ -456,7 +558,7 @@ export function CheckinFlow({
             disabled={!complete || issues.length > 0}
             onClick={() => setStep(followUp ? "followup" : "habits")}
           >
-            {missing.length ? `Add ${missing.length} more to continue` : "Yes, that’s right"}
+            {missing.length ? `Answer ${missing.length} more to continue` : "Yes, that’s right"}
           </Button>
         </div>
 
@@ -468,10 +570,25 @@ export function CheckinFlow({
                   <SheetTitle className="font-display text-2xl font-normal">{FIELD_META[editing].label}</SheetTitle>
                   <SheetDescription>Change it to what really happened.</SheetDescription>
                 </SheetHeader>
-                <FieldInput name={editing} value={values[editing]} onChange={(v) => setField(editing, v)} />
+                <FieldInput name={editing} value={unknown.has(editing) ? undefined : values[editing]} onChange={(v) => setField(editing, v)} />
                 <Button variant="brand" size="xl" className="mt-6" onClick={() => setEditing(null)}>
                   Done
                 </Button>
+                {UNKNOWABLE.includes(editing) && (
+                  <Button
+                    variant="ghost"
+                    size="xl"
+                    className="mt-1"
+                    onClick={() => {
+                      const k = editing;
+                      setUnknown((prev) => new Set(prev).add(k));
+                      setValues((prev) => ({ ...prev, [k]: undefined }));
+                      setEditing(null);
+                    }}
+                  >
+                    <HelpCircle /> I don&apos;t know
+                  </Button>
+                )}
               </>
             )}
           </SheetContent>
@@ -482,7 +599,7 @@ export function CheckinFlow({
 
   if (step === "followup" && parsed.success) {
     const woke = followUp === "woke_reason";
-    const times = parsed.data.awakenings;
+    const times = parsed.data.awakenings ?? 0;
     return (
       <PatientShell>
         <div className="flex items-center justify-between">

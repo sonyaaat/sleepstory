@@ -1,13 +1,13 @@
 // Wearable sources (WEAR-02). Screens only see this interface, so real sources
 // (Oura, Apple Health, Google Health) can be added later without touching them.
 
-import type { DiaryFields } from "@/core/schema";
+import type { DiaryEntry } from "@/core/schema";
 import { nightMetrics } from "@/core/metrics";
 
 export interface WearableSource {
   name: string;
   /** Watch total sleep (minutes) for the night, or null if there's no data. */
-  totalSleepFor(date: string, diary: DiaryFields): Promise<number | null>;
+  totalSleepFor(date: string, diary: DiaryEntry): Promise<number | null>;
 }
 
 /**
@@ -18,7 +18,8 @@ export const simulatedWatch: WearableSource = {
   name: "Consumer watch (simulated)",
   async totalSleepFor(_date, diary) {
     const { tstMin } = nightMetrics(diary);
-    const lyingStill = Math.round((diary.solMin + diary.wasoMin) * 0.7);
+    if (tstMin == null) return null; // nothing to compare against
+    const lyingStill = Math.round(((diary.solMin ?? 0) + (diary.wasoMin ?? 0)) * 0.7);
     return tstMin + Math.max(10, lyingStill);
   },
 };

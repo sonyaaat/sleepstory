@@ -63,6 +63,8 @@ export interface Snapshot {
   quotes: { date: string; text: string }[];
   /** Up to 3 recent "anything else different?" notes, newest first (HAB-09). */
   dayNotes: { date: string; text: string }[];
+  /** Up to 5 recent "worth telling your provider" notes, newest first (CHK-15). */
+  providerNotes: { date: string; text: string }[];
   discuss: string | null;
   generatedOn: string;
 }
@@ -158,6 +160,10 @@ export function buildSnapshot(p: SnapshotInput, nights: Night[], today: string):
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, 3)
       .map((n) => ({ date: n.date, text: n.dayNote! })),
+    providerNotes: [...list]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .flatMap((n) => n.providerNotes.map((text) => ({ date: n.date, text })))
+      .slice(0, 5),
     discuss: p.discuss,
     generatedOn: today,
   };

@@ -66,8 +66,14 @@ export function validateExtraction(raw: unknown, story: string, ms: number): Ext
   const ambiguity =
     amb && (FIELD_ORDER as string[]).includes(amb.field) ? { ...amb, field: amb.field as DiaryFieldKey } : null;
 
+  const notes = parsed.notes
+    .map((n) => ({ fact: n.fact.trim().slice(0, 160), evidence: verifyQuote(n.evidence, story) }))
+    .filter((n): n is { fact: string; evidence: string } => n.fact.length > 2 && n.evidence !== null)
+    .slice(0, 3);
+
   return {
     mode: "ai",
+    notes,
     fields,
     missing,
     habits,

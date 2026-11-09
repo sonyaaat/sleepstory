@@ -134,3 +134,31 @@ describe("extractNight", () => {
     expect(err.fallbackReason).toBe("error");
   });
 });
+
+describe("notes for the provider", () => {
+  const story = "Went to bed at 11. Woke up twice. I had a really bad headache again. Started a new allergy pill yesterday.";
+  it("keeps model notes only when their evidence is really in the story", () => {
+    const r = validateExtraction(
+      {
+        fields: {},
+        habits: [],
+        quote: null,
+        notes: [
+          { fact: "Headache again", evidence: "I had a really bad headache again" },
+          { fact: "New allergy medicine", evidence: "Started a new allergy pill yesterday" },
+          { fact: "Chest pain", evidence: "my chest hurt" }, // not in the story: dropped
+        ],
+      },
+      story,
+      0,
+    );
+    expect(r.notes.map((n) => n.fact)).toEqual(["Headache again", "New allergy medicine"]);
+  });
+  it("finds health sentences with the fallback parser", () => {
+    const r = fallbackExtract(story, "no_key");
+    expect(r.notes.map((n) => n.fact)).toEqual(["I had a really bad headache again.", "Started a new allergy pill yesterday."]);
+  });
+  it("tolerates a model that returns no notes", () => {
+    expect(validateExtraction({ fields: {}, habits: [], quote: null }, story, 0).notes).toEqual([]);
+  });
+});

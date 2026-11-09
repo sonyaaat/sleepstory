@@ -68,6 +68,8 @@ People will try the prototype themselves, so these exist to make that work. They
 | CHK-12 | One entry per night; the patient can edit today's entry | P1 | Planned | Team |
 | CHK-13 | Voice input on phones (needs HTTPS hosting) | P2 | Planned | V0 |
 | CHK-14 | Reminders at the patient's chosen time (SMS or web push) with a link straight to the check-in, stopping after one nudge | Later | Planned | Notebook (wireframe fig. 3), CA |
+| CHK-15 | **"Worth telling your provider":** on the review screen, the AI lists up to 3 short facts from the story that the diary questions don't capture (a symptom, a new medicine, a life event), written in the patient's voice. Each fact must come with words that appear verbatim in the story, or it is dropped. The patient edits, removes or adds notes by text or voice. Saved per night; the newest appear on the Snapshot. | P0 | Done | Sofiia, CA (verifier step) |
+| CHK-16 | **"I don't know"** for every diary answer except sleep quality. Unknown answers are saved as empty, never guessed. Each metric uses only the nights that have the answers it needs, and the Snapshot counts nights with missing answers. | P0 | Done | Sofiia, CSD (items may be left blank) |
 
 ## 3. Habits and sleep aids (HAB)
 
@@ -157,7 +159,7 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| AI-01 | Extraction uses the self-hosted **qwen3.6-35b-a3b** on the Intela gateway (OpenAI-compatible), with thinking off, JSON mode and temperature 0 | P0 | In progress | Team, Edith (privacy via self-hosting) |
+| AI-01 | Extraction uses the self-hosted **qwen3.6-35b-a3b** on the Intela gateway (OpenAI-compatible), with thinking off, JSON mode and temperature 0 | P0 | Done | Team, Edith (privacy via self-hosting) |
 | AI-02 | The AI output is validated against the shared schema. Out-of-range or malformed values are rejected, never saved. | P0 | Done | V0 (data sanity, validators) |
 | AI-03 | **Fallback parser:** rule-based extraction when there's no key, a timeout, or invalid output. The UI shows which mode was used. | P0 | Done | Rubric (handles errors) |
 | AI-04 | **Quote check:** a quote is kept only if it appears word-for-word in the patient's story | P0 | Done | CA (verifier step) |

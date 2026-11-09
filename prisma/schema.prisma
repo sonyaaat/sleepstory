@@ -46,13 +46,14 @@ model Night {
   patient           Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   date              String // evening date of the night
   mode              String   @default("full") // "full" | "rough"
-  inBed             String
-  lightsOut         String
-  solMin            Int
-  awakenings        Int
-  wasoMin           Int
-  finalWake         String
-  outOfBed          String
+  // Diary answers; null = the patient answered "I don't know" (quality is always answered)
+  inBed             String?
+  lightsOut         String?
+  solMin            Int?
+  awakenings        Int?
+  wasoMin           Int?
+  finalWake         String?
+  outOfBed          String?
   quality           Int
   habits            String   @default("[]") // JSON: HabitKey[]
   sleepAid          String?
@@ -61,6 +62,7 @@ model Night {
   note              String?
   quote             String?
   dayNote           String? // "anything else different about yesterday?" (HAB-09)
+  providerNotes     String   @default("[]") // JSON: string[], "worth telling your provider" (CHK-15)
   lateEntry         Boolean  @default(false)
   watchTstMin       Int?
   watchAnswer       String?

@@ -7,7 +7,7 @@ import { verifyQuote } from "@/adapters/llm/validate";
 import { simulatedWatch } from "@/adapters/wearables";
 import { forgivingStreak, weekMornings } from "@/core/checkin";
 import { consistencyIssues, isWatchMismatch, nightMetrics } from "@/core/metrics";
-import { DiaryFieldsSchema, HABIT_KEYS, NightSchema, SLEEP_AID_KEYS, WOKE_REASON_KEYS } from "@/core/schema";
+import { DiaryEntrySchema, HABIT_KEYS, NightSchema, SLEEP_AID_KEYS, WOKE_REASON_KEYS } from "@/core/schema";
 import { addDays } from "@/core/time";
 import { prisma } from "@/db/client";
 import { nightToRow } from "@/db/mappers";
@@ -42,7 +42,7 @@ export async function testerNewTester() {
 // ---- Check-in (CHK-03 to CHK-10) ----
 
 const CheckinSchema = z.object({
-  fields: DiaryFieldsSchema,
+  fields: DiaryEntrySchema, // null = "I don't know" (CHK-16)
   mode: z.enum(["full", "rough"]),
   habits: z.array(z.enum(HABIT_KEYS)),
   sleepAid: z.enum(SLEEP_AID_KEYS).nullable(),
@@ -51,6 +51,7 @@ const CheckinSchema = z.object({
   story: z.string().max(2000).nullable(),
   quote: z.string().max(300).nullable(),
   dayNote: z.string().trim().max(500).nullable(),
+  providerNotes: z.array(z.string().trim().min(1).max(200)).max(8), // CHK-15
   aiMode: z.enum(["ai", "fallback", "manual"]),
   aiFieldsCorrected: z.number().int().min(0).max(8),
   durationMs: z.number().int().min(0),
@@ -62,7 +63,7 @@ export type CheckinResult =
   | {
       ok: true;
       nightId: string;
-      diaryTstMin: number;
+      diaryTstMin: number | null;
       watchTstMin: number | null;
       mismatch: boolean;
       streak: { logged: number; window: number };
@@ -94,6 +95,7 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     note: d.story,
     quote: d.story ? verifyQuote(d.quote, d.story) : null, // AI-04, checked again on the server
     dayNote: d.dayNote || null,
+    providerNotes: d.providerNotes,
     watchTstMin,
   });
   const row = { ...nightToRow(night), aiFieldsCorrected: d.aiFieldsCorrected, source: d.aiMode };
@@ -110,6 +112,8 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     aiFieldsCorrected: d.aiFieldsCorrected,
     durationMs: d.durationMs,
     hasDayNote: Boolean(d.dayNote),
+    providerNotes: d.providerNotes.length,
+    unknownAnswers: Object.values(d.fields).filter((v) => v === null).length,
   });
   revalidatePath("/", "layout");
 

@@ -31,6 +31,11 @@ export interface ExtractionResult {
   ambiguity: Ambiguity | null;
   /** A short verbatim excerpt from the story, or null (AI-04). */
   quote: string | null;
+  /**
+   * Facts worth telling the provider that the diary questions don't capture (CHK-15).
+   * Each one is backed by words that really appear in the story; unsupported facts are dropped.
+   */
+  notes: { fact: string; evidence: string }[];
   ms: number;
 }
 
@@ -57,6 +62,10 @@ export const RawExtractionSchema = z.object({
     .nullable()
     .catch(null),
   quote: z.string().nullable().catch(null),
+  notes: z
+    .array(z.object({ fact: z.string(), evidence: z.string() }))
+    .catch([])
+    .default([]),
 });
 export type RawExtraction = z.infer<typeof RawExtractionSchema>;
 
