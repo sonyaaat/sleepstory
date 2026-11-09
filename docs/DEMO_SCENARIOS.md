@@ -20,7 +20,7 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 **Setup:** *Try as Maya* → patient home.
 
 **Task given to the tester:**
-> You're Maya. Last night you went to bed at 12:30, it took you about an hour to fall asleep, you woke up twice for about 40 minutes in total, and you got up at 8:15. You had an energy drink at 4 pm. Log your night.
+> You're Maya. Last night you went to bed at 12:30, it took you about an hour to fall asleep, you woke up twice for about 40 minutes in total, and you got up at 8:15. You had an energy drink at 4 pm and took a melatonin before bed. Log your night.
 
 **Expected steps:**
 
@@ -30,7 +30,8 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 | 2 | Story | Types or says the night in their own words | Mic button works in desktop Chrome; text always works |
 | 3 | Review | Checks the 8 fields, fixes anything wrong | Fields are filled from the story. Unsure fields are highlighted. "Assumed" values are labelled. An ambiguous answer gets a question with options. The "What did the AI do?" panel explains the AI's role. |
 | 4 | Follow-up | Answers "What woke you up?" | Only one question, because there were awakenings |
-| 5 | Habits | Keeps "Late caffeine" (pre-selected *from your story*) or taps **No, a normal day** | One tap is enough |
+| 5 | Habits | Keeps "Late caffeine" (pre-selected *from your story*) | One tap is enough |
+| 5b | Habits | Checks **Took a sleep aid → Melatonin** (pre-selected from the story) and taps **Save** | Her own medicines appear as chips; **+ Something else** adds a new one |
 | 6 | Done | Reads the thank-you message | Streak goes up; no score |
 | 7 | Watch question | Answers why the watch shows more sleep | Appears only after the diary is saved, and only if the gap is 60 min or more |
 
@@ -54,7 +55,7 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 |---|---|---|
 | Has it improved? | Headline: ISI baseline vs now; metrics table first vs last 4 weeks | ISI went down but is still in the subthreshold or moderate band; time to fall asleep improved |
 | Anything to screen for? | Screening and red flags | PHQ-2 positive → *consider PHQ-9* |
-| Sleep-aid use? | Sleep aids section and markers on the chart | Melatonin a few nights a week; prescription only in the first weeks |
+| Sleep medicines? | Sleep medicines section (layout B) or "Anything to act on?" (layout A) | Zopiclone: used more often than planned in 1 of 8 weeks, then stopped; melatonin about 2 nights a week; **Nytol is new** (self-started, not on her list) |
 | What seems linked to bad nights? | What seems linked (max 3 rows) | Studying late, stressful days and late caffeine, each with night counts and "linked, not proof" |
 | Can you trust the watch? | Watch vs diary | The watch shows about an hour more sleep on bad nights; Maya says she was lying awake still |
 | What does she want to discuss? | In their words | Her quote and "wants to discuss" text. If the tester did scenario 1 first, their own words appear here. |
