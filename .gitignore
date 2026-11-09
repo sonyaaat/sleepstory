@@ -46,3 +46,4 @@ node_modules/
 *.db
 *.db-journal
 !.env.example
+/.next-*/
