@@ -106,6 +106,7 @@ export const NightSchema = DiaryEntrySchema.extend({
   quote: z.string().max(300).nullable().default(null), // verbatim excerpt, checked against note
   dayNote: z.string().max(500).nullable().default(null), // "anything else different?" in the patient's words (HAB-09)
   providerNotes: z.array(z.string().trim().min(1).max(200)).max(8).default([]), // "worth telling your provider" (CHK-15)
+  medicines: z.array(z.string().trim().min(1).max(60)).max(5).default([]), // names of sleep medicines taken (MED-02)
   lateEntry: z.boolean().default(false),
   watchTstMin: z.number().int().min(0).max(1000).nullable().default(null),
   watchAnswer: z.enum(["lying_awake", "took_off", "not_sure"]).nullable().default(null),

@@ -37,6 +37,7 @@ model Patient {
   discuss        String?
   sharedAt       DateTime?
   watchConnected Boolean   @default(false)
+  medications    String    @default("[]") // JSON: Medication[], the patient's sleep medicine list (MED-01)
   nights         Night[]
 }
 
@@ -63,6 +64,7 @@ model Night {
   quote             String?
   dayNote           String? // "anything else different about yesterday?" (HAB-09)
   providerNotes     String   @default("[]") // JSON: string[], "worth telling your provider" (CHK-15)
+  medicines         String   @default("[]") // JSON: string[], sleep medicines taken that night (MED-02)
   lateEntry         Boolean  @default(false)
   watchTstMin       Int?
   watchAnswer       String?

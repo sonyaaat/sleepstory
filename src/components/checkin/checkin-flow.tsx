@@ -17,6 +17,7 @@ import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/
 import type { ExtractionResult } from "@/adapters/llm/types";
 import { fillRoughNight, followUpQuestion, type UsualTimes } from "@/core/checkin";
 import { detectHabits } from "@/core/habit-detect";
+import { MEDICINE_SAFETY_LINE } from "@/core/medications";
 import { consistencyIssues } from "@/core/metrics";
 import {
   DiaryEntrySchema,
@@ -24,7 +25,6 @@ import {
   FIELD_ORDER,
   HABITS,
   QUALITY_LABELS,
-  SLEEP_AIDS,
   WOKE_REASONS,
   UNKNOWABLE,
   type DiaryEntry,
@@ -46,6 +46,7 @@ const CHIP = "h-11 rounded-full! border-2! px-4 text-[15px] font-semibold";
 
 export function CheckinFlow({
   initialMode,
+  medicines,
   usual,
   usualDayText,
   firstName,
@@ -56,6 +57,8 @@ export function CheckinFlow({
   usualDayText: string | null;
   firstName: string;
   visitDate: string;
+  /** The patient's own sleep medicines, from registration (MED-01). */
+  medicines: { name: string; kind: SleepAid; planText: string | null }[];
 }) {
   const [step, setStep] = useState<Step>(initialMode);
   const [story, setStory] = useState("");
@@ -72,7 +75,17 @@ export function CheckinFlow({
   const [fromNote, setFromNote] = useState<HabitKey[]>([]);
   const [dismissed, setDismissed] = useState<HabitKey[]>([]);
   const [tookAid, setTookAid] = useState(false);
-  const [sleepAid, setSleepAid] = useState<SleepAid | null>(null);
+  // MED-02: which of her medicines she took, plus anything new she names.
+  const [meds, setMeds] = useState<string[]>([]);
+  const [otherMed, setOtherMed] = useState("");
+  const [showOther, setShowOther] = useState(false);
+  /** Ticks the patient's own medicine of this kind, if she has one; otherwise asks for the name. */
+  function preselectAid(kind: SleepAid) {
+    setTookAid(true);
+    const mine = medicines.find((m) => m.kind === kind);
+    if (mine) setMeds((prev) => (prev.includes(mine.name) ? prev : [...prev, mine.name]));
+    else setShowOther(true);
+  }
   const [editing, setEditing] = useState<DiaryFieldKey | null>(null);
   // CHK-16: answers the patient doesn't know are saved as "unknown", never guessed.
   const [unknown, setUnknown] = useState<Set<DiaryFieldKey>>(new Set());
@@ -132,10 +145,7 @@ export function CheckinFlow({
       setNotes(r.notes.map((n) => ({ text: n.fact, fromStory: true })));
       setHabits(r.habits);
       setFromStory(r.habits);
-      if (r.sleepAid) {
-        setTookAid(true);
-        setSleepAid(r.sleepAid);
-      }
+      if (r.sleepAid) preselectAid(r.sleepAid);
       setMode("full");
       setStep("review");
     } catch (e) {
@@ -208,10 +218,7 @@ export function CheckinFlow({
     setFromNote(found.habits);
     const add = found.habits.filter((h) => !dismissed.includes(h));
     if (add.length) setHabits((prev) => [...new Set([...prev, ...add])]);
-    if (found.sleepAid && !tookAid) {
-      setTookAid(true);
-      setSleepAid(found.sleepAid);
-    }
+    if (found.sleepAid && !tookAid) preselectAid(found.sleepAid);
   }
 
   function changeHabits(next: HabitKey[]) {
@@ -230,7 +237,7 @@ export function CheckinFlow({
         fields,
         mode,
         habits: normalDay ? [] : habits,
-        sleepAid: !normalDay && tookAid ? sleepAid : null,
+        medicines: !normalDay && tookAid ? [...meds, ...(showOther ? [otherMed.trim()] : [])].filter(Boolean) : [],
         wokeReasons,
         wakeNote: wakeNote.trim() || null,
         story: story.trim() || null,
@@ -705,7 +712,11 @@ export function CheckinFlow({
             pressed={tookAid}
             onPressedChange={(on) => {
               setTookAid(on);
-              if (!on) setSleepAid(null);
+              if (!on) {
+                setMeds([]);
+                setShowOther(false);
+                setOtherMed("");
+              }
             }}
           >
             Took a sleep aid
@@ -713,20 +724,52 @@ export function CheckinFlow({
         </div>
         {tookAid && (
           <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border/60">
-            <p className="text-sm text-muted-foreground">Which kind?</p>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              className="mt-2 flex flex-wrap justify-start gap-2"
-              value={sleepAid ?? ""}
-              onValueChange={(v) => setSleepAid((v || null) as SleepAid | null)}
-            >
-              {SLEEP_AIDS.map((a) => (
-                <ToggleGroupItem key={a.key} value={a.key} className="h-10 rounded-full! border-2! px-4 text-sm font-semibold">
-                  {a.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+            <p className="text-sm text-muted-foreground">Which one?</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {medicines.length > 0 && (
+                <ToggleGroup
+                  type="multiple"
+                  variant="outline"
+                  className="flex flex-wrap justify-start gap-2"
+                  value={meds}
+                  onValueChange={(v) => setMeds(v)}
+                >
+                  {medicines.map((m) => (
+                    <ToggleGroupItem
+                      key={m.name}
+                      value={m.name}
+                      title={m.planText ? `Your plan: ${m.planText}` : undefined}
+                      className="h-10 rounded-full! border-2! px-4 text-sm font-semibold"
+                    >
+                      {m.name}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              )}
+              <Toggle
+                variant="outline"
+                className="h-10 rounded-full! border-2! px-4 text-sm font-semibold"
+                pressed={showOther}
+                onPressedChange={(on) => {
+                  setShowOther(on);
+                  if (!on) setOtherMed("");
+                }}
+              >
+                <Plus /> Something else
+              </Toggle>
+            </div>
+            {showOther && (
+              <Input
+                autoFocus
+                aria-label="Name of the medicine"
+                placeholder="Name of the medicine, e.g. Nytol"
+                maxLength={60}
+                value={otherMed}
+                onChange={(e) => setOtherMed(e.target.value)}
+                className="mt-3 h-11 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2"
+              />
+            )}
+            <p className="mt-3 text-xs text-muted-foreground">{MEDICINE_SAFETY_LINE}</p>
           </div>
         )}
 
@@ -747,7 +790,7 @@ export function CheckinFlow({
 
         {somethingDifferent && (
           <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
-            <Button variant="brand" size="xl" disabled={saving || (tookAid && !sleepAid)} onClick={() => save()}>
+            <Button variant="brand" size="xl" disabled={saving || (tookAid && meds.length === 0 && !(showOther && otherMed.trim()))} onClick={() => save()}>
               {saving ? <Loader2 className="animate-spin" /> : <Check />} Save
             </Button>
           </div>

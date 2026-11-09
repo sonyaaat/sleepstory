@@ -7,7 +7,7 @@ import { NightCalendar, NightCalendarLegend } from "../night-calendar";
 import type { Snapshot } from "@/core/snapshot";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
 import { DeltaChip, Dumbbell, DumbbellLegend, fmtMin, IsiScale } from "../viz";
-import { FlagList, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, WakeReasonLine } from "./parts";
+import { FlagList, MedicationChanges, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, WakeReasonLine } from "./parts";
 
 export function CalendarView({ s }: { s: Snapshot }) {
   const { baseline, now } = s.isi;
@@ -84,6 +84,7 @@ export function CalendarView({ s }: { s: Snapshot }) {
           </CardHeader>
           <CardContent className="print:px-3">
             <FlagList s={s} />
+            <MedicationChanges s={s} />
           </CardContent>
         </Card>
         <Card className="gap-2 py-4 print:py-2">

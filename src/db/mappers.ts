@@ -3,6 +3,7 @@
 import type { Night as NightRow, Patient as PatientRow, Prisma } from "@prisma/client";
 import { NightSchema, type Night } from "@/core/schema";
 import type { IsiAnswers, Screening } from "@/core/questionnaires";
+import type { Medication } from "@/core/medications";
 import type { DemoPatient, UsualDay } from "./demo-data";
 
 const json = <T,>(s: string | null): T | null => (s ? (JSON.parse(s) as T) : null);
@@ -13,6 +14,7 @@ export function nightFromRow(row: NightRow): Night {
     habits: JSON.parse(row.habits),
     wokeReasons: JSON.parse(row.wokeReasons),
     providerNotes: JSON.parse(row.providerNotes),
+    medicines: JSON.parse(row.medicines),
   });
 }
 
@@ -22,6 +24,7 @@ export function nightToRow(n: Night): Omit<Prisma.NightUncheckedCreateInput, "pa
     habits: JSON.stringify(n.habits),
     wokeReasons: JSON.stringify(n.wokeReasons),
     providerNotes: JSON.stringify(n.providerNotes),
+    medicines: JSON.stringify(n.medicines),
   };
 }
 
@@ -40,6 +43,7 @@ export interface PatientView {
   discuss: string | null;
   sharedAt: Date | null;
   watchConnected: boolean;
+  medications: Medication[];
 }
 
 export function patientFromRow(row: PatientRow): PatientView {
@@ -49,6 +53,7 @@ export function patientFromRow(row: PatientRow): PatientView {
     isiBaseline: json<IsiAnswers>(row.isiBaseline),
     isiPrevisit: json<IsiAnswers>(row.isiPrevisit),
     screening: json<Screening>(row.screening),
+    medications: json<Medication[]>(row.medications) ?? [],
   };
 }
 
@@ -67,5 +72,6 @@ export function patientToRow(p: DemoPatient) {
     discuss: p.discuss,
     sharedAt: p.sharedAt,
     watchConnected: p.watchConnected,
+    medications: JSON.stringify(p.medications),
   };
 }

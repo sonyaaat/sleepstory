@@ -86,6 +86,10 @@ There is no evening log. Habits are one screen inside the morning check-in.
 | HAB-07 | The patient sees "what seems linked" on My sleep | P1 | Planned | Brenda (patients see their own data) |
 | HAB-08 | Link to the non-tech habit cards ("habit I'm trying this week") so the app can show whether sleep changes | P2 | Planned | Notebook (D4: SleepSnap works alongside habit cards), PO1 (integration question) |
 | HAB-09 | **"Anything else different, or something new?"**: optional text or voice note on the habit screen for things the chips don't cover (new medication, illness, travel, shift work). Habits recognised in the note are ticked and labelled "from your note"; unticked ones stay unticked. The note is saved word for word and the 3 newest appear on the Snapshot. | P0 | Done | Team (Sofiia: chips can't capture something new) |
+| MED-01 | **My sleep medicines** list per patient: name, who started it (provider / self), and for prescribed ones the plan in plain words (as needed up to N nights a week, or every night). Entered at registration (ONB-04); pre-filled for demo Maya (zopiclone course, melatonin). | P0 | Done | Sofiia, CA (Ontario guideline: medication use matters) |
+| MED-02 | "Took a sleep aid" shows the patient's own medicines as one-tap chips, plus **Something else** (free name) for a new one. Safety line: "Questions about your medicine? Ask your provider or pharmacist." | P0 | Done | Sofiia |
+| MED-03 | **Snapshot medicines:** per medicine, nights per week first vs last 4 weeks; plan and weeks above plan ("worth discussing", never "non-compliant"); new medicines not on the list flagged as new. Layout A shows only changes. | P0 | Done | Sofiia, Brenda (short for providers) |
+| MED-04 | Amount (usual / more / less), editing the list, and "Did you start or stop any medicine?" before the visit | P1 | Planned | Sofiia (bare minimum first) |
 
 ## 4. Onboarding (ONB)
 

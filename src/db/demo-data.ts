@@ -2,6 +2,7 @@
 // The same anchor date always produces the same data, so tests and demos are repeatable.
 
 import type { IsiAnswers, Screening } from "@/core/questionnaires";
+import type { Medication } from "@/core/medications";
 import type { HabitKey, Night, SleepAid, WokeReason } from "@/core/schema";
 import { NightSchema } from "@/core/schema";
 import { nightMetrics, WATCH_MISMATCH_MIN } from "@/core/metrics";
@@ -21,6 +22,8 @@ export interface DemoPatient {
   discuss: string | null;
   sharedAt: Date | null;
   watchConnected: boolean;
+  /** Entered at registration in the real app (ONB-04); pre-filled for the demo. */
+  medications: Medication[];
   nights: Night[];
 }
 
@@ -90,6 +93,11 @@ const MAYA_DAY_NOTES: Record<number, string> = {
   52: "Closing shift at the café again.",
 };
 
+const MAYA_ZOPICLONE_NIGHTS = [1, 3, 5, 8, 9, 11, 12];
+
+// Nights where Maya took an over-the-counter aid she started herself (not on her list).
+const MAYA_NYTOL_NIGHTS = [41, 46, 50];
+
 // Nights where Maya answered "I don't know" to one question. Keyed by night index.
 const MAYA_UNKNOWN: Record<number, "inBed" | "wasoMin" | "awakenings"> = {
   13: "wasoMin",
@@ -129,7 +137,7 @@ export function mayaNights(today: string, seed = 21): Night[] {
     const date = addDays(first, i);
     // Leave last night empty so the tester can log it; skip ~1 night a week.
     if (date === lastNight) continue;
-    if (i > 2 && i < 54 && r.chance(0.12)) continue;
+    if (i > 2 && i < 54 && r.chance(0.12) && !MAYA_ZOPICLONE_NIGHTS.includes(i)) continue;
 
     const plan = planFor(Math.floor(i / 7));
     const habits: HabitKey[] = [];
@@ -153,9 +161,18 @@ export function mayaNights(today: string, seed = 21): Night[] {
 
     let sol = plan.baseSol + r.int(-15, 20);
     let waso = plan.baseWaso + r.int(-15, 20);
-    if (caffeine) sol += r.int(40, 60);
+    if (caffeine) sol += r.int(60, 80);
     if (stress) waso += r.int(5, 25);
+    // Zopiclone course: 3 nights in week 1, 4 in week 2 (above her "up to 3 a week" plan), then stopped.
+    if (MAYA_ZOPICLONE_NIGHTS.includes(i)) sleepAid = "prescription";
+    else if (sleepAid === "prescription") sleepAid = null;
     if (sleepAid === "prescription") sol -= 15;
+    // Which of her medicines that was (MED-02). Late in the period she tries Nytol on her own.
+    let medicines: string[] = sleepAid === "prescription" ? ["Zopiclone"] : sleepAid === "melatonin" ? ["Melatonin"] : [];
+    if (MAYA_NYTOL_NIGHTS.includes(i)) {
+      sleepAid = "otc";
+      medicines = ["Nytol"];
+    }
     if (habits.includes("exercise")) sol -= 5;
     sol = Math.max(5, round5(sol));
     waso = round5(waso);
@@ -177,6 +194,7 @@ export function mayaNights(today: string, seed = 21): Night[] {
       quality: 3,
       habits,
       sleepAid,
+      medicines,
     };
     const metrics = nightMetrics(base);
     const m = { sePct: metrics.sePct!, tstMin: metrics.tstMin! }; // generated nights are complete
@@ -276,6 +294,11 @@ export function mayaPatient(today: string): DemoPatient {
       "Whether I should keep taking melatonin, and what I can do about lying awake before exams.",
     sharedAt: new Date(`${addDays(today, -1)}T09:30:00Z`),
     watchConnected: true,
+    medications: [
+      // Short prescription course from her provider; she stopped after the first weeks.
+      { name: "Zopiclone", kind: "prescription", startedBy: "provider", plan: { type: "as_needed", maxPerWeek: 3 } },
+      { name: "Melatonin", kind: "melatonin", startedBy: "self", plan: null },
+    ],
     nights,
   };
 }
@@ -306,6 +329,7 @@ export function extraPatients(today: string): DemoPatient[] {
       discuss: "My roommate says I snore a lot. Is that related?",
       sharedAt: new Date(`${addDays(today, -1)}T08:00:00Z`),
       watchConnected: false,
+      medications: [],
       nights: lightNights(today, 7, 21, 30, 25),
     },
     {
@@ -322,6 +346,7 @@ export function extraPatients(today: string): DemoPatient[] {
       discuss: null,
       sharedAt: null, // not shared yet: the provider can't open it
       watchConnected: false,
+      medications: [],
       nights: lightNights(today, 11, 14, 40, 35),
     },
   ];

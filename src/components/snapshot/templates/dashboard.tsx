@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SeChart } from "../se-chart";
 import type { Snapshot } from "@/core/snapshot";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
-import { BarPair, DeltaChip, Dumbbell, DumbbellLegend, fmtMin, fmtNum, fmtPct, IsiScale, SegmentBar, Sparkline, WeekDots } from "../viz";
-import { aidChanges, FlagList, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, splitFor, WakeReasonLine } from "./parts";
+import { BarPair, DeltaChip, Dumbbell, DumbbellLegend, fmtMin, fmtPct, IsiScale, SegmentBar, Sparkline } from "../viz";
+import { FlagList, MedicationList, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, splitFor, WakeReasonLine } from "./parts";
 
 function Panel({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
@@ -26,7 +26,6 @@ export function DashboardView({ s }: { s: Snapshot }) {
   const { first, second } = s.periods;
   const tiles = [METRICS.se, METRICS.sol, METRICS.waso, METRICS.tst];
   const w = s.watch;
-  const aids = aidChanges(s);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-3">
@@ -150,26 +149,9 @@ export function DashboardView({ s }: { s: Snapshot }) {
           </Panel>
         )}
 
-        <Panel title="Sleep aids, nights / week" icon={Pill}>
-          {aids.length === 0 ? (
-            <p className="text-sm text-muted-foreground">None reported.</p>
-          ) : (
-            <div className="space-y-2.5">
-              {aids.map((a) => (
-                <div key={a.key} className="space-y-1">
-                  <p className="text-sm font-medium">{a.label}</p>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs tabular-nums">
-                    <WeekDots perWeek={a.from} />
-                    <span className="text-muted-foreground">{fmtNum(a.from)}</span>
-                    <span className="text-muted-foreground">→</span>
-                    <WeekDots perWeek={a.to} />
-                    <span className="font-medium">{fmtNum(a.to)}</span>
-                  </div>
-                </div>
-              ))}
-              <p className="text-[11px] text-muted-foreground">First 4 weeks → last 4 weeks</p>
-            </div>
-          )}
+        <Panel title="Sleep medicines" icon={Pill}>
+          <MedicationList s={s} />
+          <p className="mt-2 text-[11px] text-muted-foreground">Nights per week, first 4 weeks → last 4 weeks</p>
         </Panel>
       </div>
 

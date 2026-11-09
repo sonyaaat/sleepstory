@@ -1,13 +1,13 @@
 // Pieces shared by the Snapshot layouts (header, footer, red flags, metric definitions).
 
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Moon } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Moon, Pill } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import type { PeriodStats } from "@/core/metrics";
 import type { Snapshot } from "@/core/snapshot";
 import { formatDate, formatDateLong } from "@/core/time";
-import { fmtMin, fmtNum, fmtPct } from "../viz";
+import { fmtMin, fmtNum, fmtPct, WeekDots } from "../viz";
 
 export interface MetricDef {
   key: string;
@@ -203,6 +203,94 @@ export function WakeReasonLine({ s, className }: { s: Snapshot; className?: stri
         </span>
       </span>
     </p>
+  );
+}
+
+// ---- Sleep medicines (MED-03). Facts computed in core/medications; never "non-compliant". ----
+
+const startedLabel = { provider: "prescribed", self: "self-started", unknown: "self-started" } as const;
+
+/** Full list: every medicine on the patient's list plus new ones, first 4 weeks → last 4 weeks. */
+export function MedicationList({ s, className }: { s: Snapshot; className?: string }) {
+  if (s.medications.length === 0) return <p className="text-sm text-muted-foreground">No sleep medicines reported.</p>;
+  return (
+    <ul className={cn("space-y-3", className)}>
+      {s.medications.map((m) => (
+        <li key={m.name} className="space-y-1">
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <span className="font-medium">{m.name}</span>
+            <span className="text-xs text-muted-foreground">{startedLabel[m.startedBy]}</span>
+            {m.isNew && (
+              <span className="rounded-full bg-warn px-2 py-0.5 text-[11px] font-semibold text-warn-foreground">
+                New · not on their list
+              </span>
+            )}
+          </p>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs tabular-nums">
+            <WeekDots perWeek={m.firstPerWeek} />
+            <span className="text-muted-foreground">{fmtNum(m.firstPerWeek)}</span>
+            <span className="text-muted-foreground">→</span>
+            <WeekDots perWeek={m.secondPerWeek} />
+            <span className="font-medium">{fmtNum(m.secondPerWeek)}</span>
+            <span className="text-muted-foreground">nights / week</span>
+          </div>
+          {m.planText && (
+            <p className="text-xs text-muted-foreground">
+              Plan: {m.planText}
+              {m.weeksAbovePlan != null &&
+                (m.weeksAbovePlan > 0 ? (
+                  <>
+                    {" · "}
+                    <span className="font-semibold text-warn-foreground">
+                      more often than planned in {m.weeksAbovePlan} of {m.weeks} weeks
+                    </span>{" "}
+                    (worth discussing)
+                  </>
+                ) : (
+                  " · within plan every week"
+                ))}
+            </p>
+          )}
+          {m.isNew && m.firstUsed && (
+            <p className="text-xs text-muted-foreground">
+              First reported {formatDate(m.firstUsed)} · {m.nights} night{m.nights === 1 ? "" : "s"}
+            </p>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Short version for "Anything to act on?": only new medicines, use above plan, or big changes. */
+export function medicationChanges(s: Snapshot) {
+  return s.medications.filter(
+    (m) =>
+      m.isNew ||
+      (m.weeksAbovePlan ?? 0) > 0 ||
+      (m.firstPerWeek != null && m.secondPerWeek != null && Math.abs(m.secondPerWeek - m.firstPerWeek) >= 1),
+  );
+}
+
+export function MedicationChanges({ s }: { s: Snapshot }) {
+  return (
+    <>
+      {medicationChanges(s).map((m) => (
+        <p key={m.name} className="flex items-start gap-2 text-sm">
+          <Pill className="mt-0.5 size-4 shrink-0 text-chart-2" />
+          <span>
+            <span className="font-medium">{m.name}</span> {fmtNum(m.firstPerWeek)} → {fmtNum(m.secondPerWeek)} nights / week
+            {m.isNew && <span className="text-warn-foreground"> · new, self-started</span>}
+            {(m.weeksAbovePlan ?? 0) > 0 && (
+              <span className="text-warn-foreground">
+                {" "}
+                · more often than planned in {m.weeksAbovePlan} of {m.weeks} weeks
+              </span>
+            )}
+          </span>
+        </p>
+      ))}
+    </>
   );
 }
 

@@ -2,6 +2,7 @@
 // Pure: no database, no AI. Every number on the page comes from here.
 
 import { linkedToBadNights, type HabitLink } from "./habits";
+import { medicationUse, type Medication, type MedicationUse } from "./medications";
 import {
   comparePeriods,
   completeness,
@@ -30,6 +31,7 @@ export interface SnapshotInput {
   screening: Screening | null;
   discuss: string | null;
   watchConnected: boolean;
+  medications: Medication[];
 }
 
 export interface ChangeSummary {
@@ -63,6 +65,8 @@ export interface Snapshot {
   quotes: { date: string; text: string }[];
   /** Up to 3 recent "anything else different?" notes, newest first (HAB-09). */
   dayNotes: { date: string; text: string }[];
+  /** Each medicine on the patient's list, plus new ones they reported (MED-03). */
+  medications: MedicationUse[];
   /** Up to 5 recent "worth telling your provider" notes, newest first (CHK-15). */
   providerNotes: { date: string; text: string }[];
   discuss: string | null;
@@ -160,6 +164,7 @@ export function buildSnapshot(p: SnapshotInput, nights: Night[], today: string):
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, 3)
       .map((n) => ({ date: n.date, text: n.dayNote! })),
+    medications: medicationUse(p.medications, list, from, SNAPSHOT_DAYS),
     providerNotes: [...list]
       .sort((a, b) => b.date.localeCompare(a.date))
       .flatMap((n) => n.providerNotes.map((text) => ({ date: n.date, text })))

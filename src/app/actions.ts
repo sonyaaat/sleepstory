@@ -7,7 +7,7 @@ import { verifyQuote } from "@/adapters/llm/validate";
 import { simulatedWatch } from "@/adapters/wearables";
 import { forgivingStreak, weekMornings } from "@/core/checkin";
 import { consistencyIssues, isWatchMismatch, nightMetrics } from "@/core/metrics";
-import { DiaryEntrySchema, HABIT_KEYS, NightSchema, SLEEP_AID_KEYS, WOKE_REASON_KEYS } from "@/core/schema";
+import { DiaryEntrySchema, HABIT_KEYS, NightSchema, WOKE_REASON_KEYS } from "@/core/schema";
 import { addDays } from "@/core/time";
 import { prisma } from "@/db/client";
 import { nightToRow } from "@/db/mappers";
@@ -45,7 +45,7 @@ const CheckinSchema = z.object({
   fields: DiaryEntrySchema, // null = "I don't know" (CHK-16)
   mode: z.enum(["full", "rough"]),
   habits: z.array(z.enum(HABIT_KEYS)),
-  sleepAid: z.enum(SLEEP_AID_KEYS).nullable(),
+  medicines: z.array(z.string().trim().min(1).max(60)).max(5), // names, from the patient's list or new (MED-02)
   wokeReasons: z.array(z.enum(WOKE_REASON_KEYS)),
   wakeNote: z.string().trim().max(500).nullable(),
   story: z.string().max(2000).nullable(),
@@ -89,7 +89,12 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     date,
     mode: d.mode,
     habits: d.habits,
-    sleepAid: d.sleepAid,
+    medicines: d.medicines,
+    // The type comes from the patient's own list; a new medicine has no known type yet.
+    sleepAid:
+      d.medicines
+        .map((name) => main.patient.medications.find((m) => m.name.toLowerCase() === name.toLowerCase())?.kind)
+        .find(Boolean) ?? null,
     wokeReasons: d.wokeReasons,
     wakeNote: d.wakeNote || null,
     note: d.story,

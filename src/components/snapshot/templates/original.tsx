@@ -6,9 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SeChart } from "../se-chart";
-import { ProviderNotes } from "./parts";
+import { MedicationList, ProviderNotes } from "./parts";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
-import { SLEEP_AIDS } from "@/core/schema";
 import type { Snapshot } from "@/core/snapshot";
 import type { PeriodStats } from "@/core/metrics";
 import { formatDate, formatDateLong, formatDuration } from "@/core/time";
@@ -182,21 +181,13 @@ function MetricsTable({ s }: { s: Snapshot }) {
 }
 
 function SleepAids({ s }: { s: Snapshot }) {
-  const { first, second } = s.periods;
   return (
     <Card className="print:py-2">
       <CardHeader className="print:px-3">
-        <CardTitle className="text-sm">Sleep aids (nights per week)</CardTitle>
+        <CardTitle className="text-sm">Sleep medicines (nights per week, first → last 4 weeks)</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-3 gap-2 text-sm print:px-3">
-        {SLEEP_AIDS.map((a) => (
-          <div key={a.key}>
-            <p className="text-xs text-muted-foreground">{a.label}</p>
-            <p className="tabular-nums">
-              {num(first.aidPerWeek[a.key])} → <span className="font-medium">{num(second.aidPerWeek[a.key])}</span>
-            </p>
-          </div>
-        ))}
+      <CardContent className="print:px-3">
+        <MedicationList s={s} />
       </CardContent>
     </Card>
   );

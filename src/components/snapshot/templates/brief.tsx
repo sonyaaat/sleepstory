@@ -1,11 +1,11 @@
 // Layout A: a 30-second brief. Three questions a provider asks, each answered with one visual.
 
-import { Pill, Quote, Watch } from "lucide-react";
+import { Quote, Watch } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Snapshot } from "@/core/snapshot";
 import { ISI_BAND_LABELS } from "@/core/questionnaires";
-import { DeltaChip, fmtMin, fmtNum, IsiScale, Sparkline } from "../viz";
-import { aidChanges, FlagList, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, WakeReasonLine } from "./parts";
+import { DeltaChip, fmtMin, IsiScale, Sparkline } from "../viz";
+import { FlagList, MedicationChanges, METRICS, SnapshotFooter, ProviderNotes, SnapshotHeader, WakeReasonLine } from "./parts";
 
 function Row({ q, children }: { q: string; children: React.ReactNode }) {
   return (
@@ -22,7 +22,6 @@ export function BriefView({ s }: { s: Snapshot }) {
   const { baseline, now } = s.isi;
   const { first, second } = s.periods;
   const tiles = [METRICS.se, METRICS.sol, METRICS.waso, METRICS.tst];
-  const aids = aidChanges(s).filter((a) => Math.abs(a.to - a.from) >= 1);
   const w = s.watch;
   const topReason = w.mismatched > 0 && w.answers.lying_awake >= w.mismatched / 2;
 
@@ -79,14 +78,7 @@ export function BriefView({ s }: { s: Snapshot }) {
       <Row q="Anything to act on?">
         <div className="space-y-2">
           <FlagList s={s} compact />
-          {aids.map((a) => (
-            <p key={a.key} className="flex items-center gap-2 text-sm">
-              <Pill className="size-4 text-chart-2" />
-              <span>
-                <span className="font-medium">{a.label}</span> {fmtNum(a.from)} → {fmtNum(a.to)} nights / week
-              </span>
-            </p>
-          ))}
+          <MedicationChanges s={s} />
         </div>
       </Row>
 

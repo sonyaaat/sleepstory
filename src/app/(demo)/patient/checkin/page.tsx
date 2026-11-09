@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CheckinFlow } from "@/components/checkin/checkin-flow";
 import { usualTimesFrom } from "@/core/checkin";
+import { planText } from "@/core/medications";
 import { mainPatient, requireSession } from "@/db/queries";
 
 export default async function CheckinPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
@@ -26,6 +27,7 @@ export default async function CheckinPage({ searchParams }: { searchParams: Prom
       usualDayText={usualDayText}
       firstName={main.patient.name.split(" ")[0]}
       visitDate={main.patient.visitDate}
+      medicines={main.patient.medications.map((m) => ({ name: m.name, kind: m.kind, planText: planText(m) }))}
     />
   );
 }
