@@ -156,14 +156,14 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| AI-01 | Extraction uses the self-hosted **qwen3.6-35b-a3b** on the Intela gateway (OpenAI-compatible), with thinking off, JSON mode and temperature 0 | P0 | Planned | Team, Edith (privacy via self-hosting) |
-| AI-02 | The AI output is validated against the shared schema. Out-of-range or malformed values are rejected, never saved. | P0 | In progress | V0 (data sanity, validators) |
-| AI-03 | **Fallback parser:** rule-based extraction when there's no key, a timeout, or invalid output. The UI shows which mode was used. | P0 | Planned | Rubric (handles errors) |
-| AI-04 | **Quote check:** a quote is kept only if it appears word-for-word in the patient's story | P0 | Planned | CA (verifier step) |
+| AI-01 | Extraction uses the self-hosted **qwen3.6-35b-a3b** on the Intela gateway (OpenAI-compatible), with thinking off, JSON mode and temperature 0 | P0 | In progress | Team, Edith (privacy via self-hosting) |
+| AI-02 | The AI output is validated against the shared schema. Out-of-range or malformed values are rejected, never saved. | P0 | Done | V0 (data sanity, validators) |
+| AI-03 | **Fallback parser:** rule-based extraction when there's no key, a timeout, or invalid output. The UI shows which mode was used. | P0 | Done | Rubric (handles errors) |
+| AI-04 | **Quote check:** a quote is kept only if it appears word-for-word in the patient's story | P0 | Done | CA (verifier step) |
 | AI-05 | **The AI never produces Snapshot numbers.** Only fields the patient confirmed feed the metrics. | P0 | Planned | CA, Larry |
 | AI-06 | "What did the AI do?" panel on the review screen: input (your words), output (these fields), limits (can be wrong; check highlighted fields), where it runs | P0 | Planned | Rubric (role, inputs, outputs clear) |
 | AI-07 | Count the fields the patient corrected (a measure of AI accuracy for evaluation) | P0 | Planned | V0, Rubric |
-| AI-08 | Fall back to the parser if the model takes longer than about 8 seconds | P0 | Planned | NFR-02 |
+| AI-08 | Fall back to the parser if the model takes longer than about 8 seconds | P0 | Done | NFR-02 |
 | AI-09 | Self-hosted speech-to-text (Whisper) instead of browser speech, as a Python service or a gateway endpoint | P2 / Later | Planned | Privacy |
 | AI-10 | An AI-written context summary of at most 3 sentences, built from the patient's own notes, with a check that rejects any number not in the computed data | P2 | Planned | CA |
 | AI-11 | Weekly "what we noticed" for the patient: 2–3 code-computed observations plus one CBT-I-aligned tip | P2 | Planned | CA, Edith (habit building) |
@@ -198,7 +198,7 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | NFR-01 | Responsive: the patient side is designed for phones, the provider side for desktop, and both work on either | P0 | Planned | Team |
 | NFR-02 | A check-in can be completed in about 60 seconds | P0 | Planned | CA, Notebook |
 | NFR-03 | The Snapshot is readable in under a minute and prints on one page | P0 | Planned | Notebook, Brenda |
-| NFR-04 | The app works when the AI is unavailable (fallback) | P0 | Planned | Rubric |
+| NFR-04 | The app works when the AI is unavailable (fallback) | P0 | Done | Rubric |
 | NFR-05 | Unit tests for metrics, questionnaire scoring, AI-output validation and the fallback parser | P0 | In progress | V0 |
 | NFR-06 | Accessibility basics: large tap targets, good contrast, labels on every input | P1 | Planned | Notebook (digital literacy) |
 | NFR-07 | Public deployment (Vercel + Postgres) so testers can use their own phones | P2 | Planned | Team |
