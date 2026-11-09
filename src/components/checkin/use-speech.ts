@@ -51,6 +51,20 @@ export function useSpeech(onFinal: (text: string) => void) {
     return () => r.stop();
   }, []);
 
+  const start = useCallback(() => {
+    if (!rec.current || listening) return;
+    try {
+      rec.current.start();
+      setListening(true);
+    } catch {
+      // already started, or blocked until the user taps
+    }
+  }, [listening]);
+
+  const stop = useCallback(() => {
+    rec.current?.stop();
+  }, []);
+
   const toggle = useCallback(() => {
     if (!rec.current) return;
     if (listening) rec.current.stop();
@@ -60,5 +74,5 @@ export function useSpeech(onFinal: (text: string) => void) {
     }
   }, [listening]);
 
-  return { supported, listening, interim, toggle };
+  return { supported, listening, interim, toggle, start, stop };
 }

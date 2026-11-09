@@ -14,4 +14,4 @@ Optionally add a line per image to the list below saying what you like about it 
 
 | File | What to take from it |
 |---|---|
-| | |
+| `reference-morning-checkin.pdf` | **The main reference.** Night indigo + moon yellow, Russo One headlines, one question per screen, big mic button, "Here's what I heard" list, pick-any chips, week dots on the done screen, and the light Snapshot layout. Followed except where it conflicts with our principles (watch shown before the diary; "doctor"). See DECISIONS.md #20–21. |

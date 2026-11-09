@@ -59,7 +59,7 @@ People will try the prototype themselves, so these exist to make that work. They
 | CHK-03 | The AI extracts the 8 Consensus Sleep Diary fields from the story, with a confidence level per field | P0 | Done | CA, V0 |
 | CHK-04 | **Review step:** all 8 fields are editable with a tap. Low-confidence fields are highlighted. Missing fields are asked for. Ambiguous answers get a question with options (e.g. "around 2": *2:00 am* or *2 hours*?). | P0 | Done | Rubric (user correction), CA, Larry |
 | CHK-05 | Values the app assumed (e.g. "tried to sleep" = "got into bed") are labelled *assumed* | P0 | Done | CA |
-| CHK-06 | **One follow-up question**, chosen by rules: "What woke you up?" if there were awakenings, otherwise "What kept you awake?" if falling asleep took 30 min or more. Skipped otherwise. | P0 | Done | Notebook (wireframe fig. 7) |
+| CHK-06 | **One follow-up question**, chosen by rules: "What woke you up?" if there were awakenings, otherwise "What kept you awake?" if falling asleep took 30 min or more. Skipped otherwise. **Pick any that fit** (multi-select chips) plus "or tell me in your own words" (text or voice). The Snapshot shows the most common reason. | P0 | Done | Notebook (wireframe fig. 7), reference design |
 | CHK-07 | **Habit step** (see section 3) | P0 | Done | Notebook |
 | CHK-08 | **Done step:** thank-you message ("your provider will have a clearer picture") and the forgiving streak. No score. | P0 | Done | Notebook (wireframe fig. 9), Lit |
 | CHK-09 | **Watch vs diary after saving:** if the simulated watch total differs by 60 min or more, ask *I was lying awake but still / I took the watch off / Not sure*. Shown only after the patient has answered. | P0 | Done | Edith, Lit, Team |
@@ -76,7 +76,7 @@ There is no evening log. Habits are one screen inside the morning check-in.
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
 | HAB-01 | "Was yesterday different from usual?" with a large **No, a normal day** button (one tap) | P0 | Done | CA (merge evening log into morning), Notebook (wireframe fig. 8) |
-| HAB-02 | Chips: late caffeine or energy drink, alcohol, stressful day / deadline, studied late, screens in bed, napped, exercised | P0 | Done | Larry (sleep hygiene), Notebook (problem statement) |
+| HAB-02 | Chips: late caffeine or energy drink, alcohol, stressful day / deadline, studied late, screens in bed, napped, exercised, felt unwell | P0 | Done | Larry (sleep hygiene), Notebook (problem statement), reference design |
 | HAB-03 | **Took a sleep aid** chip, which reveals *Melatonin · Over-the-counter · Prescription* | P0 | Done | CA (Ontario guideline: medication use matters) |
 | HAB-04 | The AI pre-selects chips mentioned in the story, labelled "from your story"; the patient can remove them | P0 | Done | Team |
 | HAB-05 | The patient's "usual day" (from onboarding) is shown on the habit screen | P1 | Planned | Notebook (wireframe fig. 8) |
@@ -208,6 +208,7 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | NFR-08 | French version | Later | Planned | CA (bilingual Canada) |
 | NFR-09 | UI copy says "primary care provider", not "doctor" | P0 | Done | Brenda |
 | NFR-10 | UI is built from a ready-made component library (shadcn/ui on Tailwind), not custom styles. Only the theme colours are ours. | P0 | Done | Team (time) |
+| NFR-11 | **Visual design follows the team reference prototype** (night indigo + moon yellow, Russo One headlines, Figtree text, big pill buttons, one question per screen) with a **light and dark theme** switch. The Snapshot always prints in the light theme. | P0 | Done | Sofiia (reference prototype in docs/design/inspiration) |
 
 ## 13. Course deliverables (DOC)
 

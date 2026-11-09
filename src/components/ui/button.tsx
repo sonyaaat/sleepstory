@@ -18,6 +18,9 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+        // SleepStory: the moon-yellow call to action from the reference design
+        brand:
+          "bg-brand text-brand-foreground font-semibold shadow-sm hover:bg-brand/90 disabled:bg-card disabled:text-muted-foreground disabled:opacity-100 disabled:shadow-none disabled:ring-2 disabled:ring-border",
       },
       size: {
         default:
@@ -31,6 +34,8 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
+        // SleepStory: large pill for the main action on a screen (big tap target)
+        xl: "h-14 w-full rounded-full px-6 text-base font-semibold [&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {

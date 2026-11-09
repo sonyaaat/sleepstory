@@ -2,21 +2,20 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, Info, Loader2, Mic, MicOff, Moon, Watch } from "lucide-react";
+import { AlertTriangle, Bot, CalendarDays, Check, Keyboard, Loader2, Mic, Square, Watch } from "lucide-react";
 import { toast } from "sonner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
 import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/app/actions";
 import type { ExtractionResult } from "@/adapters/llm/types";
 import { fillRoughNight, followUpQuestion, type UsualTimes } from "@/core/checkin";
+import { detectHabits } from "@/core/habit-detect";
 import { consistencyIssues } from "@/core/metrics";
 import {
   DiaryFieldsSchema,
@@ -32,25 +31,38 @@ import {
   type SleepAid,
   type WokeReason,
 } from "@/core/schema";
-import { formatDuration } from "@/core/time";
+import { formatClock12, formatDateLong, formatDuration } from "@/core/time";
+import { cn } from "@/lib/utils";
 import { FieldInput, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
-import { detectHabits } from "@/core/habit-detect";
-import { Toggle } from "@/components/ui/toggle";
 
-type Step = "story" | "rough" | "review" | "followup" | "habits" | "done";
+type Step = "voice" | "type" | "quick" | "review" | "followup" | "habits" | "done";
 type Values = Partial<Record<DiaryFieldKey, FieldValue>>;
+type Saved = Extract<CheckinResult, { ok: true }>;
 
-const STEP_PROGRESS: Record<Step, number> = { story: 15, rough: 30, review: 45, followup: 65, habits: 85, done: 100 };
+const CHIP = "h-11 rounded-full! border-2! px-4 text-[15px] font-semibold";
 
-export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualDayText: string | null }) {
-  const [step, setStep] = useState<Step>("story");
+export function CheckinFlow({
+  initialMode,
+  usual,
+  usualDayText,
+  firstName,
+  visitDate,
+}: {
+  initialMode: "voice" | "type" | "quick";
+  usual: UsualTimes;
+  usualDayText: string | null;
+  firstName: string;
+  visitDate: string;
+}) {
+  const [step, setStep] = useState<Step>(initialMode);
   const [story, setStory] = useState("");
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [values, setValues] = useState<Values>({});
   const [assumed, setAssumed] = useState<Set<DiaryFieldKey>>(new Set());
   const [mode, setMode] = useState<"full" | "rough">("full");
-  const [wokeReason, setWokeReason] = useState<WokeReason | null>(null);
+  const [wokeReasons, setWokeReasons] = useState<WokeReason[]>([]);
+  const [wakeNote, setWakeNote] = useState("");
   const [habits, setHabits] = useState<HabitKey[]>([]);
   const [fromStory, setFromStory] = useState<HabitKey[]>([]);
   // HAB-09: free text or voice for anything the chips don't cover.
@@ -59,47 +71,33 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
   const [dismissed, setDismissed] = useState<HabitKey[]>([]);
   const [tookAid, setTookAid] = useState(false);
   const [sleepAid, setSleepAid] = useState<SleepAid | null>(null);
-  const [result, setResult] = useState<Extract<CheckinResult, { ok: true }> | null>(null);
+  const [editing, setEditing] = useState<DiaryFieldKey | null>(null);
+  const [result, setResult] = useState<Saved | null>(null);
   const [watchAnswered, setWatchAnswered] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, startSaving] = useTransition();
   const startedAt = useRef(Date.now());
+  const storyRef = useRef("");
+  storyRef.current = story;
 
   useEffect(() => {
     startedAt.current = Date.now();
-    logClientEvent("checkin_started", {}).catch(() => {});
-  }, []);
+    logClientEvent("checkin_started", { mode: initialMode }).catch(() => {});
+  }, [initialMode]);
 
   const speech = useSpeech((text) => setStory((s) => (s ? `${s} ${text}` : text)));
   const noteSpeech = useSpeech((text) => changeNote(dayNote ? `${dayNote} ${text}` : text));
+  const wakeSpeech = useSpeech((text) => setWakeNote((s) => (s ? `${s} ${text}` : text)));
 
-  /** Updates the day note and ticks the chips it mentions, unless the patient unticked them before. */
-  function changeNote(next: string) {
-    setDayNote(next);
-    const found = detectHabits(next);
-    setFromNote(found.habits);
-    const add = found.habits.filter((h) => !dismissed.includes(h));
-    if (add.length) setHabits((prev) => [...new Set([...prev, ...add])]);
-    if (found.sleepAid && !tookAid) {
-      setTookAid(true);
-      setSleepAid(found.sleepAid);
-    }
-  }
-
-  function changeHabits(next: HabitKey[]) {
-    const removed = habits.filter((h) => !next.includes(h));
-    if (removed.length) setDismissed((d) => [...new Set([...d, ...removed])]);
-    setHabits(next);
-  }
-
-  // ---- Step 1: story -> extraction ----
-  async function readStory() {
+  // ---- Story -> extraction ----
+  async function readStory(text = storyRef.current) {
+    if (!text.trim()) return;
     setLoading(true);
     try {
       const res = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ story }),
+        body: JSON.stringify({ story: text }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Something went wrong");
       const r: ExtractionResult = await res.json();
@@ -130,6 +128,12 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
     }
   }
 
+  function finishVoice() {
+    speech.stop();
+    // Give the browser a moment to deliver the last words.
+    setTimeout(() => readStory(), 500);
+  }
+
   // ---- Review helpers ----
   const parsed = DiaryFieldsSchema.safeParse(values);
   const complete = parsed.success;
@@ -157,20 +161,40 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
     setExtraction({ ...extraction, ambiguity: null });
   }
 
-  function afterReview() {
-    setStep(followUpQuestion(parsed.data!) ? "followup" : "habits");
-  }
+  const followUp = complete ? followUpQuestion(parsed.data) : null;
 
-  // ---- Rough night ----
-  const [rough, setRough] = useState<{ solMin?: number; wasoMin?: number; quality?: number }>({});
-  function finishRough() {
-    const { fields, assumed: a } = fillRoughNight(rough as Required<typeof rough>, usual);
+  // ---- Quick check-in (rough-night mode, CHK-10) ----
+  const [quick, setQuick] = useState<{ quality?: number; solMin?: number; wasoMin?: number }>({});
+  const quickLeft = [quick.quality, quick.solMin, quick.wasoMin].filter((x) => x == null).length;
+  function finishQuick() {
+    const { fields, assumed: a } = fillRoughNight(quick as Required<typeof quick>, usual);
     setValues(fields);
     setAssumed(new Set(a));
     setMode("rough");
     setExtraction(null);
     setStep("habits");
   }
+
+  // ---- Habits and day note ----
+  function changeNote(next: string) {
+    setDayNote(next);
+    const found = detectHabits(next);
+    setFromNote(found.habits);
+    const add = found.habits.filter((h) => !dismissed.includes(h));
+    if (add.length) setHabits((prev) => [...new Set([...prev, ...add])]);
+    if (found.sleepAid && !tookAid) {
+      setTookAid(true);
+      setSleepAid(found.sleepAid);
+    }
+  }
+
+  function changeHabits(next: HabitKey[]) {
+    const removed = habits.filter((h) => !next.includes(h));
+    if (removed.length) setDismissed((d) => [...new Set([...d, ...removed])]);
+    setHabits(next);
+  }
+
+  const somethingDifferent = habits.length > 0 || tookAid || dayNote.trim().length > 0;
 
   // ---- Save ----
   function save(normalDay = false) {
@@ -181,7 +205,8 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
         mode,
         habits: normalDay ? [] : habits,
         sleepAid: !normalDay && tookAid ? sleepAid : null,
-        wokeReason,
+        wokeReasons,
+        wakeNote: wakeNote.trim() || null,
         story: story.trim() || null,
         dayNote: dayNote.trim() || null,
         quote: extraction?.quote ?? null,
@@ -191,7 +216,7 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
       });
       if (!r.ok) {
         toast.error(r.errors.join(" "));
-        setStep(mode === "rough" ? "rough" : "review");
+        setStep(mode === "rough" ? "quick" : "review");
         return;
       }
       setResult(r);
@@ -199,358 +224,424 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
     });
   }
 
-  const followUp = complete ? followUpQuestion(parsed.data) : null;
+  // ================= Screens =================
 
-  return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-      <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" aria-label="Back to home">
-          <Link href="/patient">
-            <ArrowLeft />
-          </Link>
-        </Button>
-        <Progress value={STEP_PROGRESS[step]} className="flex-1" aria-label="Check-in progress" />
-      </div>
+  if (step === "voice") {
+    return (
+      <VoiceScreen
+        speech={speech}
+        story={story}
+        setStory={setStory}
+        loading={loading}
+        onFinish={finishVoice}
+        onType={() => {
+          speech.stop();
+          setStep("type");
+        }}
+      />
+    );
+  }
 
-      {step === "story" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Tell us about last night</CardTitle>
-            <CardDescription>
-              When you went to bed, how long it took to fall asleep, if you woke up, when you got up. Any words are
-              fine.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Label htmlFor="story" className="sr-only">
-              Your night
-            </Label>
-            <Textarea
-              id="story"
-              rows={6}
-              className="text-base"
-              placeholder="e.g. Went to bed around 12:30, took about an hour to fall asleep, woke up twice…"
-              value={speech.interim ? `${story} ${speech.interim}` : story}
-              onChange={(e) => setStory(e.target.value)}
-            />
-            {speech.supported && (
-              <Button variant={speech.listening ? "destructive" : "outline"} className="w-full" onClick={speech.toggle}>
-                {speech.listening ? <MicOff /> : <Mic />} {speech.listening ? "Stop recording" : "Speak instead"}
-              </Button>
+  if (step === "type") {
+    return (
+      <PatientShell>
+        <TopLink href="/patient" label="Back" />
+        <p className="mt-8 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
+        <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">Tell me about last night</h1>
+        <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">
+          When you went to bed, how long it took to fall asleep, if you woke up, when you got up. Any words are fine.
+        </p>
+        <Label htmlFor="story" className="sr-only">
+          Your night
+        </Label>
+        <Textarea
+          id="story"
+          rows={7}
+          autoFocus
+          className="mt-6 min-h-44 rounded-3xl border-0 bg-card p-5 text-lg leading-relaxed ring-1 ring-border/60 placeholder:text-muted-foreground/70 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-brand dark:bg-card"
+          placeholder="Went to bed around 12:30, took about an hour to fall asleep, woke up twice…"
+          value={story}
+          onChange={(e) => setStory(e.target.value)}
+        />
+        {speech.supported && (
+          <Button variant="ghost" className="mt-3 self-start" onClick={() => setStep("voice")}>
+            <Mic /> Speak instead
+          </Button>
+        )}
+        <div className="mt-auto space-y-3 pt-8">
+          <Button variant="brand" size="xl" disabled={!story.trim() || loading} onClick={() => readStory()}>
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin" /> Reading your story…
+              </>
+            ) : (
+              "Continue"
             )}
-            {speech.supported && <VoiceNote />}
-          </CardContent>
-          <CardFooter className="flex-col gap-2">
-            <Button size="lg" className="h-12 w-full text-base" disabled={!story.trim() || loading} onClick={readStory}>
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin" /> Reading your story…
-                </>
-              ) : (
-                "Continue"
-              )}
-            </Button>
-            <Button variant="link" onClick={() => setStep("rough")}>
-              <Moon /> Rough night? Just 3 questions
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+          </Button>
+          <button
+            type="button"
+            className="w-full py-2 text-center font-semibold text-primary underline underline-offset-4"
+            onClick={() => setStep("quick")}
+          >
+            Rough night? Answer in 3 taps
+          </button>
+        </div>
+      </PatientShell>
+    );
+  }
 
-      {step === "rough" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Just the basics</CardTitle>
-            <CardDescription>Sorry it was a rough night. Three quick taps and you&apos;re done.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <ChipQuestion
-              label="How long did it take to fall asleep?"
-              options={[15, 30, 60, 90, 120]}
-              format={(m) => (m === 120 ? "2 h+" : formatDuration(m))}
-              value={rough.solMin}
-              onChange={(v) => setRough((r) => ({ ...r, solMin: v }))}
-            />
-            <ChipQuestion
-              label="How long were you awake during the night?"
-              options={[0, 15, 30, 60, 120]}
-              format={(m) => (m === 0 ? "None" : m === 120 ? "2 h+" : formatDuration(m))}
-              value={rough.wasoMin}
-              onChange={(v) => setRough((r) => ({ ...r, wasoMin: v }))}
-            />
-            <ChipQuestion
-              label="How would you rate your sleep?"
-              options={[1, 2, 3, 4, 5]}
-              format={(q) => QUALITY_LABELS[q - 1]}
-              value={rough.quality}
-              onChange={(v) => setRough((r) => ({ ...r, quality: v }))}
-            />
-            <p className="text-xs text-muted-foreground">
-              Bed and wake times will come from your usual times. You can change them later.
-            </p>
-          </CardContent>
-          <CardFooter className="flex-col gap-2">
-            <Button
-              size="lg"
-              className="h-12 w-full"
-              disabled={rough.solMin == null || rough.wasoMin == null || rough.quality == null}
-              onClick={finishRough}
-            >
+  if (step === "quick") {
+    return (
+      <PatientShell>
+        <TopLink href="/patient" label="Back" />
+        <h1 className="mt-8 font-display text-[36px] leading-[1.1]">Quick check-in</h1>
+        <p className="mt-2 text-[17px] text-muted-foreground">
+          Three taps. Times come from your usual schedule, and you can change them later.
+        </p>
+        <div className="mt-8 space-y-7">
+          <Segmented
+            label="How did you sleep?"
+            options={[1, 2, 3, 4, 5].map((q) => ({ value: q, label: ["Awful", "Poor", "Okay", "Good", "Great"][q - 1] }))}
+            value={quick.quality}
+            onChange={(v) => setQuick((x) => ({ ...x, quality: v }))}
+          />
+          <Segmented
+            label="How long to fall asleep?"
+            options={[
+              { value: 10, label: "Quickly" },
+              { value: 30, label: "~30 min" },
+              { value: 60, label: "~1 hour" },
+              { value: 90, label: "Longer" },
+            ]}
+            value={quick.solMin}
+            onChange={(v) => setQuick((x) => ({ ...x, solMin: v }))}
+          />
+          <Segmented
+            label="How long were you awake in the night?"
+            options={[
+              { value: 0, label: "Not at all" },
+              { value: 20, label: "A bit" },
+              { value: 45, label: "~45 min" },
+              { value: 90, label: "Longer" },
+            ]}
+            value={quick.wasoMin}
+            onChange={(v) => setQuick((x) => ({ ...x, wasoMin: v }))}
+          />
+        </div>
+        <div className="mt-auto pt-10">
+          {quickLeft > 0 ? (
+            <Button variant="outline" size="xl" disabled className="border-2 opacity-100">
+              {quickLeft} question{quickLeft === 1 ? "" : "s"} left
+            </Button>
+          ) : (
+            <Button variant="brand" size="xl" onClick={finishQuick}>
               Continue
             </Button>
-            <Button variant="link" onClick={() => setStep("story")}>
-              Tell the full story instead
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+          )}
+        </div>
+      </PatientShell>
+    );
+  }
 
-      {step === "review" && extraction && (
-        <>
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="text-xl font-semibold">Is this right?</h1>
-            <AiPanel extraction={extraction} />
+  if (step === "review" && extraction) {
+    return (
+      <PatientShell>
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            className="font-semibold text-primary underline underline-offset-4"
+            onClick={() => setStep(initialMode === "voice" && speech.supported ? "voice" : "type")}
+          >
+            {initialMode === "voice" ? "Record again" : "Edit my words"}
+          </button>
+          <AiPanel extraction={extraction} />
+        </div>
+        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Here&apos;s what I heard</h1>
+        <p className="mt-2 text-[17px] text-muted-foreground">Tap anything that&apos;s not quite right.</p>
+
+        {extraction.mode === "fallback" && (
+          <p className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
+            The AI wasn&apos;t available{extraction.fallbackReason === "timeout" ? " in time" : ""}, so a simpler method
+            read your story. Please check each line.
+          </p>
+        )}
+
+        {extraction.ambiguity && (
+          <div className="mt-4 rounded-3xl bg-brand-soft p-4 ring-1 ring-brand/50">
+            <p className="flex items-start gap-2 font-semibold">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-brand" /> {extraction.ambiguity.question}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {extraction.ambiguity.options.map((o) => (
+                <Button key={o.label} variant="outline" className="rounded-full" onClick={() => chooseAmbiguity(o.value)}>
+                  {o.label}
+                </Button>
+              ))}
+            </div>
           </div>
-          {extraction.mode === "fallback" && (
-            <Alert>
-              <Info />
-              <AlertTitle>Filled in by the simple parser</AlertTitle>
-              <AlertDescription>
-                The AI model wasn&apos;t available{extraction.fallbackReason === "timeout" ? " in time" : ""}, so a
-                simpler method read your story. Please check every field.
-              </AlertDescription>
-            </Alert>
-          )}
-          {extraction.ambiguity && (
-            <Alert className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
-              <AlertTriangle className="text-amber-600" />
-              <AlertTitle>{extraction.ambiguity.question}</AlertTitle>
-              <AlertDescription className="mt-2 flex flex-wrap gap-2">
-                {extraction.ambiguity.options.map((o) => (
-                  <Button key={o.label} size="sm" variant="outline" onClick={() => chooseAmbiguity(o.value)}>
-                    {o.label}
-                  </Button>
-                ))}
-              </AlertDescription>
-            </Alert>
-          )}
-          <Card>
-            <CardContent className="divide-y">
-              {FIELD_ORDER.map((k) => {
-                const f = extraction.fields[k];
-                const isMissing = values[k] === undefined || values[k] === "";
-                const check = !isMissing && f && extraction.fields[k]!.value === values[k] && (f.confidence !== "high" || assumed.has(k));
-                return (
-                  <div
-                    key={k}
-                    className={`flex flex-col gap-2 py-3 ${isMissing ? "-mx-2 rounded-md bg-destructive/5 px-2" : check ? "-mx-2 rounded-md bg-amber-50 px-2 dark:bg-amber-950/20" : ""}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor={`field-${k}`} className="text-sm font-medium">
-                        {FIELD_META[k].label}
-                      </Label>
-                      {isMissing && <Badge variant="destructive">Please fill in</Badge>}
-                      {!isMissing && assumed.has(k) && <Badge variant="outline">Assumed</Badge>}
-                      {!isMissing && check && !assumed.has(k) && (
-                        <Badge variant="outline" className="border-amber-400 text-amber-700 dark:text-amber-400">
-                          Please check
-                        </Badge>
-                      )}
-                    </div>
-                    <FieldInput name={k} value={values[k]} onChange={(v) => setField(k, v)} />
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-          {issues.length > 0 && (
-            <Alert variant="destructive">
-              <AlertTriangle />
-              <AlertTitle>Something doesn&apos;t add up</AlertTitle>
-              <AlertDescription>
-                <ul className="list-disc pl-4">
-                  {issues.map((i) => (
-                    <li key={i}>{i}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-          <Button size="lg" className="h-12 w-full text-base" disabled={!complete || issues.length > 0} onClick={afterReview}>
-            {missing.length ? `Fill in ${missing.length} more` : "Looks right"}
-          </Button>
-        </>
-      )}
+        )}
 
-      {step === "followup" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">
-              {followUp === "woke_reason" ? "What woke you up?" : "What kept you awake?"}
-            </CardTitle>
-            <CardDescription>Optional. Pick the closest one.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ul className="mt-5 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
+          {FIELD_ORDER.map((k) => {
+            const f = extraction.fields[k];
+            const v = values[k];
+            const isMissing = v === undefined || v === "";
+            const unchanged = f && f.value === v;
+            const check = !isMissing && unchanged && f.confidence !== "high" && !assumed.has(k);
+            const approx = unchanged && f.confidence === "medium";
+            return (
+              <li key={k}>
+                <button
+                  type="button"
+                  onClick={() => setEditing(k)}
+                  className="flex min-h-14 w-full items-center justify-between gap-3 py-3.5 text-left"
+                >
+                  <span className="text-[15px] text-muted-foreground">{FIELD_META[k].label}</span>
+                  <span className="flex flex-col items-end">
+                    {isMissing ? (
+                      <span className="font-semibold text-warn-foreground">Tap to add</span>
+                    ) : (
+                      <span className="flex items-center gap-2 text-right font-semibold">
+                        {check && <span className="size-2 rounded-full bg-brand" aria-label="Please check" />}
+                        {formatValue(k, v!, approx)}
+                      </span>
+                    )}
+                    {!isMissing && assumed.has(k) && <span className="text-xs text-muted-foreground">assumed</span>}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-brand" /> Please check
+          </span>
+          <span>assumed = not said, worked out from your other answers</span>
+        </p>
+
+        {issues.length > 0 && (
+          <div className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
+            <p className="font-semibold">Something doesn&apos;t add up</p>
+            <ul className="mt-1 list-disc pl-4">
+              {issues.map((i) => (
+                <li key={i}>{i}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="mt-auto pt-8">
+          <Button
+            variant="brand"
+            size="xl"
+            disabled={!complete || issues.length > 0}
+            onClick={() => setStep(followUp ? "followup" : "habits")}
+          >
+            {missing.length ? `Add ${missing.length} more to continue` : "Yes, that’s right"}
+          </Button>
+        </div>
+
+        <Sheet open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
+          <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl px-6 pb-8">
+            {editing && (
+              <>
+                <SheetHeader className="px-0">
+                  <SheetTitle className="font-display text-2xl font-normal">{FIELD_META[editing].label}</SheetTitle>
+                  <SheetDescription>Change it to what really happened.</SheetDescription>
+                </SheetHeader>
+                <FieldInput name={editing} value={values[editing]} onChange={(v) => setField(editing, v)} />
+                <Button variant="brand" size="xl" className="mt-6" onClick={() => setEditing(null)}>
+                  Done
+                </Button>
+              </>
+            )}
+          </SheetContent>
+        </Sheet>
+      </PatientShell>
+    );
+  }
+
+  if (step === "followup" && parsed.success) {
+    const woke = followUp === "woke_reason";
+    const times = parsed.data.awakenings;
+    return (
+      <PatientShell>
+        <div className="flex items-center justify-between">
+          <button type="button" className="font-semibold text-primary underline underline-offset-4" onClick={() => setStep("review")}>
+            Back
+          </button>
+          <button
+            type="button"
+            className="font-semibold text-primary underline underline-offset-4"
+            onClick={() => {
+              setWokeReasons([]);
+              setWakeNote("");
+              setStep("habits");
+            }}
+          >
+            Skip
+          </button>
+        </div>
+        <p className="mt-8 text-[17px] text-muted-foreground">
+          {woke
+            ? `You woke up ${times === 1 ? "once" : times === 2 ? "twice" : `${times} times`} last night.`
+            : "It took a while to fall asleep."}
+        </p>
+        <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">{woke ? "What woke you up?" : "What kept you awake?"}</h1>
+        <p className="mt-2 text-[17px] text-muted-foreground">Pick any that fit.</p>
+        <ToggleGroup
+          type="multiple"
+          variant="outline"
+          className="mt-6 flex w-full flex-wrap justify-start gap-2.5"
+          value={wokeReasons}
+          onValueChange={(v) => setWokeReasons(v as WokeReason[])}
+        >
+          {WOKE_REASONS.map((r) => (
+            <ToggleGroupItem key={r.key} value={r.key} className={CHIP}>
+              {r.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <OwnWords
+          className="mt-6"
+          label="Or tell me in your own words"
+          value={wakeNote}
+          onChange={setWakeNote}
+          speech={wakeSpeech}
+          placeholder="e.g. my roommate came home late"
+        />
+        <div className="mt-auto pt-8">
+          <Button variant="brand" size="xl" onClick={() => setStep("habits")}>
+            Next
+          </Button>
+        </div>
+      </PatientShell>
+    );
+  }
+
+  if (step === "habits") {
+    return (
+      <PatientShell>
+        <button
+          type="button"
+          className="self-start font-semibold text-primary underline underline-offset-4"
+          onClick={() => setStep(mode === "rough" ? "quick" : followUp ? "followup" : "review")}
+        >
+          Back
+        </button>
+        <h1 className="mt-8 font-display text-[36px] leading-[1.1]">Was yesterday different from usual?</h1>
+        {usualDayText && (
+          <p className="mt-5 rounded-2xl bg-card px-4 py-3 text-[15px] leading-relaxed text-muted-foreground ring-1 ring-border/60">
+            Your usual day: {usualDayText}
+          </p>
+        )}
+        <Button
+          variant={somethingDifferent ? "outline" : "brand"}
+          size="xl"
+          className="mt-5"
+          disabled={saving}
+          onClick={() => save(true)}
+        >
+          No, it was a normal day
+        </Button>
+
+        <p className="mt-7 text-[15px] text-muted-foreground">Or pick what was different</p>
+        <ToggleGroup
+          type="multiple"
+          variant="outline"
+          className="mt-3 flex w-full flex-wrap justify-start gap-2.5"
+          value={habits}
+          onValueChange={(v) => changeHabits(v as HabitKey[])}
+        >
+          {HABITS.map((h) => (
+            <ToggleGroupItem key={h.key} value={h.key} className={CHIP}>
+              {h.short}
+              {habits.includes(h.key) && (fromStory.includes(h.key) || fromNote.includes(h.key)) && (
+                <span className="text-xs font-normal opacity-80">· from your {fromStory.includes(h.key) ? "story" : "note"}</span>
+              )}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <div className="mt-2.5 flex flex-wrap gap-2.5">
+          <Toggle
+            variant="outline"
+            className={CHIP}
+            pressed={tookAid}
+            onPressedChange={(on) => {
+              setTookAid(on);
+              if (!on) setSleepAid(null);
+            }}
+          >
+            Took a sleep aid
+          </Toggle>
+        </div>
+        {tookAid && (
+          <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border/60">
+            <p className="text-sm text-muted-foreground">Which kind?</p>
             <ToggleGroup
               type="single"
               variant="outline"
-              className="grid w-full grid-cols-2 gap-2"
-              value={wokeReason ?? ""}
-              onValueChange={(v) => setWokeReason((v || null) as WokeReason | null)}
+              className="mt-2 flex flex-wrap justify-start gap-2"
+              value={sleepAid ?? ""}
+              onValueChange={(v) => setSleepAid((v || null) as SleepAid | null)}
             >
-              {WOKE_REASONS.map((r) => (
-                <ToggleGroupItem key={r.key} value={r.key} className="h-12 rounded-md! border! text-sm">
-                  {r.label}
+              {SLEEP_AIDS.map((a) => (
+                <ToggleGroupItem key={a.key} value={a.key} className="h-10 rounded-full! border-2! px-4 text-sm font-semibold">
+                  {a.label}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
-          </CardContent>
-          <CardFooter className="flex-col gap-2">
-            <Button size="lg" className="h-12 w-full" onClick={() => setStep("habits")}>
-              {wokeReason ? "Continue" : "Skip"}
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {step === "habits" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Was yesterday different from usual?</CardTitle>
-            {usualDayText && <CardDescription>Your usual day: {usualDayText}</CardDescription>}
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-12 w-full text-base"
-              disabled={saving}
-              onClick={() => save(true)}
-            >
-              <CheckCircle2 /> No, a normal day
-            </Button>
-            <Separator />
-            <p className="text-sm text-muted-foreground">Or tap what was different:</p>
-            <ToggleGroup
-              type="multiple"
-              variant="outline"
-              className="flex w-full flex-wrap justify-start gap-2"
-              value={habits}
-              onValueChange={(v) => changeHabits(v as HabitKey[])}
-            >
-              {HABITS.map((h) => (
-                <ToggleGroupItem key={h.key} value={h.key} className="h-10 rounded-full! border! px-3 text-sm">
-                  {h.short}
-                  {habits.includes(h.key) && (fromStory.includes(h.key) || fromNote.includes(h.key)) && (
-                    <span className="text-[10px] opacity-70">
-                      · from your {fromStory.includes(h.key) ? "story" : "note"}
-                    </span>
-                  )}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-            <div className="space-y-2">
-              <Toggle
-                variant="outline"
-                className="h-10 rounded-full! px-3 text-sm"
-                pressed={tookAid}
-                onPressedChange={(on) => {
-                  setTookAid(on);
-                  if (!on) setSleepAid(null);
-                }}
-              >
-                Took a sleep aid
-              </Toggle>
-              {tookAid && (
-                <ToggleGroup
-                  type="single"
-                  variant="outline"
-                  className="flex flex-wrap justify-start gap-2"
-                  value={sleepAid ?? ""}
-                  onValueChange={(v) => setSleepAid((v || null) as SleepAid | null)}
-                >
-                  {SLEEP_AIDS.map((a) => (
-                    <ToggleGroupItem key={a.key} value={a.key} className="h-9 rounded-full! border! px-3 text-sm">
-                      {a.label}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="day-note" className="text-sm">
-                Anything else different, or something new?{" "}
-                <span className="font-normal text-muted-foreground">(optional)</span>
-              </Label>
-              <Textarea
-                id="day-note"
-                rows={2}
-                maxLength={500}
-                className="text-base"
-                placeholder="e.g. new medication, felt sick, travelled, late shift at work, or what stayed the same"
-                value={noteSpeech.interim ? `${dayNote} ${noteSpeech.interim}` : dayNote}
-                onChange={(e) => changeNote(e.target.value)}
-              />
-              {noteSpeech.supported && (
-                <Button
-                  size="sm"
-                  variant={noteSpeech.listening ? "destructive" : "outline"}
-                  onClick={noteSpeech.toggle}
-                >
-                  {noteSpeech.listening ? <MicOff /> : <Mic />} {noteSpeech.listening ? "Stop recording" : "Say it instead"}
-                </Button>
-              )}
-              {noteSpeech.supported && <VoiceNote />}
-              {fromNote.some((h) => habits.includes(h)) && (
-                <p className="text-xs text-muted-foreground">
-                  We ticked what we recognised in your note. Untick anything that&apos;s wrong. Your note is shared
-                  with your provider in your own words.
-                </p>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              size="lg"
-              className="h-12 w-full text-base"
-              disabled={saving || (habits.length === 0 && !tookAid && !dayNote.trim()) || (tookAid && !sleepAid)}
-              onClick={() => save()}
-            >
-              {saving ? <Loader2 className="animate-spin" /> : null} Save
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+        <OwnWords
+          className="mt-6"
+          label="Anything else different, or something new?"
+          hint="Optional, e.g. new medication, travelled, late shift, or what stayed the same."
+          value={dayNote}
+          onChange={changeNote}
+          speech={noteSpeech}
+          placeholder="Tell me in your own words"
+        />
+        {fromNote.some((h) => habits.includes(h)) && (
+          <p className="mt-2 px-1 text-xs text-muted-foreground">
+            I ticked what I recognised in your note. Untick anything that&apos;s wrong.
+          </p>
+        )}
 
-      {step === "done" && result && (
-        <>
-          <Card className="border-primary/30 bg-primary/5 text-center">
-            <CardHeader>
-              <CheckCircle2 className="mx-auto size-10 text-primary" />
-              <CardTitle className="text-xl">Thanks, that&apos;s saved</CardTitle>
-              <CardDescription>
-                Every entry gives your provider a clearer picture of how you&apos;ve really been sleeping.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="font-medium">
-                {result.streak.logged} of the last {result.streak.window} days logged
-              </p>
-            </CardContent>
-          </Card>
+        {somethingDifferent && (
+          <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
+            <Button variant="brand" size="xl" disabled={saving || (tookAid && !sleepAid)} onClick={() => save()}>
+              {saving ? <Loader2 className="animate-spin" /> : <Check />} Save
+            </Button>
+          </div>
+        )}
+      </PatientShell>
+    );
+  }
 
+  if (step === "done" && result) {
+    return (
+      <PatientShell>
+        <MoonMark className="mt-8 size-16" />
+        <h1 className="mt-8 font-display text-[40px] leading-[1.08]">Saved. Thanks, {firstName}.</h1>
+        <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
+          One rough night doesn&apos;t define your sleep. Your provider will see the pattern over weeks, not single
+          nights.
+        </p>
+
+        <div className="mt-8 space-y-3">
           {result.watchTstMin != null && result.mismatch && !watchAnswered && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Watch className="size-4" /> Your watch saw it differently
-                </CardTitle>
-                <CardDescription>
-                  Your watch says you slept {formatDuration(result.watchTstMin)}; your diary says{" "}
-                  {formatDuration(result.diaryTstMin)}. Your answer counts, not the watch. What do you think happened?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-2">
+            <SoftCard className="ring-brand/60">
+              <p className="flex items-center gap-2 font-semibold">
+                <Watch className="size-5 text-brand" /> Your watch saw it differently
+              </p>
+              <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
+                Your watch counted {formatDuration(result.watchTstMin)} of sleep; you said{" "}
+                {formatDuration(result.diaryTstMin)}. Your answer is what counts. What do you think happened?
+              </p>
+              <div className="mt-4 grid gap-2">
                 {(
                   [
                     ["lying_awake", "I was lying awake but still"],
@@ -561,7 +652,7 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
                   <Button
                     key={key}
                     variant="outline"
-                    className="h-11 justify-start"
+                    className="h-12 justify-start rounded-2xl text-[15px]"
                     onClick={async () => {
                       await answerWatch(result.nightId, key);
                       setWatchAnswered(true);
@@ -570,67 +661,281 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
                     {label}
                   </Button>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </SoftCard>
           )}
-          {result.watchTstMin != null && !result.mismatch && (
-            <p className="text-center text-sm text-muted-foreground">
-              <Watch className="mr-1 inline size-4" /> Your watch and your diary roughly agree.
-            </p>
+          {watchAnswered && (
+            <p className="px-1 text-sm text-muted-foreground">Thanks, that&apos;s noted for your provider.</p>
           )}
-          {watchAnswered && <p className="text-center text-sm text-muted-foreground">Thanks, noted for your provider.</p>}
 
-          <Button asChild size="lg" className="h-12 w-full">
+          <WeekDots week={result.week} />
+
+          <SoftCard className="flex gap-3">
+            <CalendarDays className="mt-0.5 size-5 shrink-0 text-primary" />
+            <p className="text-[15px] leading-relaxed">
+              Visit with your primary care provider on <strong>{formatDateLong(visitDate)}</strong>. Your Sleep
+              Snapshot has <strong>{result.snapshotNights} nights</strong> so far.
+            </p>
+          </SoftCard>
+        </div>
+
+        <div className="mt-auto pt-8">
+          <Button asChild variant="ghost" size="xl">
             <Link href="/patient">Back to home</Link>
           </Button>
-        </>
-      )}
+        </div>
+      </PatientShell>
+    );
+  }
+
+  return null;
+}
+
+// ================= Pieces =================
+
+function TopLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="self-start font-semibold text-primary underline underline-offset-4">
+      {label}
+    </Link>
+  );
+}
+
+function formatValue(k: DiaryFieldKey, v: FieldValue, approx: boolean | undefined): string {
+  const kind = FIELD_META[k].kind;
+  if (kind === "clock") return formatClock12(String(v));
+  if (kind === "quality") return `${QUALITY_LABELS[Number(v) - 1]} (${v} of 5)`;
+  if (kind === "count") return `${v} time${Number(v) === 1 ? "" : "s"}`;
+  return `${approx ? "about " : ""}${formatDuration(Number(v))}`;
+}
+
+type Speech = ReturnType<typeof useSpeech>;
+
+/** The "Listening…" screen from the reference design (CHK-02). */
+function VoiceScreen({
+  speech,
+  story,
+  setStory,
+  loading,
+  onFinish,
+  onType,
+}: {
+  speech: Speech;
+  story: string;
+  setStory: (s: string) => void;
+  loading: boolean;
+  onFinish: () => void;
+  onType: () => void;
+}) {
+  const [seconds, setSeconds] = useState(0);
+  const [checked, setChecked] = useState(false);
+  const { supported, listening, start } = speech;
+
+  // Start listening right away; the tap on the home screen was the user's gesture.
+  useEffect(() => {
+    if (supported) start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supported]);
+
+  useEffect(() => {
+    if (!listening) return;
+    setSeconds(0);
+    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [listening]);
+
+  // Browsers without speech recognition (e.g. Firefox) go straight to typing.
+  useEffect(() => {
+    const t = setTimeout(() => setChecked(true), 400);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    if (checked && !supported) onType();
+  }, [checked, supported, onType]);
+
+  const text = speech.interim ? `${story} ${speech.interim}`.trim() : story;
+
+  return (
+    <main className="mx-auto flex min-h-[calc(100dvh-49px)] w-full max-w-md flex-col px-6 pt-8 pb-10">
+      <div className="flex items-center justify-between">
+        <Link href="/patient" className="font-semibold text-primary underline underline-offset-4" onClick={speech.stop}>
+          Cancel
+        </Link>
+        {listening && (
+          <span className="flex items-center gap-2 text-[15px] text-muted-foreground tabular-nums">
+            <span className="size-2.5 animate-pulse rounded-full bg-[#ff8a7a]" />
+            {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
+          </span>
+        )}
+      </div>
+      <h1 className="mt-8 font-display text-[40px] leading-[1.1]">
+        {loading ? "Reading your story…" : listening ? "Listening…" : story ? "Got it" : "Tap to start"}
+      </h1>
+      <p className="mt-2 text-[17px] text-muted-foreground">
+        {loading ? "Turning your words into your sleep diary." : "Talk naturally. You can stop any time."}
+      </p>
+
+      <div className="my-10 flex h-10 items-center justify-center gap-[6px]" aria-hidden="true">
+        {Array.from({ length: 28 }, (_, i) => (
+          <span
+            key={i}
+            className={cn(
+              "h-full w-[6px] rounded-full",
+              i % 3 === 0 ? "bg-brand" : "bg-muted-foreground/50",
+              listening ? "ss-bar" : "scale-y-[0.35]",
+            )}
+            style={listening ? { animationDelay: `${(i * 73) % 900}ms` } : undefined}
+          />
+        ))}
+      </div>
+
+      <Label htmlFor="voice-story" className="sr-only">
+        What you said
+      </Label>
+      <Textarea
+        id="voice-story"
+        readOnly={listening}
+        value={text}
+        onChange={(e) => setStory(e.target.value)}
+        placeholder="Your words will appear here as you talk."
+        className="min-h-56 flex-1 resize-none rounded-3xl border-0 bg-card p-6 text-xl leading-relaxed ring-1 ring-border/60 placeholder:text-muted-foreground/70 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-brand dark:bg-card"
+      />
+
+      <div className="mt-8 flex flex-col items-center gap-3">
+        {loading ? (
+          <Loader2 className="size-10 animate-spin text-brand" />
+        ) : listening ? (
+          <button
+            type="button"
+            onClick={onFinish}
+            aria-label="Finish"
+            className="flex size-20 items-center justify-center rounded-full bg-brand text-brand-foreground transition-transform active:scale-95"
+          >
+            <Square className="size-6 fill-current" />
+          </button>
+        ) : story.trim() ? (
+          <Button variant="brand" size="xl" onClick={onFinish}>
+            Continue
+          </Button>
+        ) : (
+          <button
+            type="button"
+            onClick={start}
+            aria-label="Start talking"
+            className="flex size-20 items-center justify-center rounded-full bg-brand text-brand-foreground transition-transform active:scale-95"
+          >
+            <Mic className="size-8" />
+          </button>
+        )}
+        {!loading && !story.trim() && !listening && <p className="text-[15px] text-muted-foreground">Tap to talk</p>}
+        {!loading && listening && <p className="text-[15px] text-muted-foreground">Tap to finish</p>}
+        <button
+          type="button"
+          className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground underline underline-offset-4"
+          onClick={onType}
+        >
+          <Keyboard className="size-4" /> Type instead
+        </button>
+        <p className="text-center text-xs text-muted-foreground/80">
+          Voice uses your browser&apos;s speech service (in Chrome, that&apos;s Google).{" "}
+          <Link href="/patient/privacy" className="underline">
+            Learn more
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }
 
-/** Honest note under each mic button (PRIV-09): browser speech recognition isn't ours. */
-function VoiceNote() {
+/** Text box with a mic button, for "in your own words" answers. */
+function OwnWords({
+  label,
+  hint,
+  value,
+  onChange,
+  speech,
+  placeholder,
+  className,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  speech: Speech;
+  placeholder: string;
+  className?: string;
+}) {
+  const id = label.replace(/\W+/g, "-").toLowerCase();
   return (
-    <p className="text-xs text-muted-foreground">
-      Voice uses your browser&apos;s speech service (in Chrome, that&apos;s Google). Prefer privacy? Type instead.{" "}
-      <Link href="/patient/privacy" className="underline">
-        Learn more
-      </Link>
-    </p>
+    <div className={cn("rounded-3xl bg-card p-4 ring-1 ring-border/60", className)}>
+      <Label htmlFor={id} className="text-[15px] font-semibold">
+        {label}
+      </Label>
+      {hint && <p className="mt-0.5 text-sm text-muted-foreground">{hint}</p>}
+      <div className="mt-3 flex items-start gap-3">
+        {speech.supported && (
+          <button
+            type="button"
+            onClick={speech.toggle}
+            aria-label={speech.listening ? "Stop recording" : "Say it instead"}
+            className={cn(
+              "flex size-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95",
+              speech.listening ? "animate-pulse bg-[#ff8a7a] text-white" : "bg-brand text-brand-foreground",
+            )}
+          >
+            {speech.listening ? <Square className="size-4 fill-current" /> : <Mic className="size-5" />}
+          </button>
+        )}
+        <Textarea
+          id={id}
+          rows={2}
+          maxLength={500}
+          value={speech.interim ? `${value} ${speech.interim}` : value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="min-h-11 flex-1 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2"
+        />
+      </div>
+      {speech.supported && (
+        <p className="mt-2 text-xs text-muted-foreground/80">Voice uses your browser&apos;s speech service (in Chrome, Google).</p>
+      )}
+    </div>
   );
 }
 
-function ChipQuestion({
+function Segmented({
   label,
   options,
-  format,
   value,
   onChange,
 }: {
   label: string;
-  options: number[];
-  format: (n: number) => string;
+  options: { value: number; label: string }[];
   value: number | undefined;
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium">{label}</p>
+    <fieldset>
+      <legend className="mb-3 text-[17px] font-semibold">{label}</legend>
       <ToggleGroup
         type="single"
         variant="outline"
-        className="flex flex-wrap justify-start gap-2"
+        className="grid w-full gap-2"
+        style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
         value={value != null ? String(value) : ""}
         onValueChange={(v) => v && onChange(Number(v))}
       >
         {options.map((o) => (
-          <ToggleGroupItem key={o} value={String(o)} className="h-10 rounded-full! border! px-3 text-sm">
-            {format(o)}
+          <ToggleGroupItem
+            key={o.value}
+            value={String(o.value)}
+            className="h-14 rounded-2xl! border-2! bg-card px-1 text-[15px] font-semibold whitespace-normal"
+          >
+            {o.label}
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
-    </div>
+    </fieldset>
   );
 }
 
@@ -639,45 +944,44 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="ghost" size="sm" className="text-muted-foreground">
           <Bot /> What did the AI do?
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>What the AI did</DialogTitle>
+          <DialogTitle className="font-display text-xl font-normal">What the AI did</DialogTitle>
           <DialogDescription>
             {extraction.mode === "ai"
               ? `Read by a self-hosted AI model in ${(extraction.ms / 1000).toFixed(1)} s.`
-              : "The AI model wasn't available, so a simple rule-based parser was used."}
+              : "The AI model wasn't available, so a simple rule-based method was used."}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3 text-sm leading-relaxed">
           <p>
-            <span className="font-medium">Input:</span> only the words you wrote or said about last night.
+            <span className="font-semibold">Input:</span> only the words you said or typed about last night.
           </p>
           <p>
-            <span className="font-medium">Output:</span> the 8 standard sleep diary answers (from the Consensus Sleep
-            Diary), plus habits you mentioned.
+            <span className="font-semibold">Output:</span> the 8 standard sleep diary answers (Consensus Sleep Diary),
+            plus habits you mentioned.
           </p>
           <p>
-            <span className="font-medium">Limits:</span> it can misread things. Fields marked{" "}
-            <Badge variant="outline">Please check</Badge> or <Badge variant="outline">Assumed</Badge> are ones it was
-            unsure about. You have the last word on every answer.
+            <span className="font-semibold">Limits:</span> it can misread things. Answers with a yellow dot, or marked
+            &ldquo;assumed&rdquo;, are ones it was unsure about. You have the last word on every answer.
           </p>
           <p>
-            <span className="font-medium">What it never does:</span> calculate your sleep numbers, give a sleep score,
-            or diagnose anything. Your provider&apos;s summary is calculated by tested code from the answers you
-            confirm.
+            <span className="font-semibold">Never:</span> it doesn&apos;t calculate your sleep numbers, give a sleep
+            score, or diagnose anything. Your provider&apos;s summary is calculated by tested code from the answers
+            you confirm.
           </p>
           <p>
-            <span className="font-medium">Where it runs:</span> on a self-hosted model. The text of your story is not
-            sent to OpenAI or Google. (Voice typing is different: in Chrome, the browser uses Google to turn speech
-            into text. See{" "}
+            <span className="font-semibold">Where it runs:</span> on a self-hosted model. The text of your story is not
+            sent to OpenAI or Google. Voice typing is different: in Chrome, the browser uses Google to turn speech into
+            text. See{" "}
             <Link href="/patient/privacy" className="underline">
               Privacy
             </Link>
-            .)
+            .
           </p>
         </div>
       </DialogContent>

@@ -24,7 +24,7 @@ export function FieldInput({
       <Input
         id={id}
         type="time"
-        className="h-11 w-36 text-base"
+        className="h-14 w-44 rounded-2xl text-xl font-semibold"
         value={typeof value === "string" ? value : ""}
         onChange={(e) => onChange(e.target.value || undefined)}
       />
@@ -36,13 +36,13 @@ export function FieldInput({
       <ToggleGroup
         type="single"
         variant="outline"
-        className="flex-wrap justify-start"
+        className="grid w-full grid-cols-5 gap-2"
         value={value != null ? String(value) : ""}
         onValueChange={(v) => onChange(v ? Number(v) : undefined)}
         aria-label="Sleep quality"
       >
         {QUALITY_LABELS.map((label, i) => (
-          <ToggleGroupItem key={label} value={String(i + 1)} className="h-10 px-3 text-xs">
+          <ToggleGroupItem key={label} value={String(i + 1)} className="h-14 rounded-2xl! border-2! px-1 text-xs font-semibold whitespace-normal">
             {label}
           </ToggleGroupItem>
         ))}
@@ -58,11 +58,11 @@ export function FieldInput({
         inputMode="numeric"
         min={0}
         max={kind === "count" ? 30 : 720}
-        className="h-11 w-24 text-base"
+        className="h-14 w-28 rounded-2xl text-xl font-semibold"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value === "" ? undefined : Math.max(0, Math.round(Number(e.target.value))))}
       />
-      <span className="text-sm text-muted-foreground">{kind === "minutes" ? "min" : "times"}</span>
+      <span className="text-base text-muted-foreground">{kind === "minutes" ? "min" : "times"}</span>
     </div>
   );
 }

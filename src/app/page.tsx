@@ -1,63 +1,64 @@
 import Link from "next/link";
-import { Moon, UserRound, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, Lock, Sparkles, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Logo, MoonMark } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { currentSession } from "@/db/session";
 import { startAsMaya } from "./actions";
 
 export default async function StartPage() {
   const session = await currentSession();
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 px-4 py-10">
-      <div className="space-y-2 text-center">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Moon className="size-6" />
-        </div>
-        <h1 className="text-3xl font-semibold tracking-tight">SleepStory</h1>
-        <p className="text-muted-foreground">
-          Tell us about your night in your own words. Your primary care provider gets a one-page summary before your
-          visit.
+    <main className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 pt-8 pb-10">
+      <div className="flex items-center justify-between">
+        <Logo />
+        <ThemeToggle />
+      </div>
+
+      <div className="mt-14 space-y-4">
+        <MoonMark className="size-16" />
+        <h1 className="font-display text-[40px] leading-[1.08]">Tell your night. We&apos;ll do the diary.</h1>
+        <p className="text-[17px] leading-relaxed text-muted-foreground">
+          A one-minute morning check-in by voice or text. Before your visit, your primary care provider gets a
+          one-page Sleep Snapshot, and only if you approve it.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" /> Try as Maya
-          </CardTitle>
-          <CardDescription>
-            Maya is 21, a third-year student with trouble sleeping. You get your own copy of her 8 weeks of made-up
-            data, so you can log a night and see it on her Sleep Snapshot.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="flex-col gap-2">
-          <form action={startAsMaya} className="w-full">
-            <Button size="lg" className="w-full">
-              Start as Maya
-            </Button>
-          </form>
-          {session && (
-            <Button asChild variant="ghost" className="w-full">
-              <Link href="/patient">Continue where you left off</Link>
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
+      <div className="mt-10 space-y-3">
+        <form action={startAsMaya}>
+          <Button variant="brand" size="xl">
+            <Sparkles /> Try it as Maya
+          </Button>
+        </form>
+        <p className="px-2 text-center text-sm text-muted-foreground">
+          Maya is 21, a third-year student who has trouble sleeping. You get your own copy of her 8 weeks of made-up
+          data.
+        </p>
+        {session && (
+          <Button asChild variant="ghost" size="xl">
+            <Link href="/patient">
+              Continue where you left off <ArrowRight />
+            </Link>
+          </Button>
+        )}
+      </div>
 
-      <Card className="opacity-70">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserRound className="size-4" /> Start as myself <Badge variant="secondary">Coming soon</Badge>
-          </CardTitle>
-          <CardDescription>Go through onboarding with your own answers. Available in the next prototype.</CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="mt-8 flex items-center gap-3 rounded-3xl bg-card p-4 opacity-80 ring-1 ring-border/60">
+        <UserRound className="size-5 shrink-0 text-muted-foreground" />
+        <div className="text-sm">
+          <p className="font-semibold">
+            Start as myself <Badge variant="secondary" className="ml-1">Coming soon</Badge>
+          </p>
+          <p className="text-muted-foreground">Onboarding with your own answers, in the next prototype.</p>
+        </div>
+      </div>
 
-      <CardContent className="px-0 text-center text-xs text-muted-foreground">
+      <p className="mt-auto flex items-start gap-2 pt-10 text-xs text-muted-foreground">
+        <Lock className="mt-0.5 size-3.5 shrink-0" />
         Course prototype (CS497 / HLTH480). All data is made up. Not a medical device. Please don&apos;t enter real
         health information.
-      </CardContent>
+      </p>
     </main>
   );
 }

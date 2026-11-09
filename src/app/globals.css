@@ -7,7 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-figtree);
+  --font-display: var(--font-russo);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -39,6 +40,18 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-foreground);
+  --color-deep: var(--deep);
+  --color-surface-2: var(--surface-2);
+  --color-sev-1: var(--sev-1);
+  --color-sev-2: var(--sev-2);
+  --color-sev-3: var(--sev-3);
+  --color-sev-4: var(--sev-4);
+  --color-good: var(--good);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,74 +61,106 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* SleepStory theme: only colours are customised; components are shadcn/ui (NFR-10). */
+/*
+ * SleepStory theme (NFR-10): shadcn/ui components, our colours and fonts only.
+ * Palette taken from the team's reference prototype (docs/design/inspiration):
+ * night indigo + moon yellow for the patient side, lavender on white for the light theme.
+ */
 :root {
-  --background: oklch(0.99 0.004 268);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.45 0.14 268);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0.01 268);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0.005 268);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.96 0.02 268);
-  --accent-foreground: oklch(0.3 0.1 268);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.6 0.12 268);
-  --chart-1: #4350a8; /* validated: dataviz palette check */
-  --chart-2: #c4841d;
-  --chart-3: oklch(0.65 0.12 160);
-  --chart-4: oklch(0.6 0.18 25);
-  --chart-5: oklch(0.75 0.02 268);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 1rem;
+  --background: #faf9fe;
+  --foreground: #22164f;
+  --card: #ffffff;
+  --card-foreground: #22164f;
+  --surface-2: #f3f1fa;
+  --popover: #ffffff;
+  --popover-foreground: #22164f;
+  --primary: #3b2b8c;
+  --primary-foreground: #ffffff;
+  --secondary: #eeebf7;
+  --secondary-foreground: #22164f;
+  --muted: #f3f1fa;
+  --muted-foreground: #5b5480;
+  --accent: #eeebf7;
+  --accent-foreground: #22164f;
+  --destructive: #b42318;
+  --border: #ddd8f0;
+  --input: #ddd8f0;
+  --ring: #5a4ab0;
+  --brand: #f4c95d;
+  --brand-foreground: #22164f;
+  --brand-soft: #fff6db;
+  --warn: #fcefe6;
+  --warn-foreground: #8a3412;
+  --deep: #eeebf7;
+  /* chart: validated with the dataviz palette check (light surface) */
+  --chart-1: #5546b8;
+  --chart-2: #b8860b;
+  --chart-3: #b9b1de;
+  --chart-4: #8a3412;
+  --chart-5: #ddd8f0;
+  /* severity ramp, light = better night, dark = worse (validated, ordinal) */
+  --sev-1: #aaa0dc;
+  --sev-2: #8274d2;
+  --sev-3: #5c4cbf;
+  --sev-4: #33247e;
+  --good: #1f7a3a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #22164f;
+  --sidebar-primary: #3b2b8c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eeebf7;
+  --sidebar-accent-foreground: #22164f;
+  --sidebar-border: #ddd8f0;
+  --sidebar-ring: #5a4ab0;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.72 0.12 268);
-  --primary-foreground: oklch(0.2 0.05 268);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: #7480cc;
-  --chart-2: #b8801f;
-  --chart-3: oklch(0.7 0.12 160);
-  --chart-4: oklch(0.7 0.16 25);
-  --chart-5: oklch(0.5 0.02 268);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #2b1c6f;
+  --foreground: #ffffff;
+  --card: #3b2b8c;
+  --card-foreground: #ffffff;
+  --surface-2: #33237c;
+  --popover: #33237c;
+  --popover-foreground: #ffffff;
+  --primary: #f4c95d;
+  --primary-foreground: #2b1c6f;
+  --secondary: #33237c;
+  --secondary-foreground: #ffffff;
+  --muted: #33237c;
+  --muted-foreground: #cfc8f2;
+  --accent: #3b2b8c;
+  --accent-foreground: #ffffff;
+  --destructive: #ff8a7a;
+  --border: #5a4ab0;
+  --input: #5a4ab0;
+  --ring: #f4c95d;
+  --brand: #f4c95d;
+  --brand-foreground: #2b1c6f;
+  --brand-soft: rgb(244 201 93 / 0.14);
+  --warn: rgb(255 138 122 / 0.16);
+  --warn-foreground: #ffb4a8;
+  --deep: #1e1450;
+  /* chart: validated with the dataviz palette check (dark surface #3b2b8c) */
+  --chart-1: #8c7cf0;
+  --chart-2: #c2842a;
+  --chart-3: #8f84c9;
+  --chart-4: #ffb4a8;
+  --chart-5: #5a4ab0;
+  /* severity ramp on the dark card: more ink = worse (validated, ordinal) */
+  --sev-1: #8475e2;
+  --sev-2: #a69bef;
+  --sev-3: #c9c1f8;
+  --sev-4: #f0ecff;
+  --good: #86e0a6;
+  --sidebar: #2b1c6f;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #f4c95d;
+  --sidebar-primary-foreground: #2b1c6f;
+  --sidebar-accent: #3b2b8c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #5a4ab0;
+  --sidebar-ring: #f4c95d;
 }
 
 @layer base {
@@ -133,6 +178,23 @@
   }
 }
 
+/* Gentle "listening" bars for voice input */
+@keyframes ss-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+.ss-bar { animation: ss-bar 1s ease-in-out infinite; transform-origin: center; }
+
+/* The Snapshot always prints in the light theme */
 @media print {
-  @page { size: letter; margin: 12mm; }
+  @page { size: letter; margin: 10mm; }
+  .dark {
+    --background: #ffffff; --foreground: #22164f; --card: #ffffff; --card-foreground: #22164f;
+    --surface-2: #f3f1fa; --muted: #f3f1fa; --muted-foreground: #5b5480; --border: #ddd8f0;
+    --primary: #3b2b8c; --primary-foreground: #ffffff; --brand-soft: #fff6db; --warn: #fcefe6;
+    --warn-foreground: #8a3412; --chart-1: #5546b8; --chart-2: #b8860b; --chart-3: #b9b1de;
+    --destructive: #b42318; --secondary: #eeebf7; --accent: #eeebf7;
+    --sev-1: #aaa0dc; --sev-2: #8274d2; --sev-3: #5c4cbf; --sev-4: #33247e; --good: #1f7a3a;
+  }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
