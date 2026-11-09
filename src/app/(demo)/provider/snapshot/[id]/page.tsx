@@ -7,12 +7,13 @@ import { BriefView } from "@/components/snapshot/templates/brief";
 import { CalendarView } from "@/components/snapshot/templates/calendar";
 import { DashboardView } from "@/components/snapshot/templates/dashboard";
 import { OriginalView } from "@/components/snapshot/templates/original";
+import { SimpleView } from "@/components/snapshot/templates/simple";
 import { VIEWS, ViewSwitcher, type ViewKey } from "@/components/snapshot/templates/parts";
 import { buildSnapshot } from "@/core/snapshot";
 import { patientWithNights, requireSession } from "@/db/queries";
 
-// Several layouts of the same Snapshot, so the team can pick one (?view=brief|dashboard|calendar|original).
-const LAYOUTS = { brief: BriefView, dashboard: DashboardView, calendar: CalendarView, original: OriginalView };
+// Several layouts of the same Snapshot, so the team can pick one (?view=simple|brief|dashboard|calendar|original).
+const LAYOUTS = { simple: SimpleView, brief: BriefView, dashboard: DashboardView, calendar: CalendarView, original: OriginalView };
 
 export default async function SnapshotPage({
   params,
@@ -23,7 +24,7 @@ export default async function SnapshotPage({
 }) {
   const { id } = await params;
   const { view: v } = await searchParams;
-  const view: ViewKey = VIEWS.some((x) => x.key === v) ? (v as ViewKey) : "brief";
+  const view: ViewKey = VIEWS.some((x) => x.key === v) ? (v as ViewKey) : "simple";
   const session = await requireSession();
   const data = await patientWithNights(session.id, id);
   if (!data || !data.patient.sharedAt) notFound();

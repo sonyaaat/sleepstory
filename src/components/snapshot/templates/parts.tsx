@@ -304,6 +304,7 @@ export function aidChanges(s: Snapshot) {
 }
 
 export const VIEWS = [
+  { key: "simple", label: "Simple" },
   { key: "brief", label: "A · 30-second brief" },
   { key: "dashboard", label: "B · Dashboard" },
   { key: "calendar", label: "C · Calendar" },
