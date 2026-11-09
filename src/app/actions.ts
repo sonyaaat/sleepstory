@@ -49,6 +49,7 @@ const CheckinSchema = z.object({
   wokeReason: z.enum(WOKE_REASON_KEYS).nullable(),
   story: z.string().max(2000).nullable(),
   quote: z.string().max(300).nullable(),
+  dayNote: z.string().trim().max(500).nullable(),
   aiMode: z.enum(["ai", "fallback", "manual"]),
   aiFieldsCorrected: z.number().int().min(0).max(8),
   durationMs: z.number().int().min(0),
@@ -88,6 +89,7 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     wokeReason: d.wokeReason,
     note: d.story,
     quote: d.story ? verifyQuote(d.quote, d.story) : null, // AI-04, checked again on the server
+    dayNote: d.dayNote || null,
     watchTstMin,
   });
   const row = { ...nightToRow(night), aiFieldsCorrected: d.aiFieldsCorrected, source: d.aiMode };
@@ -103,6 +105,7 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     aiMode: d.aiMode,
     aiFieldsCorrected: d.aiFieldsCorrected,
     durationMs: d.durationMs,
+    hasDayNote: Boolean(d.dayNote),
   });
   revalidatePath("/", "layout");
 

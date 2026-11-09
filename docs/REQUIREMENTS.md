@@ -83,6 +83,7 @@ There is no evening log. Habits are one screen inside the morning check-in.
 | HAB-06 | Code compares nights with and without each habit, only when there are at least 5 nights on each side, and labels the result "linked, not proof" with the number of nights | P0 | Done | CA, Edith |
 | HAB-07 | The patient sees "what seems linked" on My sleep | P1 | Planned | Brenda (patients see their own data) |
 | HAB-08 | Link to the non-tech habit cards ("habit I'm trying this week") so the app can show whether sleep changes | P2 | Planned | Notebook (D4: SleepSnap works alongside habit cards), PO1 (integration question) |
+| HAB-09 | **"Anything else different, or something new?"**: optional text or voice note on the habit screen for things the chips don't cover (new medication, illness, travel, shift work). Habits recognised in the note are ticked and labelled "from your note"; unticked ones stay unticked. The note is saved word for word and the 3 newest appear on the Snapshot. | P0 | Done | Team (Sofiia: chips can't capture something new) |
 
 ## 4. Onboarding (ONB)
 

@@ -35,6 +35,8 @@ import {
 import { formatDuration } from "@/core/time";
 import { FieldInput, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
+import { detectHabits } from "@/core/habit-detect";
+import { Toggle } from "@/components/ui/toggle";
 
 type Step = "story" | "rough" | "review" | "followup" | "habits" | "done";
 type Values = Partial<Record<DiaryFieldKey, FieldValue>>;
@@ -51,6 +53,10 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
   const [wokeReason, setWokeReason] = useState<WokeReason | null>(null);
   const [habits, setHabits] = useState<HabitKey[]>([]);
   const [fromStory, setFromStory] = useState<HabitKey[]>([]);
+  // HAB-09: free text or voice for anything the chips don't cover.
+  const [dayNote, setDayNote] = useState("");
+  const [fromNote, setFromNote] = useState<HabitKey[]>([]);
+  const [dismissed, setDismissed] = useState<HabitKey[]>([]);
   const [tookAid, setTookAid] = useState(false);
   const [sleepAid, setSleepAid] = useState<SleepAid | null>(null);
   const [result, setResult] = useState<Extract<CheckinResult, { ok: true }> | null>(null);
@@ -65,6 +71,26 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
   }, []);
 
   const speech = useSpeech((text) => setStory((s) => (s ? `${s} ${text}` : text)));
+  const noteSpeech = useSpeech((text) => changeNote(dayNote ? `${dayNote} ${text}` : text));
+
+  /** Updates the day note and ticks the chips it mentions, unless the patient unticked them before. */
+  function changeNote(next: string) {
+    setDayNote(next);
+    const found = detectHabits(next);
+    setFromNote(found.habits);
+    const add = found.habits.filter((h) => !dismissed.includes(h));
+    if (add.length) setHabits((prev) => [...new Set([...prev, ...add])]);
+    if (found.sleepAid && !tookAid) {
+      setTookAid(true);
+      setSleepAid(found.sleepAid);
+    }
+  }
+
+  function changeHabits(next: HabitKey[]) {
+    const removed = habits.filter((h) => !next.includes(h));
+    if (removed.length) setDismissed((d) => [...new Set([...d, ...removed])]);
+    setHabits(next);
+  }
 
   // ---- Step 1: story -> extraction ----
   async function readStory() {
@@ -157,6 +183,7 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
         sleepAid: !normalDay && tookAid ? sleepAid : null,
         wokeReason,
         story: story.trim() || null,
+        dayNote: dayNote.trim() || null,
         quote: extraction?.quote ?? null,
         aiMode: extraction ? extraction.mode : "manual",
         aiFieldsCorrected: corrected,
@@ -408,28 +435,31 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
               variant="outline"
               className="flex w-full flex-wrap justify-start gap-2"
               value={habits}
-              onValueChange={(v) => setHabits(v as HabitKey[])}
+              onValueChange={(v) => changeHabits(v as HabitKey[])}
             >
               {HABITS.map((h) => (
                 <ToggleGroupItem key={h.key} value={h.key} className="h-10 rounded-full! border! px-3 text-sm">
                   {h.short}
-                  {fromStory.includes(h.key) && habits.includes(h.key) && (
-                    <span className="text-[10px] opacity-70">· from your story</span>
+                  {habits.includes(h.key) && (fromStory.includes(h.key) || fromNote.includes(h.key)) && (
+                    <span className="text-[10px] opacity-70">
+                      · from your {fromStory.includes(h.key) ? "story" : "note"}
+                    </span>
                   )}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
             <div className="space-y-2">
-              <Button
-                variant={tookAid ? "secondary" : "outline"}
-                className="rounded-full"
-                onClick={() => {
-                  setTookAid(!tookAid);
-                  if (tookAid) setSleepAid(null);
+              <Toggle
+                variant="outline"
+                className="h-10 rounded-full! px-3 text-sm"
+                pressed={tookAid}
+                onPressedChange={(on) => {
+                  setTookAid(on);
+                  if (!on) setSleepAid(null);
                 }}
               >
                 Took a sleep aid
-              </Button>
+              </Toggle>
               {tookAid && (
                 <ToggleGroup
                   type="single"
@@ -446,12 +476,42 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
                 </ToggleGroup>
               )}
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="day-note" className="text-sm">
+                Anything else different, or something new?{" "}
+                <span className="font-normal text-muted-foreground">(optional)</span>
+              </Label>
+              <Textarea
+                id="day-note"
+                rows={2}
+                maxLength={500}
+                className="text-base"
+                placeholder="e.g. new medication, felt sick, travelled, late shift at work, or what stayed the same"
+                value={noteSpeech.interim ? `${dayNote} ${noteSpeech.interim}` : dayNote}
+                onChange={(e) => changeNote(e.target.value)}
+              />
+              {noteSpeech.supported && (
+                <Button
+                  size="sm"
+                  variant={noteSpeech.listening ? "destructive" : "outline"}
+                  onClick={noteSpeech.toggle}
+                >
+                  {noteSpeech.listening ? <MicOff /> : <Mic />} {noteSpeech.listening ? "Stop recording" : "Say it instead"}
+                </Button>
+              )}
+              {fromNote.some((h) => habits.includes(h)) && (
+                <p className="text-xs text-muted-foreground">
+                  We ticked what we recognised in your note. Untick anything that&apos;s wrong. Your note is shared
+                  with your provider in your own words.
+                </p>
+              )}
+            </div>
           </CardContent>
           <CardFooter>
             <Button
               size="lg"
               className="h-12 w-full text-base"
-              disabled={saving || (habits.length === 0 && !tookAid) || (tookAid && !sleepAid)}
+              disabled={saving || (habits.length === 0 && !tookAid && !dayNote.trim()) || (tookAid && !sleepAid)}
               onClick={() => save()}
             >
               {saving ? <Loader2 className="animate-spin" /> : null} Save

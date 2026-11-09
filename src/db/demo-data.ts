@@ -81,6 +81,15 @@ const MAYA_NOTES: { text: string; quote: string }[] = [
   },
 ];
 
+// Things Maya noted that don't fit a chip (HAB-09). Keyed by night index.
+const MAYA_DAY_NOTES: Record<number, string> = {
+  9: "Started a part-time job at the campus café, closing shift until 10:30.",
+  23: "Had a cold, took cough syrup before bed.",
+  38: "Fight with my roommate, kept replaying it in my head.",
+  47: "Went home for the weekend, different bed.",
+  52: "Closing shift at the café again.",
+};
+
 interface NightPlan {
   baseSol: number;
   baseWaso: number;
@@ -188,6 +197,7 @@ export function mayaNights(today: string, seed = 21): Night[] {
         wokeReason,
         note,
         quote,
+        dayNote: MAYA_DAY_NOTES[i] ?? null,
         lateEntry: i > 3 && r.chance(0.08),
         watchTstMin,
         watchAnswer,

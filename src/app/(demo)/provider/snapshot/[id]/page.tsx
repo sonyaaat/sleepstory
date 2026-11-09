@@ -311,6 +311,18 @@ function Words({ s }: { s: Snapshot }) {
             “{q.text}”<span className="block text-xs not-italic text-muted-foreground">{formatDate(q.date)}</span>
           </blockquote>
         ))}
+        {s.dayNotes.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Other things they noted about their days</p>
+            <ul className="space-y-1">
+              {s.dayNotes.map((n) => (
+                <li key={n.date}>
+                  <span className="text-xs text-muted-foreground tabular-nums">{formatDate(n.date)}</span> {n.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {s.discuss && (
           <div>
             <p className="text-xs font-medium text-muted-foreground">Wants to discuss</p>

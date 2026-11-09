@@ -84,6 +84,7 @@ export const NightSchema = DiaryFieldsSchema.extend({
   wokeReason: z.enum(WOKE_REASON_KEYS).nullable().default(null),
   note: z.string().max(2000).nullable().default(null), // patient's own words (verbatim)
   quote: z.string().max(300).nullable().default(null), // verbatim excerpt, checked against note
+  dayNote: z.string().max(500).nullable().default(null), // "anything else different?" in the patient's words (HAB-09)
   lateEntry: z.boolean().default(false),
   watchTstMin: z.number().int().min(0).max(1000).nullable().default(null),
   watchAnswer: z.enum(["lying_awake", "took_off", "not_sure"]).nullable().default(null),

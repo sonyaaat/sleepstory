@@ -53,3 +53,15 @@ describe("rough-night mode", () => {
     expect(consistencyIssues(fields)).toEqual([]);
   });
 });
+
+describe("habit detection in free text", async () => {
+  const { detectHabits } = await import("@/core/habit-detect");
+  it("finds known habits and sleep aids in a day note", () => {
+    const r = detectHabits("Had two glasses of wine at a friend's place, then took a melatonin");
+    expect(r.habits).toEqual(["alcohol"]);
+    expect(r.sleepAid).toBe("melatonin");
+  });
+  it("returns nothing for things that don't fit a chip", () => {
+    expect(detectHabits("Started a new part-time job, closing shift")).toEqual({ habits: [], sleepAid: null });
+  });
+});

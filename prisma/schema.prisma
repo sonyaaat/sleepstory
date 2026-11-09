@@ -59,6 +59,7 @@ model Night {
   wokeReason        String?
   note              String?
   quote             String?
+  dayNote           String? // "anything else different about yesterday?" (HAB-09)
   lateEntry         Boolean  @default(false)
   watchTstMin       Int?
   watchAnswer       String?

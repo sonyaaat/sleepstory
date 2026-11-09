@@ -29,6 +29,12 @@ describe("buildSnapshot with Maya's data", () => {
     expect(s2.quotes[0]).toEqual({ date: "2026-11-08", text: "my own words tonight" });
     expect(s2.quotes).toHaveLength(2);
   });
+  it("shows up to 3 recent day notes, newest first", () => {
+    expect(s.dayNotes.length).toBeGreaterThan(0);
+    expect(s.dayNotes.length).toBeLessThanOrEqual(3);
+    const dates = s.dayNotes.map((n) => n.date);
+    expect([...dates].sort().reverse()).toEqual(dates);
+  });
   it("has at most 3 habit links", () => {
     expect(s.links.length).toBeGreaterThan(0);
     expect(s.links.length).toBeLessThanOrEqual(3);

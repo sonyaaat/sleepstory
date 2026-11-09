@@ -52,6 +52,8 @@ export interface Snapshot {
   links: HabitLink[];
   watch: WatchComparison;
   quotes: { date: string; text: string }[];
+  /** Up to 3 recent "anything else different?" notes, newest first (HAB-09). */
+  dayNotes: { date: string; text: string }[];
   discuss: string | null;
   generatedOn: string;
 }
@@ -106,6 +108,11 @@ export function buildSnapshot(p: SnapshotInput, nights: Night[], today: string):
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, 2)
       .map((n) => ({ date: n.date, text: n.quote! })),
+    dayNotes: list
+      .filter((n) => n.dayNote)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 3)
+      .map((n) => ({ date: n.date, text: n.dayNote! })),
     discuss: p.discuss,
     generatedOn: today,
   };
