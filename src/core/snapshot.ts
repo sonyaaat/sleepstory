@@ -6,14 +6,16 @@ import {
   comparePeriods,
   completeness,
   inRange,
+  nightMetrics,
+  periodStats,
   seSeries,
   watchComparison,
   type Completeness,
   type PeriodStats,
   type WatchComparison,
 } from "./metrics";
-import { isiBand, isiScore, redFlags, type IsiAnswers, type IsiBand, type RedFlag, type Screening } from "./questionnaires";
-import type { Night } from "./schema";
+import { clearScreening, isiBand, isiScore, redFlags, type IsiAnswers, type IsiBand, type RedFlag, type Screening } from "./questionnaires";
+import { WOKE_REASONS, type HabitKey, type Night, type SleepAid, type WokeReason } from "./schema";
 import { addDays } from "./time";
 
 export const SNAPSHOT_DAYS = 56;
@@ -47,8 +49,15 @@ export interface Snapshot {
   isi: { baseline: { score: number; band: IsiBand } | null; now: { score: number; band: IsiBand } | null };
   biggestChange: ChangeSummary | null;
   flags: RedFlag[];
+  clearScreening: string[];
+  /** Most common reason for waking, among nights where the patient said what woke them. */
+  wakeReason: { key: WokeReason; label: string; count: number; nights: number } | null;
   periods: { first: PeriodStats; second: PeriodStats };
   series: ReturnType<typeof seSeries>;
+  /** One entry per calendar day in the period, oldest first; null fields = not logged. */
+  days: SnapshotDay[];
+  /** Medians per 7-day week, oldest first (8 weeks). */
+  weeks: PeriodStats[];
   links: HabitLink[];
   watch: WatchComparison;
   quotes: { date: string; text: string }[];
@@ -56,6 +65,15 @@ export interface Snapshot {
   dayNotes: { date: string; text: string }[];
   discuss: string | null;
   generatedOn: string;
+}
+
+export interface SnapshotDay {
+  date: string;
+  logged: boolean;
+  se: number | null;
+  tst: number | null;
+  sleepAid: SleepAid | null;
+  habits: HabitKey[];
 }
 
 const CHANGE_METRICS: { metric: ChangeSummary["metric"]; label: string; higherIsBetter: boolean }[] = [
@@ -82,6 +100,15 @@ export function biggestChange(first: PeriodStats, second: PeriodStats): ChangeSu
   return bestRel >= 0.05 ? best : null;
 }
 
+export function topWakeReason(nights: Night[]): Snapshot["wakeReason"] {
+  const withReasons = nights.filter((n) => n.wokeReasons.some((r) => r !== "not_sure"));
+  if (withReasons.length < 5) return null;
+  const counts = new Map<WokeReason, number>();
+  for (const n of withReasons) for (const r of n.wokeReasons) if (r !== "not_sure") counts.set(r, (counts.get(r) ?? 0) + 1);
+  const [key, count] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+  return { key, label: WOKE_REASONS.find((w) => w.key === key)!.label, count, nights: withReasons.length };
+}
+
 /** `today` is the simulated date; the Snapshot covers the 8 weeks of nights before it. */
 export function buildSnapshot(p: SnapshotInput, nights: Night[], today: string): Snapshot {
   const to = addDays(today, -1);
@@ -99,8 +126,26 @@ export function buildSnapshot(p: SnapshotInput, nights: Night[], today: string):
     isi: { baseline: score(p.isiBaseline), now: score(p.isiPrevisit) },
     biggestChange: biggestChange(periods.first, periods.second),
     flags: p.screening ? redFlags(p.screening) : [],
+    clearScreening: p.screening ? clearScreening(p.screening) : [],
+    wakeReason: topWakeReason(list),
     periods,
     series: seSeries(list, from, to),
+    days: Array.from({ length: SNAPSHOT_DAYS }, (_, i) => {
+      const date = addDays(from, i);
+      const n = list.find((x) => x.date === date);
+      const m = n ? nightMetrics(n) : null;
+      return {
+        date,
+        logged: !!n,
+        se: m?.sePct ?? null,
+        tst: m?.tstMin ?? null,
+        sleepAid: n?.sleepAid ?? null,
+        habits: n?.habits ?? [],
+      };
+    }),
+    weeks: Array.from({ length: SNAPSHOT_DAYS / 7 }, (_, i) =>
+      periodStats(list, addDays(from, i * 7), addDays(from, i * 7 + 6)),
+    ),
     links: linkedToBadNights(list),
     watch: watchComparison(list),
     quotes: list

@@ -56,7 +56,8 @@ model Night {
   quality           Int
   habits            String   @default("[]") // JSON: HabitKey[]
   sleepAid          String?
-  wokeReason        String?
+  wokeReasons       String   @default("[]") // JSON: WokeReason[]
+  wakeNote          String?
   note              String?
   quote             String?
   dayNote           String? // "anything else different about yesterday?" (HAB-09)

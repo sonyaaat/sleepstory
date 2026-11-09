@@ -21,6 +21,20 @@ export function forgivingStreak(nightDates: string[], today: string, window = 7)
   return { logged, window };
 }
 
+/**
+ * The last 7 mornings (oldest first, ending today) and whether each one has an entry.
+ * The morning of day D reports the night of D − 1.
+ */
+export function weekMornings(nightDates: string[], today: string) {
+  const set = new Set(nightDates);
+  const WEEKDAY = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  return Array.from({ length: 7 }, (_, k) => {
+    const morning = addDays(today, k - 6);
+    const day = new Date(`${morning}T00:00:00Z`).getUTCDay();
+    return { morning, label: WEEKDAY[day], logged: set.has(addDays(morning, -1)), isToday: k === 6 };
+  });
+}
+
 // ---- Follow-up question (CHK-06): at most one, chosen by rules ----
 
 export type FollowUp = "woke_reason" | "kept_awake" | null;

@@ -12,6 +12,18 @@ describe("forgiving streak", () => {
   });
 });
 
+describe("week mornings", async () => {
+  const { weekMornings } = await import("@/core/checkin");
+  it("returns 7 mornings ending today, marking which nights were logged", () => {
+    // 2026-11-08 is a Sunday; the morning of Nov 8 reports the night of Nov 7
+    const w = weekMornings(["2026-11-07", "2026-11-05"], "2026-11-08");
+    expect(w).toHaveLength(7);
+    expect(w[6]).toMatchObject({ morning: "2026-11-08", label: "Su", logged: true, isToday: true });
+    expect(w[5].logged).toBe(false);
+    expect(w[4]).toMatchObject({ morning: "2026-11-06", logged: true });
+  });
+});
+
 describe("follow-up question", () => {
   it("asks what woke you up when there were awakenings", () => {
     expect(followUpQuestion({ awakenings: 2, solMin: 60 })).toBe("woke_reason");

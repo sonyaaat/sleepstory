@@ -35,6 +35,22 @@ describe("buildSnapshot with Maya's data", () => {
     const dates = s.dayNotes.map((n) => n.date);
     expect([...dates].sort().reverse()).toEqual(dates);
   });
+  it("finds racing thoughts as the most common reason for waking", () => {
+    expect(s.wakeReason?.key).toBe("worry");
+    expect(s.wakeReason!.count).toBeLessThanOrEqual(s.wakeReason!.nights);
+  });
+  it("lists the screening items that came back clear", () => {
+    expect(s.clearScreening).toContain("No drowsy driving reported");
+    expect(s.clearScreening.some((x) => x.startsWith("PHQ-2"))).toBe(false); // PHQ-2 was positive
+  });
+  it("has one calendar day per night of the period and 8 weekly medians", () => {
+    expect(s.days).toHaveLength(56);
+    expect(s.days[0].date).toBe(s.from);
+    expect(s.days.at(-1)!.date).toBe(s.to);
+    expect(s.days.filter((d) => d.logged)).toHaveLength(s.completeness.logged);
+    expect(s.weeks).toHaveLength(8);
+    expect(s.weeks.reduce((n, w) => n + w.nightsLogged, 0)).toBe(s.completeness.logged);
+  });
   it("has at most 3 habit links", () => {
     expect(s.links.length).toBeGreaterThan(0);
     expect(s.links.length).toBeLessThanOrEqual(3);

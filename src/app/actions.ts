@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { verifyQuote } from "@/adapters/llm/validate";
 import { simulatedWatch } from "@/adapters/wearables";
-import { forgivingStreak } from "@/core/checkin";
+import { forgivingStreak, weekMornings } from "@/core/checkin";
 import { consistencyIssues, isWatchMismatch, nightMetrics } from "@/core/metrics";
 import { DiaryFieldsSchema, HABIT_KEYS, NightSchema, SLEEP_AID_KEYS, WOKE_REASON_KEYS } from "@/core/schema";
 import { addDays } from "@/core/time";
@@ -46,7 +46,8 @@ const CheckinSchema = z.object({
   mode: z.enum(["full", "rough"]),
   habits: z.array(z.enum(HABIT_KEYS)),
   sleepAid: z.enum(SLEEP_AID_KEYS).nullable(),
-  wokeReason: z.enum(WOKE_REASON_KEYS).nullable(),
+  wokeReasons: z.array(z.enum(WOKE_REASON_KEYS)),
+  wakeNote: z.string().trim().max(500).nullable(),
   story: z.string().max(2000).nullable(),
   quote: z.string().max(300).nullable(),
   dayNote: z.string().trim().max(500).nullable(),
@@ -65,6 +66,8 @@ export type CheckinResult =
       watchTstMin: number | null;
       mismatch: boolean;
       streak: { logged: number; window: number };
+      week: ReturnType<typeof weekMornings>;
+      snapshotNights: number;
     };
 
 export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
@@ -86,7 +89,8 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     mode: d.mode,
     habits: d.habits,
     sleepAid: d.sleepAid,
-    wokeReason: d.wokeReason,
+    wokeReasons: d.wokeReasons,
+    wakeNote: d.wakeNote || null,
     note: d.story,
     quote: d.story ? verifyQuote(d.quote, d.story) : null, // AI-04, checked again on the server
     dayNote: d.dayNote || null,
@@ -117,6 +121,8 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     watchTstMin,
     mismatch: isWatchMismatch(night),
     streak: forgivingStreak(dates, s.today),
+    week: weekMornings(dates, s.today),
+    snapshotNights: new Set(dates.filter((d) => d >= addDays(s.today, -56))).size,
   };
 }
 

@@ -85,6 +85,16 @@ export interface RedFlag {
   urgent: boolean;
 }
 
+/** Screening items that came back clear, so the provider knows they were asked (PRV-07). */
+export function clearScreening(s: Screening): string[] {
+  const out: string[] = [];
+  if (!s.drowsyDriving) out.push("No drowsy driving reported");
+  if (!s.snoringOrApnea) out.push("No loud snoring or stopped breathing reported");
+  if (!s.restlessLegs) out.push("No restless legs symptoms reported");
+  if (phq2Score(s.phq2) < PHQ2_POSITIVE) out.push(`PHQ-2 negative (${phq2Score(s.phq2)} of 6)`);
+  return out;
+}
+
 export function redFlags(s: Screening): RedFlag[] {
   const flags: RedFlag[] = [];
   if (s.drowsyDriving) {

@@ -180,9 +180,11 @@ export function mayaNights(today: string, seed = 21): Night[] {
     const mismatch = watchTstMin != null && Math.abs(watchTstMin - m.tstMin) >= WATCH_MISMATCH_MIN;
     const watchAnswer = mismatch ? r.pick(["lying_awake", "lying_awake", "lying_awake", "not_sure", "took_off"] as const) : null;
 
-    const wokeReason: WokeReason | null = awakenings
-      ? r.pick(["worry", "worry", "noise", "bathroom", "phone", "not_sure"] as const)
-      : null;
+    const wokeReasons: WokeReason[] = [];
+    if (awakenings) {
+      wokeReasons.push(r.pick(["worry", "worry", "worry", "noise", "bathroom", "roommate", "phone", "not_sure"] as const));
+      if (awakenings > 1 && r.chance(0.3)) wokeReasons.push(r.pick(["bathroom", "noise", "hot_cold"] as const));
+    }
 
     let note: string | null = null;
     let quote: string | null = null;
@@ -194,7 +196,7 @@ export function mayaNights(today: string, seed = 21): Night[] {
       NightSchema.parse({
         ...base,
         quality,
-        wokeReason,
+        wokeReasons: [...new Set(wokeReasons)],
         note,
         quote,
         dayNote: MAYA_DAY_NOTES[i] ?? null,

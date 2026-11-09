@@ -12,8 +12,9 @@ export const HABITS = [
   { key: "stress", label: "Stressful day / deadline", short: "Stressful day" },
   { key: "late_study", label: "Studied late", short: "Studied late" },
   { key: "screens_bed", label: "Screens in bed", short: "Screens in bed" },
-  { key: "nap", label: "Napped", short: "Nap" },
-  { key: "exercise", label: "Exercised", short: "Exercise" },
+  { key: "nap", label: "Napped", short: "Napped" },
+  { key: "exercise", label: "Exercised", short: "Exercised" },
+  { key: "unwell", label: "Felt unwell", short: "Felt unwell" },
 ] as const;
 
 export type HabitKey = (typeof HABITS)[number]["key"];
@@ -28,10 +29,12 @@ export type SleepAid = (typeof SLEEP_AIDS)[number]["key"];
 export const SLEEP_AID_KEYS = SLEEP_AIDS.map((a) => a.key) as [SleepAid, ...SleepAid[]];
 
 export const WOKE_REASONS = [
-  { key: "worry", label: "Worrying / racing thoughts" },
-  { key: "noise", label: "Noise / roommate" },
+  { key: "worry", label: "Racing thoughts" },
   { key: "bathroom", label: "Bathroom" },
-  { key: "phone", label: "Phone / notifications" },
+  { key: "noise", label: "Noise" },
+  { key: "roommate", label: "Roommate or partner" },
+  { key: "phone", label: "Phone" },
+  { key: "pain", label: "Pain" },
   { key: "hot_cold", label: "Too hot or cold" },
   { key: "not_sure", label: "Not sure" },
 ] as const;
@@ -81,7 +84,8 @@ export const NightSchema = DiaryFieldsSchema.extend({
   mode: z.enum(["full", "rough"]).default("full"),
   habits: z.array(z.enum(HABIT_KEYS)).default([]),
   sleepAid: z.enum(SLEEP_AID_KEYS).nullable().default(null),
-  wokeReason: z.enum(WOKE_REASON_KEYS).nullable().default(null),
+  wokeReasons: z.array(z.enum(WOKE_REASON_KEYS)).default([]), // "pick any that fit"
+  wakeNote: z.string().max(500).nullable().default(null), // what woke them, in their own words
   note: z.string().max(2000).nullable().default(null), // patient's own words (verbatim)
   quote: z.string().max(300).nullable().default(null), // verbatim excerpt, checked against note
   dayNote: z.string().max(500).nullable().default(null), // "anything else different?" in the patient's words (HAB-09)
