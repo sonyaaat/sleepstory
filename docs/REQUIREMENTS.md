@@ -39,15 +39,15 @@ People will try the prototype themselves, so these exist to make that work. They
 |---|---|---|---|---|
 | DEMO-01 | Start screen with **Try as Maya** (main path, with 8 weeks of history) | P0 | Planned | Rubric: visitors try core features end to end |
 | DEMO-02 | Start screen option **Start as myself** (goes through onboarding) | P1 | Planned | Team |
-| DEMO-03 | Each tester gets their own copy of the demo data (session cookie), so testers never see each other's entries | P0 | Planned | Team |
+| DEMO-03 | Each tester gets their own copy of the demo data (session cookie), so testers never see each other's entries | P0 | In progress | Team |
 | DEMO-04 | Tester bar on every screen: **Patient ↔ Provider** switch | P0 | Planned | Team |
-| DEMO-05 | Tester bar: **Next morning →** moves the demo date forward one day | P0 | Planned | Team |
-| DEMO-06 | Tester bar: **Reset** restores this tester's demo data | P0 | Planned | Team |
-| DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | Planned | Team |
+| DEMO-05 | Tester bar: **Next morning →** moves the demo date forward one day | P0 | In progress | Team |
+| DEMO-06 | Tester bar: **Reset** restores this tester's demo data | P0 | In progress | Team |
+| DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | In progress | Team |
 | DEMO-08 | **Add 4 weeks of sample nights** for "Start as myself", so the Snapshot isn't empty | P1 | Planned | Team |
-| DEMO-09 | Generated 8-week dataset for Maya: midterm period, late caffeine, watch overestimating sleep on bad nights, some missed nights and late entries | P0 | Planned | Lit, Edith |
-| DEMO-10 | Provider list shows 2 more students with lighter data, for realism | P0 | Planned | Team |
-| DEMO-11 | Session log *recording*: check-in duration, number of AI fields the tester corrected, AI mode used, Snapshot viewing time | P0 | Planned | V0 (data sanity), Rubric (evidence for evaluation) |
+| DEMO-09 | Generated 8-week dataset for Maya: midterm period, late caffeine, watch overestimating sleep on bad nights, some missed nights and late entries | P0 | Done | Lit, Edith |
+| DEMO-10 | Provider list shows 2 more students with lighter data, for realism | P0 | Done | Team |
+| DEMO-11 | Session log *recording*: check-in duration, number of AI fields the tester corrected, AI mode used, Snapshot viewing time | P0 | In progress | V0 (data sanity), Rubric (evidence for evaluation) |
 | DEMO-12 | Session log *page* for the team to read results after testing | P1 | Planned | Team |
 
 ## 2. Morning check-in (CHK)
@@ -185,7 +185,7 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| WEAR-01 | Simulated watch data in the demo (watch total sleep per night) | P0 | Planned | Team |
+| WEAR-01 | Simulated watch data in the demo (watch total sleep per night) | P0 | Done | Team |
 | WEAR-02 | A wearable adapter interface, so real sources can be added without touching the screens | P0 | Planned | Team |
 | WEAR-03 | Oura API (OAuth, with a sandbox for demos) | Later | Planned | CA |
 | WEAR-04 | Apple Health through an iOS Shortcut that sends data to our server (Apple has no web API) | Later | Planned | CA |

@@ -57,3 +57,4 @@ CHK-14 reminders · PRV-15 secure email links · PRV-16 EMR export · PRV-17 mul
 |---|---|
 | 2026-11-08 | Project set up (Next.js, TypeScript, Tailwind, Prisma, zod, Vitest). Gateway access tested. Project documents written. Shared diary schema and time helpers started. |
 | 2026-11-08 | Step 1 done: sleep metrics, period comparison, watch comparison, ISI/PHQ-2 scoring, red flags, habit links, streak and check-in rules, with 35 unit tests. UI library chosen (shadcn/ui). |
+| 2026-11-08 | Step 2 done: Prisma schema and SQLite database, per-tester demo sessions (create, reset, next morning, new tester, event log), Maya's 8-week generated data and 2 extra students, tested against the Snapshot story. Tester bar UI still to come. |

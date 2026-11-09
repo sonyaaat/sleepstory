@@ -27,6 +27,7 @@ Requirements: Node.js 22 (the repo pins `22.14.0` in `.tool-versions` for asdf u
 ```bash
 npm install
 cp .env.example .env.local   # then paste your JANUS_API_KEY into .env.local
+npm run db:push              # creates the local SQLite database
 npm run dev                  # http://localhost:3000
 ```
 

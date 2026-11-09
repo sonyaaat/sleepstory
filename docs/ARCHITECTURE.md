@@ -41,7 +41,11 @@ src/
     speech/                 Browser speech now; Whisper service later
     wearables/              Simulated watch now; Oura, Apple Health, Google later
     notify/                 Reminders (Later)
-  db/                       Prisma client, demo seed, session helpers
+  db/
+    client.ts               Prisma client
+    demo-data.ts            Made-up data for Maya and 2 extra students (pure, deterministic, tested)
+    mappers.ts              Database rows <-> core types (JSON columns are strings)
+    session.ts              Demo sessions: create, reset, next morning, new tester, event log
 prisma/schema.prisma
 tests/                      Vitest tests, mirroring src/core and src/adapters/llm
 ```

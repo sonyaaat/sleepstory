@@ -55,7 +55,7 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 | Has it improved? | Headline: ISI baseline vs now; metrics table first vs last 4 weeks | ISI went down but is still in the subthreshold or moderate band; time to fall asleep improved |
 | Anything to screen for? | Screening and red flags | PHQ-2 positive → *consider PHQ-9* |
 | Sleep-aid use? | Sleep aids section and markers on the chart | Melatonin a few nights a week; prescription only in the first weeks |
-| What seems linked to bad nights? | What seems linked (max 3 rows) | Late caffeine, with night counts and "linked, not proof" |
+| What seems linked to bad nights? | What seems linked (max 3 rows) | Studying late, stressful days and late caffeine, each with night counts and "linked, not proof" |
 | Can you trust the watch? | Watch vs diary | The watch shows about an hour more sleep on bad nights; Maya says she was lying awake still |
 | What does she want to discuss? | In their words | Her quote and "wants to discuss" text. If the tester did scenario 1 first, their own words appear here. |
 

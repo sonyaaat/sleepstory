@@ -1,0 +1,80 @@
+// SQLite for local development; switch provider to "postgresql" for deployment (NFR-07).
+// JSON values are stored as strings because SQLite has no JSON type.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// One demo tester. Every row below belongs to a session (DEMO-03).
+model Session {
+  id        String    @id @default(cuid())
+  kind      String // "maya" | "self"
+  today     String // simulated date YYYY-MM-DD, moved by "Next morning"
+  createdAt DateTime  @default(now())
+  patients  Patient[]
+  events    Event[]
+}
+
+model Patient {
+  id             String    @id @default(cuid())
+  sessionId      String
+  session        Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  isMain         Boolean   @default(false) // the tester's own patient (Maya or "myself")
+  name           String
+  age            Int
+  providerName   String
+  visitDate      String
+  consentAt      DateTime?
+  usualDay       String? // JSON: usual times, caffeine, alcohol, exercise, sleep aids
+  isiBaseline    String? // JSON: 7 answers
+  isiPrevisit    String? // JSON: 7 answers
+  screening      String? // JSON: Screening
+  discuss        String?
+  sharedAt       DateTime?
+  watchConnected Boolean   @default(false)
+  nights         Night[]
+}
+
+model Night {
+  id                String   @id @default(cuid())
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date              String // evening date of the night
+  mode              String   @default("full") // "full" | "rough"
+  inBed             String
+  lightsOut         String
+  solMin            Int
+  awakenings        Int
+  wasoMin           Int
+  finalWake         String
+  outOfBed          String
+  quality           Int
+  habits            String   @default("[]") // JSON: HabitKey[]
+  sleepAid          String?
+  wokeReason        String?
+  note              String?
+  quote             String?
+  lateEntry         Boolean  @default(false)
+  watchTstMin       Int?
+  watchAnswer       String?
+  aiFieldsCorrected Int?
+  source            String   @default("manual") // "ai" | "fallback" | "manual" | "seed"
+  createdAt         DateTime @default(now())
+
+  @@unique([patientId, date])
+}
+
+/// Session log for evaluation (DEMO-11).
+model Event {
+  id        String   @id @default(cuid())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type      String
+  data      String   @default("{}")
+  at        DateTime @default(now())
+}
