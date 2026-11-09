@@ -287,9 +287,8 @@ export function CheckinFlow({
         <TopLink href="/patient" label="Back" />
         <p className="mt-8 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
         <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">Tell me about last night</h1>
-        <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">
-          When you went to bed, how long it took to fall asleep, if you woke up, when you got up. Any words are fine.
-        </p>
+        <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">Any words are fine.</p>
+        <StoryHints className="mt-5" />
         <Label htmlFor="story" className="sr-only">
           Your night
         </Label>
@@ -958,7 +957,7 @@ function VoiceScreen({
         {loading ? "Turning your words into your sleep diary." : "Talk naturally. You can stop any time."}
       </p>
 
-      <div className="my-10 flex h-10 items-center justify-center gap-[6px]" aria-hidden="true">
+      <div className="mt-8 mb-6 flex h-10 items-center justify-center gap-[6px]" aria-hidden="true">
         {Array.from({ length: 28 }, (_, i) => (
           <span
             key={i}
@@ -972,6 +971,7 @@ function VoiceScreen({
         ))}
       </div>
 
+      <StoryHints className="mb-4" />
       <Label htmlFor="voice-story" className="sr-only">
         What you said
       </Label>
@@ -1027,6 +1027,24 @@ function VoiceScreen({
         </p>
       </div>
     </main>
+  );
+}
+
+/** A gentle reminder of what to cover. Deliberately general, so it fits any night. */
+const STORY_HINTS = ["When you went to bed", "How long to fall asleep", "Waking up in the night", "When you got up", "How you feel"];
+
+function StoryHints({ className }: { className?: string }) {
+  return (
+    <div className={className}>
+      <p className="mb-2 text-sm text-muted-foreground">You could mention:</p>
+      <ul className="flex flex-wrap gap-1.5" aria-label="Things you could mention">
+        {STORY_HINTS.map((h) => (
+          <li key={h} className="rounded-full bg-surface-2 px-3 py-1.5 text-sm text-foreground/85 ring-1 ring-border/60">
+            {h}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
