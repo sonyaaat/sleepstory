@@ -238,6 +238,7 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
                 {speech.listening ? <MicOff /> : <Mic />} {speech.listening ? "Stop recording" : "Speak instead"}
               </Button>
             )}
+            {speech.supported && <VoiceNote />}
           </CardContent>
           <CardFooter className="flex-col gap-2">
             <Button size="lg" className="h-12 w-full text-base" disabled={!story.trim() || loading} onClick={readStory}>
@@ -499,6 +500,7 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
                   {noteSpeech.listening ? <MicOff /> : <Mic />} {noteSpeech.listening ? "Stop recording" : "Say it instead"}
                 </Button>
               )}
+              {noteSpeech.supported && <VoiceNote />}
               {fromNote.some((h) => habits.includes(h)) && (
                 <p className="text-xs text-muted-foreground">
                   We ticked what we recognised in your note. Untick anything that&apos;s wrong. Your note is shared
@@ -587,6 +589,18 @@ export function CheckinFlow({ usual, usualDayText }: { usual: UsualTimes; usualD
   );
 }
 
+/** Honest note under each mic button (PRIV-09): browser speech recognition isn't ours. */
+function VoiceNote() {
+  return (
+    <p className="text-xs text-muted-foreground">
+      Voice uses your browser&apos;s speech service (in Chrome, that&apos;s Google). Prefer privacy? Type instead.{" "}
+      <Link href="/patient/privacy" className="underline">
+        Learn more
+      </Link>
+    </p>
+  );
+}
+
 function ChipQuestion({
   label,
   options,
@@ -657,8 +671,13 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
             confirm.
           </p>
           <p>
-            <span className="font-medium">Where it runs:</span> on a self-hosted model. Your words are not sent to
-            OpenAI or Google.
+            <span className="font-medium">Where it runs:</span> on a self-hosted model. The text of your story is not
+            sent to OpenAI or Google. (Voice typing is different: in Chrome, the browser uses Google to turn speech
+            into text. See{" "}
+            <Link href="/patient/privacy" className="underline">
+              Privacy
+            </Link>
+            .)
           </p>
         </div>
       </DialogContent>

@@ -180,7 +180,9 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | PRIV-05 | Data export and delete (same as MY-03) | P2 | Planned | CA |
 | PRIV-06 | Real accounts and login, replacing demo sessions | P2 | Planned | Team |
 | PRIV-07 | Production hardening: Canadian hosting, encryption at rest, audit logs, a PHIPA agent agreement with clinics | Later | Planned | CA |
-| PRIV-08 | **Wording rule:** don't claim "data stays in Canada" until the gateway's server location is confirmed. Do say "self-hosted model; your words are not sent to OpenAI or Google". | P0 | Done | Team |
+| PRIV-08 | **Wording rule:** don't claim "data stays in Canada" until the gateway's server location is confirmed. Do say "self-hosted model; the text of your story is not sent to OpenAI or Google", and disclose that Chrome's voice typing uses Google (PRIV-10). | P0 | Done | Team |
+| PRIV-09 | **Trustworthy privacy page:** a short version first; each section separates "in this prototype" from "in the real product"; covers what we collect and don't, the AI, voice input, who sees data, safeguards, rights, and breaches; links to the official sources (PHIPA, PIPEDA and its fair information principles, IPC Ontario email guidance, OPC breach reporting, the commissioners' generative AI principles and AI-in-health resolution, Health Canada SaMD guidance, complaint pages); never claims more than is true | P0 | Done | Sofiia (trust), Brenda, Rubric (privacy) |
+| PRIV-10 | **Honest voice notice:** browser speech recognition (Chrome sends audio to Google) is disclosed next to each mic button and in the AI panel; typing is always offered | P0 | Done | Team (found while writing PRIV-09) |
 
 ## 11. Wearables (WEAR)
 
