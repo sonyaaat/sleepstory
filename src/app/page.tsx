@@ -15,10 +15,10 @@ export default async function StartPage() {
         <ThemeToggle />
       </div>
 
-      <div className="mt-14 space-y-4">
+      <div className="mt-14 flex flex-col items-center space-y-4 text-center">
         <MoonMark className="size-16" />
         <h1 className="font-display text-[40px] leading-[1.08]">Tell your night. We&apos;ll do the diary.</h1>
-        <ul className="space-y-2 text-[17px] leading-snug text-muted-foreground">
+        <ul className="space-y-2 pt-1 text-[17px] leading-snug text-muted-foreground">
           <li>
             <strong className="font-semibold text-foreground">1 minute</strong> each morning, by voice or text
           </li>
@@ -53,8 +53,8 @@ export default async function StartPage() {
         )}
       </div>
 
-      <p className="mt-auto flex items-start gap-2 pt-10 text-xs text-muted-foreground">
-        <Lock className="mt-0.5 size-3.5 shrink-0" />
+      <p className="mt-auto pt-10 text-center text-xs text-muted-foreground">
+        <Lock className="mr-1 inline size-3.5 align-[-2px]" />
         Course prototype (CS497 / HLTH480). All data is made up. Not a medical device. Please don&apos;t enter real
         health information.
       </p>
