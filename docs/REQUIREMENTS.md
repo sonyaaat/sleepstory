@@ -37,33 +37,33 @@ People will try the prototype themselves, so these exist to make that work. They
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| DEMO-01 | Start screen with **Try as Maya** (main path, with 8 weeks of history) | P0 | Planned | Rubric: visitors try core features end to end |
+| DEMO-01 | Start screen with **Try as Maya** (main path, with 8 weeks of history) | P0 | Done | Rubric: visitors try core features end to end |
 | DEMO-02 | Start screen option **Start as myself** (goes through onboarding) | P1 | Planned | Team |
-| DEMO-03 | Each tester gets their own copy of the demo data (session cookie), so testers never see each other's entries | P0 | In progress | Team |
-| DEMO-04 | Tester bar on every screen: **Patient ↔ Provider** switch | P0 | Planned | Team |
-| DEMO-05 | Tester bar: **Next morning →** moves the demo date forward one day | P0 | In progress | Team |
-| DEMO-06 | Tester bar: **Reset** restores this tester's demo data | P0 | In progress | Team |
-| DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | In progress | Team |
+| DEMO-03 | Each tester gets their own copy of the demo data (session cookie), so testers never see each other's entries | P0 | Done | Team |
+| DEMO-04 | Tester bar on every screen: **Patient ↔ Provider** switch | P0 | Done | Team |
+| DEMO-05 | Tester bar: **Next morning →** moves the demo date forward one day | P0 | Done | Team |
+| DEMO-06 | Tester bar: **Reset** restores this tester's demo data | P0 | Done | Team |
+| DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | Done | Team |
 | DEMO-08 | **Add 4 weeks of sample nights** for "Start as myself", so the Snapshot isn't empty | P1 | Planned | Team |
 | DEMO-09 | Generated 8-week dataset for Maya: midterm period, late caffeine, watch overestimating sleep on bad nights, some missed nights and late entries | P0 | Done | Lit, Edith |
 | DEMO-10 | Provider list shows 2 more students with lighter data, for realism | P0 | Done | Team |
-| DEMO-11 | Session log *recording*: check-in duration, number of AI fields the tester corrected, AI mode used, Snapshot viewing time | P0 | In progress | V0 (data sanity), Rubric (evidence for evaluation) |
+| DEMO-11 | Session log *recording*: check-in duration, number of AI fields the tester corrected, AI mode used, Snapshot viewing time | P0 | Done | V0 (data sanity), Rubric (evidence for evaluation) |
 | DEMO-12 | Session log *page* for the team to read results after testing | P1 | Planned | Team |
 
 ## 2. Morning check-in (CHK)
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| CHK-01 | **Home:** "Log last night" button, forgiving streak ("5 of the last 7 days"), days until the visit. No score. | P0 | Planned | Lit (orthosomnia), CA |
-| CHK-02 | **Story step:** a text box plus a mic button (browser speech-to-text). The mic is hidden if the browser doesn't support it. | P0 | Planned | V0 (testers liked voice), CA (conversational diaries raise adherence) |
-| CHK-03 | The AI extracts the 8 Consensus Sleep Diary fields from the story, with a confidence level per field | P0 | Planned | CA, V0 |
-| CHK-04 | **Review step:** all 8 fields are editable with a tap. Low-confidence fields are highlighted. Missing fields are asked for. Ambiguous answers get a question with options (e.g. "around 2": *2:00 am* or *2 hours*?). | P0 | Planned | Rubric (user correction), CA, Larry |
-| CHK-05 | Values the app assumed (e.g. "tried to sleep" = "got into bed") are labelled *assumed* | P0 | Planned | CA |
-| CHK-06 | **One follow-up question**, chosen by rules: "What woke you up?" if there were awakenings, otherwise "What kept you awake?" if falling asleep took 30 min or more. Skipped otherwise. | P0 | Planned | Notebook (wireframe fig. 7) |
-| CHK-07 | **Habit step** (see section 3) | P0 | Planned | Notebook |
-| CHK-08 | **Done step:** thank-you message ("your provider will have a clearer picture") and the forgiving streak. No score. | P0 | Planned | Notebook (wireframe fig. 9), Lit |
-| CHK-09 | **Watch vs diary after saving:** if the simulated watch total differs by 60 min or more, ask *I was lying awake but still / I took the watch off / Not sure*. Shown only after the patient has answered. | P0 | Planned | Edith, Lit, Team |
-| CHK-10 | **Rough-night mode:** only 3 questions (time to fall asleep, time awake, quality). Other fields are taken from the patient's usual times and marked as such. | P0 | Planned | CA, Notebook |
+| CHK-01 | **Home:** "Log last night" button, forgiving streak ("5 of the last 7 days"), days until the visit. No score. | P0 | Done | Lit (orthosomnia), CA |
+| CHK-02 | **Story step:** a text box plus a mic button (browser speech-to-text). The mic is hidden if the browser doesn't support it. | P0 | In progress | V0 (testers liked voice), CA (conversational diaries raise adherence) |
+| CHK-03 | The AI extracts the 8 Consensus Sleep Diary fields from the story, with a confidence level per field | P0 | Done | CA, V0 |
+| CHK-04 | **Review step:** all 8 fields are editable with a tap. Low-confidence fields are highlighted. Missing fields are asked for. Ambiguous answers get a question with options (e.g. "around 2": *2:00 am* or *2 hours*?). | P0 | Done | Rubric (user correction), CA, Larry |
+| CHK-05 | Values the app assumed (e.g. "tried to sleep" = "got into bed") are labelled *assumed* | P0 | Done | CA |
+| CHK-06 | **One follow-up question**, chosen by rules: "What woke you up?" if there were awakenings, otherwise "What kept you awake?" if falling asleep took 30 min or more. Skipped otherwise. | P0 | Done | Notebook (wireframe fig. 7) |
+| CHK-07 | **Habit step** (see section 3) | P0 | Done | Notebook |
+| CHK-08 | **Done step:** thank-you message ("your provider will have a clearer picture") and the forgiving streak. No score. | P0 | Done | Notebook (wireframe fig. 9), Lit |
+| CHK-09 | **Watch vs diary after saving:** if the simulated watch total differs by 60 min or more, ask *I was lying awake but still / I took the watch off / Not sure*. Shown only after the patient has answered. | P0 | Done | Edith, Lit, Team |
+| CHK-10 | **Rough-night mode:** only 3 questions (time to fall asleep, time awake, quality). Other fields are taken from the patient's usual times and marked as such. | P0 | Done | CA, Notebook |
 | CHK-11 | **Late entry:** only yesterday can be caught up, and it's marked *late*. Older gaps stay gaps (no backfilling). | P1 | Planned | Lit (paper diaries are backfilled) |
 | CHK-12 | One entry per night; the patient can edit today's entry | P1 | Planned | Team |
 | CHK-13 | Voice input on phones (needs HTTPS hosting) | P2 | Planned | V0 |
@@ -75,10 +75,10 @@ There is no evening log. Habits are one screen inside the morning check-in.
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| HAB-01 | "Was yesterday different from usual?" with a large **No, a normal day** button (one tap) | P0 | Planned | CA (merge evening log into morning), Notebook (wireframe fig. 8) |
-| HAB-02 | Chips: late caffeine or energy drink, alcohol, stressful day / deadline, studied late, screens in bed, napped, exercised | P0 | Planned | Larry (sleep hygiene), Notebook (problem statement) |
-| HAB-03 | **Took a sleep aid** chip, which reveals *Melatonin · Over-the-counter · Prescription* | P0 | Planned | CA (Ontario guideline: medication use matters) |
-| HAB-04 | The AI pre-selects chips mentioned in the story, labelled "from your story"; the patient can remove them | P0 | Planned | Team |
+| HAB-01 | "Was yesterday different from usual?" with a large **No, a normal day** button (one tap) | P0 | Done | CA (merge evening log into morning), Notebook (wireframe fig. 8) |
+| HAB-02 | Chips: late caffeine or energy drink, alcohol, stressful day / deadline, studied late, screens in bed, napped, exercised | P0 | Done | Larry (sleep hygiene), Notebook (problem statement) |
+| HAB-03 | **Took a sleep aid** chip, which reveals *Melatonin · Over-the-counter · Prescription* | P0 | Done | CA (Ontario guideline: medication use matters) |
+| HAB-04 | The AI pre-selects chips mentioned in the story, labelled "from your story"; the patient can remove them | P0 | Done | Team |
 | HAB-05 | The patient's "usual day" (from onboarding) is shown on the habit screen | P1 | Planned | Notebook (wireframe fig. 8) |
 | HAB-06 | Code compares nights with and without each habit, only when there are at least 5 nights on each side, and labels the result "linked, not proof" with the number of nights | P0 | Done | CA, Edith |
 | HAB-07 | The patient sees "what seems linked" on My sleep | P1 | Planned | Brenda (patients see their own data) |
@@ -112,7 +112,7 @@ For the P0 prototype, Maya's data already contains a completed pre-visit step an
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
 | MY-01 | **My sleep:** weekly averages and "what seems linked". No sleep stages, no scores, plus the line "one night doesn't define your sleep". | P1 | Planned | Brenda, Lit (orthosomnia) |
-| MY-02 | **Privacy & data page:** what is stored, where, and who sees it | P0 | Planned | Brenda, Rubric |
+| MY-02 | **Privacy & data page:** what is stored, where, and who sees it | P0 | Done | Brenda, Rubric |
 | MY-03 | Download and delete my data | P2 | Planned | CA (PIPEDA access rights) |
 
 ## 7. Provider and Sleep Snapshot (PRV)
@@ -121,18 +121,18 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| PRV-01 | **Patient list:** 3 students with visit date and share status | P0 | Planned | Team |
-| PRV-02 | **Header:** name, age, period covered, data completeness ("49 of 56 nights logged, 4 late"), watch source | P0 | Planned | CA |
-| PRV-03 | **Headline:** ISI at baseline vs now with severity band, the biggest change, number of red flags | P0 | Planned | CA, Edith (one-page summary) |
-| PRV-04 | **Metrics table:** first 4 weeks vs last 4 weeks (medians) for time to fall asleep, awake during the night, total sleep, time in bed, sleep efficiency, awakenings, poor nights per week (efficiency under 85%) | P0 | Planned | CA (Somryst precedent, Ontario guideline) |
-| PRV-05 | **Chart:** nightly sleep efficiency, a 7-night average line, and markers on sleep-aid nights | P0 | Planned | CA, Notebook (wireframe) |
-| PRV-06 | **Sleep aids:** nights per week by type, compared across periods | P0 | Planned | CA |
-| PRV-07 | **Screening and red flags**, each with a suggested next step ("Consider PHQ-9") | P0 | Planned | CA |
-| PRV-08 | **What seems linked to bad nights:** at most 3 rows, each with the number of nights and the caveat | P0 | Planned | CA, Edith |
-| PRV-09 | **Watch vs diary:** median watch total vs diary total, how many nights were mismatched, and the patient's explanations | P0 | Planned | Edith, Lit |
-| PRV-10 | **In their words:** 1–2 verbatim quotes (the newest first, so a tester sees their own) and "wants to discuss" | P0 | Planned | CA, Notebook |
-| PRV-11 | **Footer:** method (patient-reported diary, consumer watch data), "not a diagnosis", date generated | P0 | Planned | CA (safety) |
-| PRV-12 | **Download PDF:** a print layout that fits one page | P0 | Planned | Notebook (one-page snapshot) |
+| PRV-01 | **Patient list:** 3 students with visit date and share status | P0 | Done | Team |
+| PRV-02 | **Header:** name, age, period covered, data completeness ("49 of 56 nights logged, 4 late"), watch source | P0 | Done | CA |
+| PRV-03 | **Headline:** ISI at baseline vs now with severity band, the biggest change, number of red flags | P0 | Done | CA, Edith (one-page summary) |
+| PRV-04 | **Metrics table:** first 4 weeks vs last 4 weeks (medians) for time to fall asleep, awake during the night, total sleep, time in bed, sleep efficiency, awakenings, poor nights per week (efficiency under 85%) | P0 | Done | CA (Somryst precedent, Ontario guideline) |
+| PRV-05 | **Chart:** nightly sleep efficiency, a 7-night average line, and markers on sleep-aid nights | P0 | Done | CA, Notebook (wireframe) |
+| PRV-06 | **Sleep aids:** nights per week by type, compared across periods | P0 | Done | CA |
+| PRV-07 | **Screening and red flags**, each with a suggested next step ("Consider PHQ-9") | P0 | Done | CA |
+| PRV-08 | **What seems linked to bad nights:** at most 3 rows, each with the number of nights and the caveat | P0 | Done | CA, Edith |
+| PRV-09 | **Watch vs diary:** median watch total vs diary total, how many nights were mismatched, and the patient's explanations | P0 | Done | Edith, Lit |
+| PRV-10 | **In their words:** 1–2 verbatim quotes (the newest first, so a tester sees their own) and "wants to discuss" | P0 | Done | CA, Notebook |
+| PRV-11 | **Footer:** method (patient-reported diary, consumer watch data), "not a diagnosis", date generated | P0 | Done | CA (safety) |
+| PRV-12 | **Download PDF:** a print layout that fits one page | P0 | In progress | Notebook (one-page snapshot) |
 | PRV-13 | "How was this calculated?" explanation on each number | P1 | Planned | Rubric (AI role clear), Larry (trust) |
 | PRV-14 | **Provider modules:** turn on ready-made extras per patient (anxiety screen GAD-2, sleep-aid taper, CBT-I sleep window). Shown as a "coming soon" toggle in P2, built later. | P2 / Later | Planned | Brenda (adjust by patient group), CA |
 | PRV-15 | Send the Snapshot by email as a secure, expiring link (no health data in the email itself) | Later | Planned | CA (Ontario IPC email guidance) |
@@ -150,7 +150,7 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | SAFE-05 | Dozing while driving = yes → an immediate on-screen safety message, not delayed until the visit | P1 | Planned | CA |
 | SAFE-06 | PHQ-2 positive → full PHQ-9 next time. PHQ-9 item 9 (self-harm) → crisis resources shown immediately. | P2 | Planned | CA |
 | SAFE-07 | Snoring = yes → STOP-BANG apnea questionnaire | P2 | Planned | CA |
-| SAFE-08 | **Wording rule:** the app never diagnoses or recommends medication changes. It says "consider" or "worth discussing", never "detects". | P0 | Planned | CA (Health Canada SaMD) |
+| SAFE-08 | **Wording rule:** the app never diagnoses or recommends medication changes. It says "consider" or "worth discussing", never "detects". | P0 | Done | CA (Health Canada SaMD) |
 
 ## 9. AI (AI)
 
@@ -160,9 +160,9 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 | AI-02 | The AI output is validated against the shared schema. Out-of-range or malformed values are rejected, never saved. | P0 | Done | V0 (data sanity, validators) |
 | AI-03 | **Fallback parser:** rule-based extraction when there's no key, a timeout, or invalid output. The UI shows which mode was used. | P0 | Done | Rubric (handles errors) |
 | AI-04 | **Quote check:** a quote is kept only if it appears word-for-word in the patient's story | P0 | Done | CA (verifier step) |
-| AI-05 | **The AI never produces Snapshot numbers.** Only fields the patient confirmed feed the metrics. | P0 | Planned | CA, Larry |
-| AI-06 | "What did the AI do?" panel on the review screen: input (your words), output (these fields), limits (can be wrong; check highlighted fields), where it runs | P0 | Planned | Rubric (role, inputs, outputs clear) |
-| AI-07 | Count the fields the patient corrected (a measure of AI accuracy for evaluation) | P0 | Planned | V0, Rubric |
+| AI-05 | **The AI never produces Snapshot numbers.** Only fields the patient confirmed feed the metrics. | P0 | Done | CA, Larry |
+| AI-06 | "What did the AI do?" panel on the review screen: input (your words), output (these fields), limits (can be wrong; check highlighted fields), where it runs | P0 | Done | Rubric (role, inputs, outputs clear) |
+| AI-07 | Count the fields the patient corrected (a measure of AI accuracy for evaluation) | P0 | Done | V0, Rubric |
 | AI-08 | Fall back to the parser if the model takes longer than about 8 seconds | P0 | Done | NFR-02 |
 | AI-09 | Self-hosted speech-to-text (Whisper) instead of browser speech, as a Python service or a gateway endpoint | P2 / Later | Planned | Privacy |
 | AI-10 | An AI-written context summary of at most 3 sentences, built from the patient's own notes, with a check that rejects any number not in the computed data | P2 | Planned | CA |
@@ -172,21 +172,21 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| PRIV-01 | Use only made-up data. No real patient information in any environment. | P0 | Planned | CA |
+| PRIV-01 | Use only made-up data. No real patient information in any environment. | P0 | Done | CA |
 | PRIV-02 | Secrets live in `.env.local`, which git ignores; `.env.example` documents the variables | P0 | Done | Team |
-| PRIV-03 | A plain-language privacy page (same as MY-02) | P0 | Planned | Brenda |
+| PRIV-03 | A plain-language privacy page (same as MY-02) | P0 | Done | Brenda |
 | PRIV-04 | The patient approves every share (same as VIS-04) | P1 | Planned | Notebook |
 | PRIV-05 | Data export and delete (same as MY-03) | P2 | Planned | CA |
 | PRIV-06 | Real accounts and login, replacing demo sessions | P2 | Planned | Team |
 | PRIV-07 | Production hardening: Canadian hosting, encryption at rest, audit logs, a PHIPA agent agreement with clinics | Later | Planned | CA |
-| PRIV-08 | **Wording rule:** don't claim "data stays in Canada" until the gateway's server location is confirmed. Do say "self-hosted model; your words are not sent to OpenAI or Google". | P0 | Planned | Team |
+| PRIV-08 | **Wording rule:** don't claim "data stays in Canada" until the gateway's server location is confirmed. Do say "self-hosted model; your words are not sent to OpenAI or Google". | P0 | Done | Team |
 
 ## 11. Wearables (WEAR)
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
 | WEAR-01 | Simulated watch data in the demo (watch total sleep per night) | P0 | Done | Team |
-| WEAR-02 | A wearable adapter interface, so real sources can be added without touching the screens | P0 | Planned | Team |
+| WEAR-02 | A wearable adapter interface, so real sources can be added without touching the screens | P0 | Done | Team |
 | WEAR-03 | Oura API (OAuth, with a sandbox for demos) | Later | Planned | CA |
 | WEAR-04 | Apple Health through an iOS Shortcut that sends data to our server (Apple has no web API) | Later | Planned | CA |
 | WEAR-05 | Google Health API (Fitbit/Pixel), Garmin, Samsung Health | Later | Planned | CA |
@@ -195,16 +195,16 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| NFR-01 | Responsive: the patient side is designed for phones, the provider side for desktop, and both work on either | P0 | Planned | Team |
-| NFR-02 | A check-in can be completed in about 60 seconds | P0 | Planned | CA, Notebook |
-| NFR-03 | The Snapshot is readable in under a minute and prints on one page | P0 | Planned | Notebook, Brenda |
+| NFR-01 | Responsive: the patient side is designed for phones, the provider side for desktop, and both work on either | P0 | In progress | Team |
+| NFR-02 | A check-in can be completed in about 60 seconds | P0 | In progress | CA, Notebook |
+| NFR-03 | The Snapshot is readable in under a minute and prints on one page | P0 | In progress | Notebook, Brenda |
 | NFR-04 | The app works when the AI is unavailable (fallback) | P0 | Done | Rubric |
-| NFR-05 | Unit tests for metrics, questionnaire scoring, AI-output validation and the fallback parser | P0 | In progress | V0 |
+| NFR-05 | Unit tests for metrics, questionnaire scoring, AI-output validation and the fallback parser | P0 | Done | V0 |
 | NFR-06 | Accessibility basics: large tap targets, good contrast, labels on every input | P1 | Planned | Notebook (digital literacy) |
 | NFR-07 | Public deployment (Vercel + Postgres) so testers can use their own phones | P2 | Planned | Team |
 | NFR-08 | French version | Later | Planned | CA (bilingual Canada) |
-| NFR-09 | UI copy says "primary care provider", not "doctor" | P0 | Planned | Brenda |
-| NFR-10 | UI is built from a ready-made component library (shadcn/ui on Tailwind), not custom styles. Only the theme colours are ours. | P0 | Planned | Team (time) |
+| NFR-09 | UI copy says "primary care provider", not "doctor" | P0 | Done | Brenda |
+| NFR-10 | UI is built from a ready-made component library (shadcn/ui on Tailwind), not custom styles. Only the theme colours are ours. | P0 | Done | Team (time) |
 
 ## 13. Course deliverables (DOC)
 

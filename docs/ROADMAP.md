@@ -19,7 +19,7 @@ Phases and their contents. Each item is a requirement ID from [REQUIREMENTS.md](
 | 5 | Check-in flow: home, story, review, follow-up, habits, done, watch question, rough-night mode | CHK-01–10, HAB-01–04 |
 | 6 | Tester bar, session log recording, privacy page | DEMO-01, DEMO-04–07, DEMO-11, MY-02, PRIV-03 |
 
-**Waiting on:** UI inspiration images in [design/inspiration/](design/inspiration/) before building screens (steps 3, 5, 6). The images guide layout and colours; components come from shadcn/ui, not custom CSS (NFR-10).
+**Waiting on:** the gateway key in `.env.local` (AI-01), and UI inspiration images in [design/inspiration/](design/inspiration/) before building screens (steps 3, 5, 6). The images guide layout and colours; components come from shadcn/ui, not custom CSS (NFR-10).
 
 ## Phase 1: Complete prototype (before peer evaluation and Demo Day)
 
@@ -58,3 +58,4 @@ CHK-14 reminders · PRV-15 secure email links · PRV-16 EMR export · PRV-17 mul
 | 2026-11-08 | Project set up (Next.js, TypeScript, Tailwind, Prisma, zod, Vitest). Gateway access tested. Project documents written. Shared diary schema and time helpers started. |
 | 2026-11-08 | Step 1 done: sleep metrics, period comparison, watch comparison, ISI/PHQ-2 scoring, red flags, habit links, streak and check-in rules, with 35 unit tests. UI library chosen (shadcn/ui). |
 | 2026-11-08 | Step 2 done: Prisma schema and SQLite database, per-tester demo sessions (create, reset, next morning, new tester, event log), Maya's 8-week generated data and 2 extra students, tested against the Snapshot story. Tester bar UI still to come. |
+| 2026-11-08 | Steps 3–6 built with shadcn/ui default styling: start screen, tester bar, patient home, check-in flow (story, review, follow-up, habits, done, watch question, rough-night mode), privacy page, provider list, Sleep Snapshot with chart and print layout, session log. AI extraction tested with the fallback; the gateway is waiting for the API key. Still to check in a browser: voice input, one-page print, phone layout. Restyle once UI inspiration images are added. |
