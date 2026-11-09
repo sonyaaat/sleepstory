@@ -92,6 +92,12 @@ export const FIELD_ORDER: DiaryFieldKey[] = [
   "quality",
 ];
 
+/**
+ * The fields the patient is asked about. "Started trying to sleep" (lightsOut) is not asked:
+ * we take it as the time they got into bed, which keeps the CSD maths intact.
+ */
+export const ASKED_FIELDS: DiaryFieldKey[] = FIELD_ORDER.filter((k) => k !== "lightsOut");
+
 export const QUALITY_LABELS = ["Very poor", "Poor", "Fair", "Good", "Very good"];
 
 /** A full night as stored and as used by the metrics engine. */

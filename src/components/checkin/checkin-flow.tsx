@@ -22,6 +22,7 @@ import { consistencyIssues } from "@/core/metrics";
 import {
   DiaryEntrySchema,
   FIELD_META,
+  ASKED_FIELDS,
   FIELD_ORDER,
   HABITS,
   QUALITY_LABELS,
@@ -168,16 +169,20 @@ export function CheckinFlow({
 
   // ---- Review helpers ----
   const entryValues = Object.fromEntries(
-    FIELD_ORDER.map((k) => [k, unknown.has(k) ? null : values[k] === "" ? undefined : values[k]]),
+    FIELD_ORDER.map((k) => {
+      // Not asked: "started trying to sleep" is taken as the time they got into bed.
+      const src = k === "lightsOut" ? "inBed" : k;
+      return [k, unknown.has(src) ? null : values[src] === "" ? undefined : values[src]];
+    }),
   );
   const parsed = DiaryEntrySchema.safeParse(entryValues);
   const complete = parsed.success;
   const issues = complete ? consistencyIssues(parsed.data) : [];
-  const missing = FIELD_ORDER.filter((k) => !unknown.has(k) && (values[k] === undefined || values[k] === ""));
+  const missing = ASKED_FIELDS.filter((k) => !unknown.has(k) && (values[k] === undefined || values[k] === ""));
 
   const corrected = useMemo(() => {
     if (!extraction) return 0;
-    return FIELD_ORDER.filter((k) => extraction.fields[k] && extraction.fields[k]!.value !== values[k]).length;
+    return ASKED_FIELDS.filter((k) => extraction.fields[k] && extraction.fields[k]!.value !== values[k]).length;
   }, [extraction, values]);
 
   function setField(k: DiaryFieldKey, v: FieldValue) {
@@ -422,7 +427,7 @@ export function CheckinFlow({
         )}
 
         <ul className="mt-5 divide-y divide-border/70 rounded-3xl bg-card px-3 ring-1 ring-border/60">
-          {FIELD_ORDER.filter((k) => k !== "quality").map((k) => {
+          {ASKED_FIELDS.filter((k) => k !== "quality").map((k) => {
             const f = extraction.fields[k];
             const v = values[k];
             const isUnknown = unknown.has(k);

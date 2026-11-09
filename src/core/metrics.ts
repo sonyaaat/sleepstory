@@ -53,7 +53,7 @@ export function consistencyIssues(f: DiaryEntry): string[] {
   if (inBed != null && lightsOut != null && lightsOut < inBed)
     issues.push("You started trying to sleep before getting into bed.");
   if (lightsOut != null && finalWake != null && finalWake <= lightsOut)
-    issues.push("You woke up for the day before you started trying to sleep.");
+    issues.push("Your wake up time is before the time you got into bed.");
   if (finalWake != null && outOfBed != null && outOfBed < finalWake)
     issues.push("You got out of bed before you woke up for the day.");
   if (
