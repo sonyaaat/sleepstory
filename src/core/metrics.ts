@@ -35,9 +35,9 @@ export function consistencyIssues(f: DiaryFields): string[] {
   const lightsOut = nightMinutes(f.lightsOut);
   const finalWake = nightMinutes(f.finalWake);
   const outOfBed = nightMinutes(f.outOfBed);
-  if (lightsOut < inBed) issues.push("You tried to sleep before getting into bed.");
-  if (finalWake <= lightsOut) issues.push("Your final wake-up is before you tried to sleep.");
-  if (outOfBed < finalWake) issues.push("You got out of bed before your final wake-up.");
+  if (lightsOut < inBed) issues.push("You started trying to sleep before getting into bed.");
+  if (finalWake <= lightsOut) issues.push("You woke up for the day before you started trying to sleep.");
+  if (outOfBed < finalWake) issues.push("You got out of bed before you woke up for the day.");
   if (finalWake > lightsOut && f.solMin + f.wasoMin > finalWake - lightsOut) {
     issues.push("Time to fall asleep plus time awake is longer than the whole night.");
   }

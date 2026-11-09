@@ -57,11 +57,11 @@ export type DiaryFieldKey = keyof DiaryFields;
 
 export const FIELD_META: Record<DiaryFieldKey, { label: string; kind: "clock" | "minutes" | "count" | "quality" }> = {
   inBed: { label: "Got into bed", kind: "clock" },
-  lightsOut: { label: "Tried to sleep", kind: "clock" },
+  lightsOut: { label: "Started trying to sleep", kind: "clock" },
   solMin: { label: "Time to fall asleep", kind: "minutes" },
-  awakenings: { label: "Times woke up", kind: "count" },
+  awakenings: { label: "Woke up in the night", kind: "count" },
   wasoMin: { label: "Awake during the night", kind: "minutes" },
-  finalWake: { label: "Woke up for good", kind: "clock" },
+  finalWake: { label: "Woke up for the day", kind: "clock" },
   outOfBed: { label: "Got out of bed", kind: "clock" },
   quality: { label: "Sleep quality", kind: "quality" },
 };

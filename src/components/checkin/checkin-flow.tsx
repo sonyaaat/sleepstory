@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, Bot, CalendarDays, Check, Keyboard, Loader2, Mic, Square, Watch } from "lucide-react";
+import { AlertTriangle, Bot, CalendarDays, Check, Keyboard, Loader2, Mic, Pencil, Square, Watch } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -357,7 +357,9 @@ export function CheckinFlow({
           <AiPanel extraction={extraction} />
         </div>
         <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Here&apos;s what I heard</h1>
-        <p className="mt-2 text-[17px] text-muted-foreground">Tap anything that&apos;s not quite right.</p>
+        <p className="mt-2 flex items-center gap-2 text-[17px] text-muted-foreground">
+          <Pencil className="size-4 shrink-0" /> Tap any answer to change it.
+        </p>
 
         {extraction.mode === "fallback" && (
           <p className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
@@ -381,8 +383,8 @@ export function CheckinFlow({
           </div>
         )}
 
-        <ul className="mt-5 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
-          {FIELD_ORDER.map((k) => {
+        <ul className="mt-5 divide-y divide-border/70 rounded-3xl bg-card px-3 ring-1 ring-border/60">
+          {FIELD_ORDER.filter((k) => k !== "quality").map((k) => {
             const f = extraction.fields[k];
             const v = values[k];
             const isMissing = v === undefined || v === "";
@@ -394,10 +396,11 @@ export function CheckinFlow({
                 <button
                   type="button"
                   onClick={() => setEditing(k)}
-                  className="flex min-h-14 w-full items-center justify-between gap-3 py-3.5 text-left"
+                  aria-label={`Change: ${FIELD_META[k].label}`}
+                  className="group my-1 flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none active:bg-surface-2"
                 >
                   <span className="text-[15px] text-muted-foreground">{FIELD_META[k].label}</span>
-                  <span className="flex flex-col items-end">
+                  <span className="ml-auto flex flex-col items-end">
                     {isMissing ? (
                       <span className="font-semibold text-warn-foreground">Tap to add</span>
                     ) : (
@@ -408,10 +411,25 @@ export function CheckinFlow({
                     )}
                     {!isMissing && assumed.has(k) && <span className="text-xs text-muted-foreground">assumed</span>}
                   </span>
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted-foreground transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
+                    <Pencil className="size-3.5" />
+                  </span>
                 </button>
               </li>
             );
           })}
+          <li className="px-2 py-4">
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-[15px] text-muted-foreground">Sleep quality</span>
+              {extraction.fields.quality &&
+                extraction.fields.quality.value === values.quality &&
+                extraction.fields.quality.confidence !== "high" && (
+                  <span className="size-2 rounded-full bg-brand" aria-label="Please check" />
+                )}
+              {values.quality == null && <span className="text-xs font-semibold text-warn-foreground">Please pick one</span>}
+            </div>
+            <FieldInput name="quality" value={values.quality} onChange={(v) => setField("quality", v)} />
+          </li>
         </ul>
         <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
