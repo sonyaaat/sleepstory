@@ -93,10 +93,12 @@ export const FIELD_ORDER: DiaryFieldKey[] = [
 ];
 
 /**
- * The fields the patient is asked about. "Started trying to sleep" (lightsOut) is not asked:
- * we take it as the time they got into bed, which keeps the CSD maths intact.
+ * The fields the patient is asked about. Two CSD fields are not asked, to keep the check-in short:
+ * "started trying to sleep" is taken as the time they got into bed, and
+ * "got out of bed" as the wake up time. The CSD maths still works on the stored night.
  */
-export const ASKED_FIELDS: DiaryFieldKey[] = FIELD_ORDER.filter((k) => k !== "lightsOut");
+export const DERIVED_FROM: Partial<Record<DiaryFieldKey, DiaryFieldKey>> = { lightsOut: "inBed", outOfBed: "finalWake" };
+export const ASKED_FIELDS: DiaryFieldKey[] = FIELD_ORDER.filter((k) => k !== "lightsOut" && k !== "outOfBed");
 
 export const QUALITY_LABELS = ["Very poor", "Poor", "Fair", "Good", "Very good"];
 
