@@ -2,8 +2,9 @@ import Link from "next/link";
 import { CalendarDays, Keyboard, Lock, Mic, Pencil, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
-import { weekMornings } from "@/core/checkin";
-import { addDays, daysBetween, formatDateLong } from "@/core/time";
+import { MorningNotification } from "@/components/checkin/morning-notification";
+import { dayStreak, weekMornings } from "@/core/checkin";
+import { addDays, daysBetween, formatClock12, formatDateLong } from "@/core/time";
 import { mainPatient, requireSession } from "@/db/queries";
 
 export default async function PatientHome() {
@@ -18,9 +19,17 @@ export default async function PatientHome() {
   const week = weekMornings(nights.map((n) => n.date), session.today);
   const daysToVisit = daysBetween(session.today, patient.visitDate);
   const firstName = patient.name.split(" ")[0];
+  const streak = dayStreak(nights.map((n) => n.date), session.today);
 
   return (
     <PatientShell>
+      {!logged && (
+        <MorningNotification
+          firstName={firstName}
+          time={formatClock12(patient.usualDay?.reminderTime ?? "07:30")}
+          streakDays={streak.days}
+        />
+      )}
       <Logo />
 
       {!logged ? (
@@ -28,7 +37,7 @@ export default async function PatientHome() {
           <p className="mt-10 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
           <h1 className="mt-1.5 font-display text-[40px] leading-[1.1]">How did you sleep?</h1>
           <p className="mt-3.5 text-[17px] leading-relaxed text-muted-foreground">
-            Tell me in your own words. I&apos;ll fill in the sleep diary for your primary care provider.
+            Just talk. I&apos;ll fill in your sleep diary.
           </p>
 
           <div className="flex flex-1 flex-col items-center justify-center gap-5 py-10">
@@ -41,9 +50,6 @@ export default async function PatientHome() {
             </Link>
             <div className="mt-4 text-center">
               <p className="font-semibold">Tap and talk for about 15 seconds</p>
-              <p className="mt-1 text-[15px] text-muted-foreground">
-                For example: &ldquo;Went to bed around 11, took an hour to fall asleep, woke up twice.&rdquo;
-              </p>
             </div>
           </div>
 
@@ -62,9 +68,6 @@ export default async function PatientHome() {
         <>
           <MoonMark className="mt-12 size-14" />
           <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Last night is saved, {firstName}.</h1>
-          <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">
-            One rough night doesn&apos;t define your sleep. Your provider will see the pattern over weeks.
-          </p>
           <div className="mt-8 space-y-3">
             <WeekDots week={week} />
             <Button asChild variant="ghost" size="lg" className="w-full">
