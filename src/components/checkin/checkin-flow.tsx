@@ -2,27 +2,28 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, Bot, CalendarDays, Check, HelpCircle, Keyboard, Loader2, Mic, Pencil, Plus, Square, Stethoscope, Watch, X } from "lucide-react";
+import { AlertTriangle, Bot, CalendarDays, Check, Flame, HelpCircle, Keyboard, Loader2, Mic, Pencil, Plus, Square, Stethoscope, Trophy, Watch, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
+import { MoonMark, PatientShell, SoftCard } from "@/components/brand";
 import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/app/actions";
 import type { ExtractionResult } from "@/adapters/llm/types";
-import { fillRoughNight, followUpQuestion, type UsualTimes } from "@/core/checkin";
-import { detectHabits } from "@/core/habit-detect";
+import { fillRoughNight, followUpQuestion, STREAK_MILESTONES, type DayStreak, type UsualTimes } from "@/core/checkin";
 import { MEDICINE_SAFETY_LINE } from "@/core/medications";
 import { consistencyIssues } from "@/core/metrics";
 import {
   DiaryEntrySchema,
   FIELD_META,
   ASKED_FIELDS,
+  DERIVED_FROM,
   FIELD_ORDER,
   HABITS,
   QUALITY_LABELS,
@@ -39,23 +40,22 @@ import { cn } from "@/lib/utils";
 import { FieldInput, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
 
-type Step = "voice" | "type" | "quick" | "review" | "followup" | "habits" | "done";
+type Step = "voice" | "type" | "quick" | "review" | "done";
 type Values = Partial<Record<DiaryFieldKey, FieldValue>>;
 type Saved = Extract<CheckinResult, { ok: true }>;
 
-const CHIP = "h-11 rounded-full! border-2! px-4 text-[15px] font-semibold";
+const SMALL_CHIP = "h-10 rounded-full! border-2! px-3.5 text-sm font-semibold";
+const INPUT = "mt-3 h-11 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2";
 
 export function CheckinFlow({
   initialMode,
   medicines,
   usual,
-  usualDayText,
   firstName,
   visitDate,
 }: {
   initialMode: "voice" | "type" | "quick";
   usual: UsualTimes;
-  usualDayText: string | null;
   firstName: string;
   visitDate: string;
   /** The patient's own sleep medicines, from registration (MED-01). */
@@ -69,20 +69,16 @@ export function CheckinFlow({
   const [mode, setMode] = useState<"full" | "rough">("full");
   const [wokeReasons, setWokeReasons] = useState<WokeReason[]>([]);
   const [wakeNote, setWakeNote] = useState("");
+  const [showWakeOther, setShowWakeOther] = useState(false);
   const [habits, setHabits] = useState<HabitKey[]>([]);
-  const [fromStory, setFromStory] = useState<HabitKey[]>([]);
-  // HAB-09: free text or voice for anything the chips don't cover.
-  const [dayNote, setDayNote] = useState("");
-  const [fromNote, setFromNote] = useState<HabitKey[]>([]);
-  const [dismissed, setDismissed] = useState<HabitKey[]>([]);
-  const [tookAid, setTookAid] = useState(false);
   // MED-02: which of her medicines she took, plus anything new she names.
   const [meds, setMeds] = useState<string[]>([]);
   const [otherMed, setOtherMed] = useState("");
   const [showOther, setShowOther] = useState(false);
+  // One-tap confirm for answers marked "please check".
+  const [confirmed, setConfirmed] = useState<Set<DiaryFieldKey>>(new Set());
   /** Ticks the patient's own medicine of this kind, if she has one; otherwise asks for the name. */
   function preselectAid(kind: SleepAid) {
-    setTookAid(true);
     const mine = medicines.find((m) => m.kind === kind);
     if (mine) setMeds((prev) => (prev.includes(mine.name) ? prev : [...prev, mine.name]));
     else setShowOther(true);
@@ -112,8 +108,6 @@ export function CheckinFlow({
   }, [initialMode]);
 
   const speech = useSpeech((text) => setStory((s) => (s ? `${s} ${text}` : text)));
-  const noteSpeech = useSpeech((text) => changeNote(dayNote ? `${dayNote} ${text}` : text));
-  const wakeSpeech = useSpeech((text) => setWakeNote((s) => (s ? `${s} ${text}` : text)));
   const notesSpeech = useSpeech((text) => setNoteDraft((s) => (s ? `${s} ${text}` : text)));
 
   function addNote() {
@@ -148,9 +142,9 @@ export function CheckinFlow({
       setValues(v);
       setAssumed(a);
       setUnknown(new Set());
+      setConfirmed(new Set());
       setNotes(r.notes.map((n) => ({ text: n.fact, fromStory: true })));
       setHabits(r.habits);
-      setFromStory(r.habits);
       if (r.sleepAid) preselectAid(r.sleepAid);
       setMode("full");
       setStep("review");
@@ -170,8 +164,8 @@ export function CheckinFlow({
   // ---- Review helpers ----
   const entryValues = Object.fromEntries(
     FIELD_ORDER.map((k) => {
-      // Not asked: "started trying to sleep" is taken as the time they got into bed.
-      const src = k === "lightsOut" ? "inBed" : k;
+      // Not asked: taken from another answer (see DERIVED_FROM).
+      const src = DERIVED_FROM[k] ?? k;
       const v = values[src];
       // Left empty = "I don't know" (null). Only sleep quality must be answered.
       if (unknown.has(src) || v === undefined || v === "") return [k, k === "quality" ? undefined : null];
@@ -201,6 +195,7 @@ export function CheckinFlow({
       next.delete(k);
       return next;
     });
+    setConfirmed((prev) => new Set(prev).add(k));
   }
 
   function chooseAmbiguity(value: string | number) {
@@ -221,40 +216,32 @@ export function CheckinFlow({
     setAssumed(new Set(a));
     setMode("rough");
     setExtraction(null);
-    setStep("habits");
+    setStep("review");
   }
 
-  // ---- Habits and day note ----
-  function changeNote(next: string) {
-    setDayNote(next);
-    const found = detectHabits(next);
-    setFromNote(found.habits);
-    const add = found.habits.filter((h) => !dismissed.includes(h));
-    if (add.length) setHabits((prev) => [...new Set([...prev, ...add])]);
-    if (found.sleepAid && !tookAid) preselectAid(found.sleepAid);
+  /** An answer the AI wasn't sure about, not yet confirmed or changed. */
+  function needsCheck(k: DiaryFieldKey) {
+    const f = extraction?.fields[k];
+    const v = values[k];
+    if (!f || unknown.has(k) || confirmed.has(k) || assumed.has(k)) return false;
+    return v !== undefined && v !== "" && f.value === v && f.confidence !== "high";
   }
 
-  function changeHabits(next: HabitKey[]) {
-    const removed = habits.filter((h) => !next.includes(h));
-    if (removed.length) setDismissed((d) => [...new Set([...d, ...removed])]);
-    setHabits(next);
-  }
-
-  const somethingDifferent = habits.length > 0 || tookAid || dayNote.trim().length > 0;
+  const medicinesTaken = [...meds, ...(showOther ? [otherMed.trim()] : [])].filter(Boolean);
 
   // ---- Save ----
-  function save(normalDay = false) {
+  function save() {
     const fields = DiaryEntrySchema.parse(entryValues) as DiaryEntry;
     startSaving(async () => {
       const r = await saveCheckin({
         fields,
         mode,
-        habits: normalDay ? [] : habits,
-        medicines: !normalDay && tookAid ? [...meds, ...(showOther ? [otherMed.trim()] : [])].filter(Boolean) : [],
-        wokeReasons,
-        wakeNote: wakeNote.trim() || null,
+        habits,
+        medicines: medicinesTaken,
+        wokeReasons: followUp ? wokeReasons : [],
+        wakeNote: followUp && showWakeOther ? wakeNote.trim() || null : null,
         story: story.trim() || null,
-        dayNote: dayNote.trim() || null,
+        dayNote: null,
         providerNotes: notes.map((n) => n.text.trim()).filter(Boolean),
         quote: extraction?.quote ?? null,
         aiMode: extraction ? extraction.mode : "manual",
@@ -263,7 +250,7 @@ export function CheckinFlow({
       });
       if (!r.ok) {
         toast.error(r.errors.join(" "));
-        setStep(mode === "rough" ? "quick" : "review");
+        setStep("review");
         return;
       }
       setResult(r);
@@ -389,32 +376,35 @@ export function CheckinFlow({
     );
   }
 
-  if (step === "review" && extraction) {
+  if (step === "review") {
+    const rows = ASKED_FIELDS.filter((k) => k !== "quality");
+    const toCheck = rows.filter(needsCheck);
+    const times = values.awakenings == null || values.awakenings === "" ? 0 : Number(values.awakenings);
+    const otherMissing = showOther && !otherMed.trim();
     return (
       <PatientShell>
         <div className="flex items-center justify-between">
           <button
             type="button"
             className="font-semibold text-primary underline underline-offset-4"
-            onClick={() => setStep(initialMode === "voice" && speech.supported ? "voice" : "type")}
+            onClick={() => setStep(mode === "rough" ? "quick" : initialMode === "voice" && speech.supported ? "voice" : "type")}
           >
-            {initialMode === "voice" ? "Record again" : "Edit my words"}
+            {mode === "rough" ? "Back" : initialMode === "voice" ? "Record again" : "Edit my words"}
           </button>
-          <AiPanel extraction={extraction} />
+          {extraction && <AiPanel extraction={extraction} />}
         </div>
-        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Here&apos;s what I heard</h1>
+        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">{extraction ? "Here's what I heard" : "Check your night"}</h1>
         <p className="mt-2 flex items-center gap-2 text-[17px] text-muted-foreground">
-          <Pencil className="size-4 shrink-0" /> Tap any answer to change it.
+          <Pencil className="size-4 shrink-0" /> Tap to change. Empty = I don&apos;t know.
         </p>
 
-        {extraction.mode === "fallback" && (
+        {extraction?.mode === "fallback" && (
           <p className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
-            The AI wasn&apos;t available{extraction.fallbackReason === "timeout" ? " in time" : ""}, so a simpler method
-            read your story. Please check each line.
+            The AI wasn&apos;t available, so please check each line.
           </p>
         )}
 
-        {extraction.ambiguity && (
+        {extraction?.ambiguity ? (
           <div className="mt-4 rounded-3xl bg-brand-soft p-4 ring-1 ring-brand/50">
             <p className="flex items-start gap-2 font-semibold">
               <AlertTriangle className="mt-0.5 size-4 shrink-0 text-brand" /> {extraction.ambiguity.question}
@@ -427,32 +417,43 @@ export function CheckinFlow({
               ))}
             </div>
           </div>
+        ) : (
+          toCheck.length > 0 && (
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-3xl bg-brand-soft py-3 pr-3 pl-4 ring-1 ring-brand/50">
+              <p className="flex items-center gap-2 text-[15px] font-semibold">
+                <span className="size-2 rounded-full bg-brand" />
+                {toCheck.length} {toCheck.length === 1 ? "answer" : "answers"} to check
+              </p>
+              <Button
+                variant="brand"
+                className="h-10 rounded-full px-4"
+                onClick={() => setConfirmed((prev) => new Set([...prev, ...toCheck]))}
+              >
+                <Check /> All correct
+              </Button>
+            </div>
+          )
         )}
 
-        <ul className="mt-5 divide-y divide-border/70 rounded-3xl bg-card px-3 ring-1 ring-border/60">
-          {ASKED_FIELDS.filter((k) => k !== "quality").map((k) => {
-            const f = extraction.fields[k];
+        <ul className="mt-4 divide-y divide-border/70 rounded-3xl bg-card px-3 ring-1 ring-border/60">
+          {rows.map((k) => {
             const v = values[k];
             const isUnknown = unknown.has(k);
             const isMissing = !isUnknown && (v === undefined || v === "");
-            const unchanged = f && f.value === v;
-            const check = !isMissing && unchanged && f.confidence !== "high" && !assumed.has(k);
-            const approx = unchanged && f.confidence === "medium";
+            const f = extraction?.fields[k];
+            const approx = f && f.value === v && f.confidence === "medium";
+            const check = needsCheck(k);
             return (
-              <li key={k}>
+              <li key={k} className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setEditing(k)}
                   aria-label={`Change: ${FIELD_META[k].label}`}
-                  className="group my-1 flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none active:bg-surface-2"
+                  className="group my-1 flex min-h-14 flex-1 items-center justify-between gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none active:bg-surface-2"
                 >
                   <span className="text-[15px] text-muted-foreground">{FIELD_META[k].label}</span>
                   <span className="ml-auto flex flex-col items-end">
-                    {isUnknown ? (
-                      <span className="flex items-center gap-1.5 font-semibold whitespace-nowrap text-muted-foreground">
-                        <HelpCircle className="size-4" /> Don&apos;t know
-                      </span>
-                    ) : isMissing ? (
+                    {isUnknown || isMissing ? (
                       <span className="flex items-center gap-1.5 font-semibold whitespace-nowrap text-muted-foreground">
                         <HelpCircle className="size-4" /> Don&apos;t know
                       </span>
@@ -462,45 +463,140 @@ export function CheckinFlow({
                         {formatValue(k, v!, approx)}
                       </span>
                     )}
-                    {!isMissing && !isUnknown && assumed.has(k) && <span className="text-xs text-muted-foreground">assumed</span>}
-                    {isMissing && <span className="text-xs text-muted-foreground">tap to add</span>}
+                    {!isMissing && !isUnknown && assumed.has(k) && <span className="text-xs text-muted-foreground">from your usual times</span>}
                   </span>
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted-foreground transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
-                    <Pencil className="size-3.5" />
-                  </span>
+                  {!check && (
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted-foreground transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
+                      <Pencil className="size-3.5" />
+                    </span>
+                  )}
                 </button>
+                {check && (
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="size-8 shrink-0 rounded-full border-2 border-brand"
+                    aria-label={`Confirm: ${FIELD_META[k].label}`}
+                    onClick={() => setConfirmed((prev) => new Set(prev).add(k))}
+                  >
+                    <Check className="size-4" />
+                  </Button>
+                )}
               </li>
             );
           })}
           <li className="px-2 py-4">
             <div className="mb-3 flex items-center gap-2">
               <span className="text-[15px] text-muted-foreground">Sleep quality</span>
-              {extraction.fields.quality &&
-                extraction.fields.quality.value === values.quality &&
-                extraction.fields.quality.confidence !== "high" && (
-                  <span className="size-2 rounded-full bg-brand" aria-label="Please check" />
-                )}
-              {values.quality == null && <span className="text-xs font-semibold text-warn-foreground">Please pick one</span>}
+              {values.quality == null && <span className="text-xs font-semibold text-warn-foreground">Pick one</span>}
             </div>
             <FieldInput name="quality" value={values.quality} onChange={(v) => setField("quality", v)} />
           </li>
         </ul>
-        <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-brand" /> Please check
-          </span>
-          <span>assumed = not said, worked out from your other answers</span>
-          <span>Not sure? Leave it empty, it counts as &ldquo;I don&apos;t know&rdquo;.</span>
-        </p>
 
-        <section className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border/60" aria-labelledby="provider-notes">
+        {followUp && (
+          <Block title={followUp === "woke_reason" ? `What woke you during the night?` : "What kept you awake?"}>
+            {followUp === "woke_reason" && times > 0 && (
+              <p className="-mt-1 mb-3 text-sm text-muted-foreground">
+                You woke up {times === 1 ? "once" : times === 2 ? "twice" : `${times} times`}. Optional.
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <ToggleGroup
+                type="multiple"
+                variant="outline"
+                className="flex flex-wrap justify-start gap-2"
+                value={wokeReasons}
+                onValueChange={(v) => setWokeReasons(v as WokeReason[])}
+              >
+                {WOKE_REASONS.map((r) => (
+                  <ToggleGroupItem key={r.key} value={r.key} className={SMALL_CHIP}>
+                    {r.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+              <Toggle variant="outline" className={SMALL_CHIP} pressed={showWakeOther} onPressedChange={setShowWakeOther}>
+                <Plus /> Other
+              </Toggle>
+            </div>
+            {showWakeOther && (
+              <Input
+                autoFocus
+                aria-label="What woke you, in your own words"
+                placeholder="e.g. my roommate came home late"
+                maxLength={200}
+                value={wakeNote}
+                onChange={(e) => setWakeNote(e.target.value)}
+                className={INPUT}
+              />
+            )}
+          </Block>
+        )}
+
+        <Block title="Medication" hint="Anything you took to help you sleep. Leave empty if none.">
+          <div className="flex flex-wrap gap-2">
+            {medicines.length > 0 && (
+              <ToggleGroup type="multiple" variant="outline" className="flex flex-wrap justify-start gap-2" value={meds} onValueChange={setMeds}>
+                {medicines.map((m) => (
+                  <ToggleGroupItem
+                    key={m.name}
+                    value={m.name}
+                    title={m.planText ? `Your plan: ${m.planText}` : undefined}
+                    className={SMALL_CHIP}
+                  >
+                    {m.name}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            )}
+            <Toggle
+              variant="outline"
+              className={SMALL_CHIP}
+              pressed={showOther}
+              onPressedChange={(on) => {
+                setShowOther(on);
+                if (!on) setOtherMed("");
+              }}
+            >
+              <Plus /> Other
+            </Toggle>
+          </div>
+          {showOther && (
+            <Input
+              autoFocus
+              aria-label="Name of the medication"
+              placeholder="Name, e.g. Nytol"
+              maxLength={60}
+              value={otherMed}
+              onChange={(e) => setOtherMed(e.target.value)}
+              className={INPUT}
+            />
+          )}
+          {medicinesTaken.length > 0 && <p className="mt-3 text-xs text-muted-foreground">{MEDICINE_SAFETY_LINE}</p>}
+        </Block>
+
+        <Block title="Anything different yesterday?" hint="Optional.">
+          <ToggleGroup
+            type="multiple"
+            variant="outline"
+            className="flex w-full flex-wrap justify-start gap-2"
+            value={habits}
+            onValueChange={(v) => setHabits(v as HabitKey[])}
+          >
+            {HABITS.map((h) => (
+              <ToggleGroupItem key={h.key} value={h.key} className={SMALL_CHIP}>
+                {h.short}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </Block>
+
+        <section className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-brand/60" aria-labelledby="provider-notes">
           <h2 id="provider-notes" className="flex items-center gap-2 font-semibold">
-            <Stethoscope className="size-5 text-primary" /> Worth telling your provider
+            <Stethoscope className="size-5 text-primary" /> For your provider
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {notes.some((n) => n.fromStory)
-              ? "I picked these out of your story. Edit or remove anything, or add your own."
-              : "Anything your provider should know: a symptom, a new medicine, something on your mind."}
+            Goes into the summary your provider gets before your visit.
           </p>
           {notes.length > 0 && (
             <ul className="mt-3 space-y-2">
@@ -514,7 +610,7 @@ export function CheckinFlow({
                     onChange={(e) => setNotes((all) => all.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
                     className="field-sizing-content min-h-10 flex-1 resize-none border-0 bg-transparent px-0 py-2 text-[15px] leading-snug shadow-none focus-visible:ring-0 dark:bg-transparent"
                   />
-                  {n.fromStory && <span className="hidden text-xs text-muted-foreground sm:inline">from your story</span>}
+                  {n.fromStory && <span className="mt-2.5 hidden text-xs text-muted-foreground sm:inline">from your story</span>}
                   <Button
                     size="icon-sm"
                     variant="ghost"
@@ -544,7 +640,7 @@ export function CheckinFlow({
             )}
             <Input
               aria-label="Add a note for your provider"
-              placeholder="Add a note…"
+              placeholder="e.g. headache, new medicine…"
               maxLength={200}
               value={notesSpeech.interim ? `${noteDraft} ${notesSpeech.interim}` : noteDraft}
               onChange={(e) => setNoteDraft(e.target.value)}
@@ -573,14 +669,10 @@ export function CheckinFlow({
           </div>
         )}
 
-        <div className="mt-auto pt-8">
-          <Button
-            variant="brand"
-            size="xl"
-            disabled={!complete || issues.length > 0}
-            onClick={() => setStep(followUp ? "followup" : "habits")}
-          >
-            {qualityMissing ? "Pick sleep quality to continue" : "Yes, that’s right"}
+        <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
+          <Button variant="brand" size="xl" disabled={!complete || issues.length > 0 || otherMissing || saving} onClick={save}>
+            {saving ? <Loader2 className="animate-spin" /> : <Check />}
+            {qualityMissing ? "Pick sleep quality to save" : otherMissing ? "Add the medication name" : "Save"}
           </Button>
         </div>
 
@@ -619,220 +711,32 @@ export function CheckinFlow({
     );
   }
 
-  if (step === "followup" && parsed.success) {
-    const woke = followUp === "woke_reason";
-    const times = parsed.data.awakenings ?? 0;
+  if (step === "done" && result && parsed.success) {
+    const d = parsed.data;
+    const st = result.dayStreak;
+    const summary: [string, string][] = [
+      ...ASKED_FIELDS.map((k): [string, string] => [
+        FIELD_META[k].label,
+        d[k] == null ? "Don't know" : formatValue(k, d[k] as FieldValue, false),
+      ]),
+      ["Medication", medicinesTaken.length ? medicinesTaken.join(", ") : "None"],
+      ["Different yesterday", habits.length ? habits.map((h) => HABITS.find((x) => x.key === h)!.short).join(", ") : "Nothing"],
+      ["For your provider", notes.length ? notes.map((n) => n.text).join("; ") : "Nothing"],
+    ];
     return (
       <PatientShell>
-        <div className="flex items-center justify-between">
-          <button type="button" className="font-semibold text-primary underline underline-offset-4" onClick={() => setStep("review")}>
-            Back
-          </button>
-          <button
-            type="button"
-            className="font-semibold text-primary underline underline-offset-4"
-            onClick={() => {
-              setWokeReasons([]);
-              setWakeNote("");
-              setStep("habits");
-            }}
-          >
-            Skip
-          </button>
-        </div>
-        <p className="mt-8 text-[17px] text-muted-foreground">
-          {woke
-            ? `You woke up ${times === 1 ? "once" : times === 2 ? "twice" : `${times} times`} last night.`
-            : "It took a while to fall asleep."}
-        </p>
-        <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">{woke ? "What woke you up?" : "What kept you awake?"}</h1>
-        <p className="mt-2 text-[17px] text-muted-foreground">Pick any that fit.</p>
-        <ToggleGroup
-          type="multiple"
-          variant="outline"
-          className="mt-6 flex w-full flex-wrap justify-start gap-2.5"
-          value={wokeReasons}
-          onValueChange={(v) => setWokeReasons(v as WokeReason[])}
-        >
-          {WOKE_REASONS.map((r) => (
-            <ToggleGroupItem key={r.key} value={r.key} className={CHIP}>
-              {r.label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        <OwnWords
-          className="mt-6"
-          label="Or tell me in your own words"
-          value={wakeNote}
-          onChange={setWakeNote}
-          speech={wakeSpeech}
-          placeholder="e.g. my roommate came home late"
-        />
-        <div className="mt-auto pt-8">
-          <Button variant="brand" size="xl" onClick={() => setStep("habits")}>
-            Next
-          </Button>
-        </div>
-      </PatientShell>
-    );
-  }
+        <MoonMark className="mt-6 size-12" />
+        <h1 className="mt-5 font-display text-[36px] leading-[1.08]">Saved. Thanks, {firstName}.</h1>
 
-  if (step === "habits") {
-    return (
-      <PatientShell>
-        <button
-          type="button"
-          className="self-start font-semibold text-primary underline underline-offset-4"
-          onClick={() => setStep(mode === "rough" ? "quick" : followUp ? "followup" : "review")}
-        >
-          Back
-        </button>
-        <h1 className="mt-8 font-display text-[36px] leading-[1.1]">Was yesterday different from usual?</h1>
-        {usualDayText && (
-          <p className="mt-5 rounded-2xl bg-card px-4 py-3 text-[15px] leading-relaxed text-muted-foreground ring-1 ring-border/60">
-            Your usual day: {usualDayText}
-          </p>
-        )}
-        <Button
-          variant={somethingDifferent ? "outline" : "brand"}
-          size="xl"
-          className="mt-5"
-          disabled={saving}
-          onClick={() => save(true)}
-        >
-          No, it was a normal day
-        </Button>
-
-        <p className="mt-7 text-[15px] text-muted-foreground">Or pick what was different</p>
-        <ToggleGroup
-          type="multiple"
-          variant="outline"
-          className="mt-3 flex w-full flex-wrap justify-start gap-2.5"
-          value={habits}
-          onValueChange={(v) => changeHabits(v as HabitKey[])}
-        >
-          {HABITS.map((h) => (
-            <ToggleGroupItem key={h.key} value={h.key} className={CHIP}>
-              {h.short}
-              {habits.includes(h.key) && (fromStory.includes(h.key) || fromNote.includes(h.key)) && (
-                <span className="text-xs font-normal opacity-80">· from your {fromStory.includes(h.key) ? "story" : "note"}</span>
-              )}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        <div className="mt-2.5 flex flex-wrap gap-2.5">
-          <Toggle
-            variant="outline"
-            className={CHIP}
-            pressed={tookAid}
-            onPressedChange={(on) => {
-              setTookAid(on);
-              if (!on) {
-                setMeds([]);
-                setShowOther(false);
-                setOtherMed("");
-              }
-            }}
-          >
-            Took a sleep aid
-          </Toggle>
-        </div>
-        {tookAid && (
-          <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border/60">
-            <p className="text-sm text-muted-foreground">Which one?</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {medicines.length > 0 && (
-                <ToggleGroup
-                  type="multiple"
-                  variant="outline"
-                  className="flex flex-wrap justify-start gap-2"
-                  value={meds}
-                  onValueChange={(v) => setMeds(v)}
-                >
-                  {medicines.map((m) => (
-                    <ToggleGroupItem
-                      key={m.name}
-                      value={m.name}
-                      title={m.planText ? `Your plan: ${m.planText}` : undefined}
-                      className="h-10 rounded-full! border-2! px-4 text-sm font-semibold"
-                    >
-                      {m.name}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              )}
-              <Toggle
-                variant="outline"
-                className="h-10 rounded-full! border-2! px-4 text-sm font-semibold"
-                pressed={showOther}
-                onPressedChange={(on) => {
-                  setShowOther(on);
-                  if (!on) setOtherMed("");
-                }}
-              >
-                <Plus /> Something else
-              </Toggle>
-            </div>
-            {showOther && (
-              <Input
-                autoFocus
-                aria-label="Name of the medicine"
-                placeholder="Name of the medicine, e.g. Nytol"
-                maxLength={60}
-                value={otherMed}
-                onChange={(e) => setOtherMed(e.target.value)}
-                className="mt-3 h-11 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2"
-              />
-            )}
-            <p className="mt-3 text-xs text-muted-foreground">{MEDICINE_SAFETY_LINE}</p>
-          </div>
-        )}
-
-        <OwnWords
-          className="mt-6"
-          label="Anything else different, or something new?"
-          hint="Optional, e.g. new medication, travelled, late shift, or what stayed the same."
-          value={dayNote}
-          onChange={changeNote}
-          speech={noteSpeech}
-          placeholder="Tell me in your own words"
-        />
-        {fromNote.some((h) => habits.includes(h)) && (
-          <p className="mt-2 px-1 text-xs text-muted-foreground">
-            I ticked what I recognised in your note. Untick anything that&apos;s wrong.
-          </p>
-        )}
-
-        {somethingDifferent && (
-          <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
-            <Button variant="brand" size="xl" disabled={saving || (tookAid && meds.length === 0 && !(showOther && otherMed.trim()))} onClick={() => save()}>
-              {saving ? <Loader2 className="animate-spin" /> : <Check />} Save
-            </Button>
-          </div>
-        )}
-      </PatientShell>
-    );
-  }
-
-  if (step === "done" && result) {
-    return (
-      <PatientShell>
-        <MoonMark className="mt-8 size-16" />
-        <h1 className="mt-8 font-display text-[40px] leading-[1.08]">Saved. Thanks, {firstName}.</h1>
-        <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
-          One rough night doesn&apos;t define your sleep. Your provider will see the pattern over weeks, not single
-          nights.
-        </p>
-
-        <div className="mt-8 space-y-3">
+        <div className="mt-6 space-y-3">
           {result.watchTstMin != null && result.mismatch && !watchAnswered && (
             <SoftCard className="ring-brand/60">
               <p className="flex items-center gap-2 font-semibold">
                 <Watch className="size-5 text-brand" /> Your watch saw it differently
               </p>
               <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
-                Your watch counted {formatDuration(result.watchTstMin)} of sleep; you said{" "}
-                {formatDuration(result.diaryTstMin)}. Your answer is what counts. What do you think happened?
+                Watch: {formatDuration(result.watchTstMin)}. You: {formatDuration(result.diaryTstMin)}. Your answer counts.
+                What happened?
               </p>
               <div className="mt-4 grid gap-2">
                 {(
@@ -857,17 +761,32 @@ export function CheckinFlow({
               </div>
             </SoftCard>
           )}
-          {watchAnswered && (
-            <p className="px-1 text-sm text-muted-foreground">Thanks, that&apos;s noted for your provider.</p>
-          )}
 
-          <WeekDots week={result.week} />
+          <StreakCard streak={st} />
+          <SleepWeek recent={result.recent} prevWeekTstMin={result.prevWeekTstMin} />
+
+          <SoftCard>
+            <div className="flex items-center justify-between">
+              <p className="font-semibold">Last night</p>
+              <Button variant="outline" size="sm" className="rounded-full" onClick={() => setStep("review")}>
+                <Pencil /> Edit
+              </Button>
+            </div>
+            <dl className="mt-3 divide-y divide-border/60 text-[15px]">
+              {summary.map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-4 py-2">
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd className="text-right font-medium">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </SoftCard>
 
           <SoftCard className="flex gap-3">
             <CalendarDays className="mt-0.5 size-5 shrink-0 text-primary" />
             <p className="text-[15px] leading-relaxed">
-              Visit with your primary care provider on <strong>{formatDateLong(visitDate)}</strong>. Your Sleep
-              Snapshot has <strong>{result.snapshotNights} nights</strong> so far.
+              Visit on <strong>{formatDateLong(visitDate)}</strong>. Your Sleep Snapshot has{" "}
+              <strong>{result.snapshotNights} nights</strong>.
             </p>
           </SoftCard>
         </div>
@@ -1068,61 +987,6 @@ function StoryHints({ className }: { className?: string }) {
 }
 
 /** Text box with a mic button, for "in your own words" answers. */
-function OwnWords({
-  label,
-  hint,
-  value,
-  onChange,
-  speech,
-  placeholder,
-  className,
-}: {
-  label: string;
-  hint?: string;
-  value: string;
-  onChange: (v: string) => void;
-  speech: Speech;
-  placeholder: string;
-  className?: string;
-}) {
-  const id = label.replace(/\W+/g, "-").toLowerCase();
-  return (
-    <div className={cn("rounded-3xl bg-card p-4 ring-1 ring-border/60", className)}>
-      <Label htmlFor={id} className="text-[15px] font-semibold">
-        {label}
-      </Label>
-      {hint && <p className="mt-0.5 text-sm text-muted-foreground">{hint}</p>}
-      <div className="mt-3 flex items-start gap-3">
-        {speech.supported && (
-          <button
-            type="button"
-            onClick={speech.toggle}
-            aria-label={speech.listening ? "Stop recording" : "Say it instead"}
-            className={cn(
-              "flex size-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95",
-              speech.listening ? "animate-pulse bg-[#ff8a7a] text-white" : "bg-brand text-brand-foreground",
-            )}
-          >
-            {speech.listening ? <Square className="size-4 fill-current" /> : <Mic className="size-5" />}
-          </button>
-        )}
-        <Textarea
-          id={id}
-          rows={2}
-          maxLength={500}
-          value={speech.interim ? `${value} ${speech.interim}` : value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="min-h-11 flex-1 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2"
-        />
-      </div>
-      {speech.supported && (
-        <p className="mt-2 text-xs text-muted-foreground/80">Voice uses your browser&apos;s speech service (in Chrome, Google).</p>
-      )}
-    </div>
-  );
-}
-
 function Segmented({
   label,
   options,
@@ -1206,5 +1070,103 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** One titled block on the review page. */
+function Block({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-border/60">
+      <h2 className="font-semibold">{title}</h2>
+      {hint && <p className="mt-0.5 mb-3 text-sm text-muted-foreground">{hint}</p>}
+      {!hint && <div className="h-3" />}
+      {children}
+    </section>
+  );
+}
+
+/** Streak with small milestones (CHK-17). One missed morning a week is forgiven. */
+function StreakCard({ streak }: { streak: DayStreak }) {
+  const prev = [...STREAK_MILESTONES].reverse().find((m) => m <= streak.days) ?? 0;
+  const pct = streak.next ? ((streak.days - prev) / (streak.next - prev)) * 100 : 100;
+  return (
+    <SoftCard>
+      <div className="flex items-center gap-3">
+        <span className="flex size-11 items-center justify-center rounded-full bg-brand text-brand-foreground">
+          <Flame className="size-6" />
+        </span>
+        <div>
+          <p className="font-display text-2xl leading-none">{streak.days}-day streak</p>
+          {streak.reached && (
+            <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-primary">
+              <Trophy className="size-4" /> New badge: {streak.reached} mornings!
+            </p>
+          )}
+        </div>
+      </div>
+      {streak.next && (
+        <>
+          <Progress value={pct} className="mt-4 h-2.5 bg-surface-2 [&>div]:bg-brand" aria-label="Progress to next badge" />
+          <p className="mt-2 text-sm text-muted-foreground">
+            {streak.next - streak.days} more to your {streak.next}-day badge · missing 1 morning a week is okay
+          </p>
+        </>
+      )}
+    </SoftCard>
+  );
+}
+
+const WEEKDAY = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+/** Total sleep for the last 7 nights, with the trend against the week before. */
+function SleepWeek({ recent, prevWeekTstMin }: { recent: { date: string; tstMin: number | null }[]; prevWeekTstMin: number | null }) {
+  const known = recent.map((r) => r.tstMin).filter((v): v is number => v != null);
+  if (known.length === 0) return null;
+  const sorted = [...known].sort((a, b) => a - b);
+  const med = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+  const diff = prevWeekTstMin == null ? null : Math.round(med - prevWeekTstMin);
+  const max = 600; // 10 h
+  return (
+    <SoftCard>
+      <p className="font-semibold">Your sleep this week</p>
+      <p className="mt-0.5 text-sm text-muted-foreground">
+        Typical night {formatDuration(med)}
+        {diff != null && Math.abs(diff) >= 10 && (
+          <span className={cn("ml-1 font-semibold", diff > 0 ? "text-good" : "text-muted-foreground")}>
+            · {diff > 0 ? "▲" : "▼"} {formatDuration(Math.abs(diff))} vs last week
+          </span>
+        )}
+      </p>
+      <div className="mt-4 flex h-28 items-end gap-2" role="img" aria-label="Hours of sleep, last 7 nights">
+        {recent.map((r, i) => {
+          const last = i === recent.length - 1;
+          const morning = new Date(`${r.date}T00:00:00Z`);
+          morning.setUTCDate(morning.getUTCDate() + 1);
+          return (
+            <div key={r.date} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5" title={r.tstMin == null ? "No data" : formatDuration(r.tstMin)}>
+              {last && (
+                <span className="text-[11px] font-semibold whitespace-nowrap tabular-nums">
+                  {r.tstMin == null ? "?" : formatDuration(r.tstMin)}
+                </span>
+              )}
+              {r.tstMin == null ? (
+                <div className="h-6 w-full rounded-t-[4px] border-2 border-b-0 border-dashed border-muted-foreground/40" />
+              ) : (
+                <div
+                  className={cn("w-full rounded-t-[4px]", last ? "bg-brand" : "bg-primary/35")}
+                  style={{ height: `${(Math.min(r.tstMin, max) / max) * 100}%` }}
+                />
+              )}
+              <span className={cn("text-xs text-muted-foreground", last && "font-bold text-foreground")}>
+                {WEEKDAY[morning.getUTCDay()]}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      {recent[recent.length - 1].tstMin == null && (
+        <p className="mt-2 text-xs text-muted-foreground">? = last night&apos;s total isn&apos;t known (some answers were &ldquo;Don&apos;t know&rdquo;).</p>
+      )}
+    </SoftCard>
   );
 }

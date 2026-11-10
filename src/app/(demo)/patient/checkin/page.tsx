@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { CheckinFlow } from "@/components/checkin/checkin-flow";
 import { usualTimesFrom } from "@/core/checkin";
 import { planText } from "@/core/medications";
-import { usualDayLine } from "@/core/onboarding";
 import { mainPatient, requireSession } from "@/db/queries";
 
 export default async function CheckinPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
@@ -19,13 +18,11 @@ export default async function CheckinPage({ searchParams }: { searchParams: Prom
   };
   // CHK-10: the usual times the patient gave at onboarding; derived from past nights if missing.
   const usual = u ? fallback : usualTimesFrom(main.nights, fallback);
-  const usualDayText = u ? usualDayLine(u) : null;
   const initialMode = mode === "type" || mode === "quick" ? mode : "voice";
   return (
     <CheckinFlow
       initialMode={initialMode}
       usual={usual}
-      usualDayText={usualDayText}
       firstName={main.patient.name.split(" ")[0]}
       visitDate={main.patient.visitDate}
       medicines={main.patient.medications.map((m) => ({ name: m.name, kind: m.kind, planText: planText(m) }))}
