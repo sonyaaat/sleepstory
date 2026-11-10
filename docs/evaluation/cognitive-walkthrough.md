@@ -17,21 +17,21 @@
 
 | # | Expected action | What the participant should notice or understand |
 |---|---|---|
-| 1 | On the start screen, tap **Skip to Maya's morning** | Understands they are now Maya |
+| 1 | On the start screen, tap **Skip to Maya's morning** (the morning reminder pops up; tapping it also works) | Understands they are now Maya |
 | 2 | On "How did you sleep?", tap the **microphone** (or "Rather type it") | Knows they can talk or type |
 | 3 | Describe the night in their own words, then tap **finish** (stop button or Continue) | Talks naturally; no form to fill |
 | 4 | On **"Here's what I heard"**, read the answers the AI filled in | Understands the AI wrote these answers |
-| 5 | Notice the **yellow dots** ("please check") and tap one to check or correct it | Knows answers can be changed (pencil icon) |
-| 6 | Tap **"Awake during the night"** and choose **"I don't know"** | Knows they don't have to guess |
-| 7 | Pick a **sleep quality** (one tap) | Sees that quality is required |
+| 5 | For answers with a **yellow dot**, tap **✓** (or **All correct**), or tap the answer to change it | Confirms with one tap instead of re-entering |
+| 6 | Leave **"Awake during the night"** as **Don't know** | Knows they don't have to guess |
+| 7 | Pick a **sleep quality** (one tap) | Sees that quality is the only required answer |
 | 8 | Optional: tap **"What did the AI do?"** | Learns what the AI does and doesn't do |
-| 9 | In **"Worth telling your provider"**, check that the headache is listed, or **add it** (type or mic) | Knows the provider will see this note |
-| 10 | Tap **"Yes, that's right"** | Confirms the diary |
-| 11 | On **"What woke you up?"**, pick one or more reasons (or Skip), then **Next** | Can pick several reasons |
-| 12 | On **"Was yesterday different from usual?"**, keep **Late caffeine** ("from your story") | Sees the habit was picked up automatically |
-| 13 | Check that **"Took a sleep aid"** and **Melatonin** are selected (picked up from the story), or select them | Knows where to record a sleep medicine, and that a new one can be added with **+ Something else** |
-| 14 | Tap **Save** (not "No, it was a normal day") | Understands that a sleep aid means the day was different |
-| 15 | On the done screen, answer **"Your watch saw it differently"** if it appears | Understands their own answer counts, not the watch |
+| 9 | In **"What woke you during the night?"**, pick one or more reasons (optional) | Understands it's about the night, not the morning |
+| 10 | In **Medication**, check that **Melatonin** is selected (or select it) | Knows where to record a sleep medicine |
+| 11 | In **"Anything different yesterday?"**, check that **Late caffeine** is selected | Sees the habit was picked up from the story |
+| 12 | In **"For your provider"**, check that the headache is listed, or **add it** (type or mic) | Knows this goes to the provider before the visit |
+| 13 | Tap **Save** | Done in one page |
+| 14 | On the Saved screen, answer **"Your watch saw it differently"** if it appears | Understands their own answer counts, not the watch |
+| 15 | Look at the **streak** and **"Your sleep this week"**, then tap **Edit** on "Last night" and come back | Knows they can still change the entry |
 | 16 | Tap **Back to home** | Done in about 1 minute |
 
 ### Recording observations
@@ -59,11 +59,11 @@ Fill in one row per step during the session.
 
 **Watch especially for these:**
 
-- **Step 5:** Did they realise answers can be changed?
-- **Step 6:** Did they find "I don't know", or did they invent a number?
-- **Step 9:** Did they check the note for the provider?
-- **Steps 13–14:** Did they find "Took a sleep aid", or did they tap "No, it was a normal day" and lose the medicine?
-- **Step 15:** Did they understand the watch question?
+- **Step 5:** Did they use the one-tap ✓, or did they re-enter answers?
+- **Step 6:** Did they leave it as "Don't know", or did they invent a number?
+- **Step 10:** Did they find **Medication** without help?
+- **Step 12:** Did they notice "For your provider" and check the headache?
+- **Step 15:** Did they find **Edit** after saving?
 
 Also record the **total time** and **how many AI answers they corrected** (the app logs both).
 
