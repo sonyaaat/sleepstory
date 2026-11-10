@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { verifyQuote } from "@/adapters/llm/validate";
 import { simulatedWatch } from "@/adapters/wearables";
-import { forgivingStreak, weekMornings } from "@/core/checkin";
-import { consistencyIssues, isWatchMismatch, nightMetrics } from "@/core/metrics";
+import { dayStreak, forgivingStreak, weekMornings, type DayStreak } from "@/core/checkin";
+import { consistencyIssues, isWatchMismatch, median, nightMetrics } from "@/core/metrics";
 import { DiaryEntrySchema, HABIT_KEYS, NightSchema, WOKE_REASON_KEYS } from "@/core/schema";
 import { OnboardingSchema, type OnboardingInput } from "@/core/onboarding";
 import { addDays, formatClock, parseClock } from "@/core/time";
@@ -110,7 +110,12 @@ export type CheckinResult =
       watchTstMin: number | null;
       mismatch: boolean;
       streak: { logged: number; window: number };
+      dayStreak: DayStreak;
       week: ReturnType<typeof weekMornings>;
+      /** The last 7 nights, oldest first, for the small chart on the Saved screen. */
+      recent: { date: string; tstMin: number | null }[];
+      /** Median total sleep of the 7 nights before those, to show the trend. */
+      prevWeekTstMin: number | null;
       snapshotNights: number;
     };
 
@@ -166,6 +171,12 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
   revalidatePath("/", "layout");
 
   const dates = [...main.nights.map((n) => n.date), date];
+  const all = [...main.nights.filter((n) => n.date !== date), night];
+  const tstOn = (day: string) => {
+    const n = all.find((x) => x.date === day);
+    return n ? nightMetrics(n).tstMin : null;
+  };
+  const prev = Array.from({ length: 7 }, (_, i) => tstOn(addDays(date, -13 + i))).filter((v): v is number => v != null);
   return {
     ok: true,
     nightId: saved.id,
@@ -173,7 +184,13 @@ export async function saveCheckin(input: CheckinInput): Promise<CheckinResult> {
     watchTstMin,
     mismatch: isWatchMismatch(night),
     streak: forgivingStreak(dates, s.today),
+    dayStreak: dayStreak(dates, s.today),
     week: weekMornings(dates, s.today),
+    recent: Array.from({ length: 7 }, (_, i) => {
+      const day = addDays(date, i - 6);
+      return { date: day, tstMin: tstOn(day) };
+    }),
+    prevWeekTstMin: median(prev),
     snapshotNights: new Set(dates.filter((d) => d >= addDays(s.today, -56))).size,
   };
 }
