@@ -103,3 +103,43 @@ export function usualTimesFrom(nights: Night[], fallback: UsualTimes): UsualTime
 export function loggableNights(today: string) {
   return { lastNight: addDays(today, -1), lateNight: addDays(today, -2) };
 }
+
+// ---- Streaks and small rewards (CHK-17): one missed morning a week doesn't break the streak ----
+
+export const STREAK_MILESTONES = [3, 7, 14, 30, 60] as const;
+
+export interface DayStreak {
+  /** Mornings logged in the current streak. */
+  days: number;
+  /** Missed mornings forgiven inside the streak (at most one in any 7 days). */
+  forgiven: number;
+  /** The next milestone to reach, or null after the last one. */
+  next: number | null;
+  /** The milestone reached exactly today, if any. */
+  reached: number | null;
+}
+
+/**
+ * Counts back from last night. A missed night is forgiven if no other night in the
+ * 7 days before it (walking back) was missed; a second miss in a week ends the streak.
+ */
+export function dayStreak(nightDates: string[], today: string, maxDays = 400): DayStreak {
+  const set = new Set(nightDates);
+  let days = 0;
+  let forgiven = 0;
+  let lastMiss = -Infinity;
+  for (let i = 1; i <= maxDays; i++) {
+    if (set.has(addDays(today, -i))) {
+      days++;
+      continue;
+    }
+    if (i - lastMiss < 7) break;
+    lastMiss = i;
+    forgiven++;
+  }
+  // Forgiven misses after the oldest logged night aren't part of the streak.
+  if (days === 0) forgiven = 0;
+  const next = STREAK_MILESTONES.find((m) => m > days) ?? null;
+  const reached = (STREAK_MILESTONES as readonly number[]).includes(days) ? days : null;
+  return { days, forgiven: Math.min(forgiven, Math.ceil(days / 7)), next, reached };
+}
