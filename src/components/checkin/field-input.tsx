@@ -1,8 +1,12 @@
 "use client";
 
+import { Annoyed, Frown, Laugh, Meh, Smile } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { FIELD_META, QUALITY_LABELS, type DiaryFieldKey } from "@/core/schema";
+
+/** One face per sleep quality answer, from very poor to very good. */
+const QUALITY_FACES = [Frown, Annoyed, Meh, Smile, Laugh];
 
 export type FieldValue = string | number | undefined;
 
@@ -41,11 +45,20 @@ export function FieldInput({
         onValueChange={(v) => onChange(v ? Number(v) : undefined)}
         aria-label="Sleep quality"
       >
-        {QUALITY_LABELS.map((label, i) => (
-          <ToggleGroupItem key={label} value={String(i + 1)} className="h-14 rounded-2xl! border-2! px-1 text-xs font-semibold whitespace-normal">
-            {label}
-          </ToggleGroupItem>
-        ))}
+        {QUALITY_LABELS.map((label, i) => {
+          const Face = QUALITY_FACES[i];
+          return (
+            <ToggleGroupItem
+              key={label}
+              value={String(i + 1)}
+              aria-label={label}
+              className="h-auto flex-col gap-1 rounded-2xl! border-2! px-0.5 py-2.5 text-[11px] leading-tight font-semibold whitespace-normal"
+            >
+              <Face className="size-6!" aria-hidden="true" />
+              {label}
+            </ToggleGroupItem>
+          );
+        })}
       </ToggleGroup>
     );
   }
