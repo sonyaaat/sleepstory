@@ -661,17 +661,10 @@ export function CheckinFlow({
             />
           )}
         </Extra>
-        </section>
 
-        <section className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-brand/60" aria-labelledby="provider-notes">
-          <h2 id="provider-notes" className="flex items-center gap-2 font-semibold">
-            <Stethoscope className="size-5 text-primary" /> For your provider
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your provider sees this before your visit.
-          </p>
+        <Extra icon={Stethoscope} title="For your provider" hint="Your provider sees this before your visit.">
           {notes.length > 0 && (
-            <ul className="mt-3 space-y-2">
+            <ul className="space-y-2">
               {notes.map((n, i) => (
                 <li key={i} className="flex items-start gap-2 rounded-2xl bg-surface-2 py-1 pr-1 pl-3">
                   <Textarea
@@ -696,7 +689,7 @@ export function CheckinFlow({
               ))}
             </ul>
           )}
-          <div className="mt-3 flex items-center gap-2">
+          <div className={cn("flex items-center gap-2", notes.length > 0 && "mt-3")}>
             {notesSpeech.supported && (
               <button
                 type="button"
@@ -728,6 +721,7 @@ export function CheckinFlow({
               <Plus />
             </Button>
           </div>
+        </Extra>
         </section>
 
         <div className="sticky bottom-0 -mx-6 mt-auto bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
@@ -1080,13 +1074,24 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
 }
 
 /** One part of the "Anything else?" card. */
-function Extra({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
+function Extra({
+  icon: Icon,
+  title,
+  hint,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="py-5">
-      <h2 className="mb-3 flex items-center gap-2 font-semibold">
+      <h2 className={cn("flex items-center gap-2 font-semibold", hint ? "mb-0.5" : "mb-3")}>
         <Icon className="size-4 text-primary" aria-hidden="true" />
         {title}
       </h2>
+      {hint && <p className="mb-3 text-sm text-muted-foreground">{hint}</p>}
       {children}
     </div>
   );
