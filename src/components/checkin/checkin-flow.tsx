@@ -44,6 +44,28 @@ type Step = "voice" | "type" | "review" | "extras" | "done";
 type Values = Partial<Record<DiaryFieldKey, FieldValue>>;
 type Saved = Extract<CheckinResult, { ok: true }>;
 
+/** One colour per idea, used on every check-in screen so the same thing always looks the same. */
+const TONE = {
+  bed: "bg-indigo-100 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300",
+  asleep: "bg-sky-100 text-sky-700 dark:bg-sky-400/15 dark:text-sky-300",
+  night: "bg-violet-100 text-violet-600 dark:bg-violet-400/15 dark:text-violet-300",
+  wake: "bg-orange-100 text-orange-600 dark:bg-orange-400/15 dark:text-orange-300",
+  pill: "bg-rose-100 text-rose-600 dark:bg-rose-400/15 dark:text-rose-300",
+  day: "bg-teal-100 text-teal-700 dark:bg-teal-400/15 dark:text-teal-300",
+  provider: "bg-blue-100 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300",
+  mood: "bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300",
+} as const;
+type Tone = keyof typeof TONE;
+
+/** A coloured rounded square with an icon in it. */
+function IconBadge({ icon: Icon, tone, className }: { icon: LucideIcon; tone: Tone; className?: string }) {
+  return (
+    <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-lg", TONE[tone], className)}>
+      <Icon className="size-4" aria-hidden="true" />
+    </span>
+  );
+}
+
 /** Wake reasons shown first; the rest sit behind "More…". */
 const COMMON_WOKE = new Set<WokeReason>(["worry", "bathroom", "noise", "phone", "pain"]);
 
@@ -524,7 +546,7 @@ export function CheckinFlow({
 
         <section className="mt-6 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
         {followUp && (
-          <Extra icon={MoonStar} title={followUp === "woke_reason" ? "What woke you?" : "What kept you awake?"}>
+          <Extra icon={MoonStar} tone="night" title={followUp === "woke_reason" ? "What woke you?" : "What kept you awake?"}>
             <div className="flex flex-wrap gap-2">
               <ToggleGroup
                 type="multiple"
@@ -562,7 +584,7 @@ export function CheckinFlow({
           </Extra>
         )}
 
-        <Extra icon={Pill} title="Medication">
+        <Extra icon={Pill} tone="pill" title="Medication">
           <div className="flex flex-wrap gap-2">
             {medicines.length > 0 && (
               <ToggleGroup type="multiple" variant="outline" className="contents" value={meds} onValueChange={setMeds}>
@@ -604,7 +626,7 @@ export function CheckinFlow({
           {medicinesTaken.length > 0 && <p className="mt-3 text-xs text-muted-foreground">{MEDICINE_SAFETY_LINE}</p>}
         </Extra>
 
-        <Extra icon={Coffee} title="Anything different yesterday?">
+        <Extra icon={Coffee} tone="day" title="Anything different yesterday?">
           <div className="flex flex-wrap gap-2">
             <ToggleGroup
               type="multiple"
@@ -636,7 +658,7 @@ export function CheckinFlow({
           )}
         </Extra>
 
-        <Extra icon={Stethoscope} title="For your provider" hint="Your provider sees this before your visit.">
+        <Extra icon={Stethoscope} tone="provider" title="For your provider" hint="Your provider sees this before your visit.">
           {notes.length > 0 && (
             <ul className="space-y-2">
               {notes.map((n, i) => (
@@ -712,10 +734,10 @@ export function CheckinFlow({
     const d = parsed.data;
     const st = result.dayStreak;
     const tags = [
-      ...medicinesTaken.map((m) => ({ icon: Pill, text: m })),
-      ...habits.map((h) => ({ icon: Coffee, text: HABITS.find((x) => x.key === h)!.short })),
-      ...(showDayOther && dayOther.trim() ? [{ icon: Coffee, text: dayOther.trim() }] : []),
-      ...notes.map((n) => ({ icon: Stethoscope, text: n.text })),
+      ...medicinesTaken.map((m) => ({ icon: Pill, tone: "pill" as const, text: m })),
+      ...habits.map((h) => ({ icon: Coffee, tone: "day" as const, text: HABITS.find((x) => x.key === h)!.short })),
+      ...(showDayOther && dayOther.trim() ? [{ icon: Coffee, tone: "day" as const, text: dayOther.trim() }] : []),
+      ...notes.map((n) => ({ icon: Stethoscope, tone: "provider" as const, text: n.text })),
     ];
     return (
       <PatientShell>
@@ -968,23 +990,21 @@ function VoiceScreen({
 
 /** What to cover, each with a short example answer (the test story's night). Deliberately general, so it fits any night. */
 const STORY_HINTS = [
-  { icon: BedDouble, label: "Bedtime", example: "12:30" },
-  { icon: Hourglass, label: "Fell asleep", example: "in ~1 hour" },
-  { icon: MoonStar, label: "At night", example: "woke 2 times" },
-  { icon: Sunrise, label: "Wake up", example: "8:15" },
-  { icon: Pill, label: "Pills", example: "melatonin" },
-  { icon: Coffee, label: "Your day", example: "coffee, stress" },
-];
+  { icon: BedDouble, tone: "bed", label: "Bedtime", example: "12:30" },
+  { icon: Hourglass, tone: "asleep", label: "Fell asleep", example: "in ~1 hour" },
+  { icon: MoonStar, tone: "night", label: "At night", example: "woke 2 times" },
+  { icon: Sunrise, tone: "wake", label: "Wake up", example: "8:15" },
+  { icon: Pill, tone: "pill", label: "Pills", example: "melatonin" },
+  { icon: Coffee, tone: "day", label: "Your day", example: "coffee, stress" },
+] satisfies { icon: LucideIcon; tone: Tone; label: string; example: string }[];
 
 function StoryHints({ className }: { className?: string }) {
   return (
     <ul className={cn("grid grid-cols-3 gap-2", className)} aria-label="Things to mention, with examples">
-      {STORY_HINTS.map(({ icon: Icon, label, example }) => (
-        <li key={label} className="rounded-2xl bg-card px-3 py-2.5 ring-1 ring-border/60">
-          <p className="flex items-center gap-1.5 text-[13px] font-semibold">
-            <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
-            {label}
-          </p>
+      {STORY_HINTS.map(({ icon, tone, label, example }) => (
+        <li key={label} className="rounded-2xl bg-card px-3 py-3 ring-1 ring-border/60">
+          <IconBadge icon={icon} tone={tone} />
+          <p className="mt-2 text-[13px] leading-tight font-semibold">{label}</p>
           <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{example}</p>
         </li>
       ))}
@@ -1044,12 +1064,14 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
 
 /** One part of the "Anything else?" card. */
 function Extra({
-  icon: Icon,
+  icon,
+  tone,
   title,
   hint,
   children,
 }: {
   icon: LucideIcon;
+  tone: Tone;
   title: string;
   hint?: string;
   children: React.ReactNode;
@@ -1057,7 +1079,7 @@ function Extra({
   return (
     <div className="py-5">
       <h2 className={cn("flex items-center gap-2 font-semibold", hint ? "mb-0.5" : "mb-3")}>
-        <Icon className="size-4 text-primary" aria-hidden="true" />
+        <IconBadge icon={icon} tone={tone} />
         {title}
       </h2>
       {hint && <p className="mb-3 text-sm text-muted-foreground">{hint}</p>}
@@ -1085,12 +1107,12 @@ function StreakCard({ streak, week }: { streak: DayStreak; week: Saved["week"] }
 }
 
 /** Last night as a picture: a bed-to-wake timeline, three key numbers, and tags for the extras. */
-function NightCard({ d, tags, onEdit }: { d: DiaryEntry; tags: { icon: LucideIcon; text: string }[]; onEdit: () => void }) {
+function NightCard({ d, tags, onEdit }: { d: DiaryEntry; tags: { icon: LucideIcon; tone: Tone; text: string }[]; onEdit: () => void }) {
   const Face = d.quality ? QUALITY_FACES[d.quality - 1] : null;
   const stats = [
-    { icon: Hourglass, value: d.solMin == null ? "?" : formatDuration(d.solMin), label: "to fall asleep" },
-    { icon: MoonStar, value: d.awakenings == null ? "?" : `${d.awakenings}×`, label: "woke up" },
-    ...(Face ? [{ icon: Face, value: QUALITY_LABELS[d.quality - 1], label: "sleep" }] : []),
+    { icon: Hourglass, tone: "asleep" as Tone, value: d.solMin == null ? "?" : formatDuration(d.solMin), label: "to fall asleep" },
+    { icon: MoonStar, tone: "night" as Tone, value: d.awakenings == null ? "?" : `${d.awakenings}×`, label: "woke up" },
+    ...(Face ? [{ icon: Face, tone: "mood" as Tone, value: QUALITY_LABELS[d.quality - 1], label: "sleep" }] : []),
   ];
   return (
     <SoftCard>
@@ -1102,9 +1124,9 @@ function NightCard({ d, tags, onEdit }: { d: DiaryEntry; tags: { icon: LucideIco
       </div>
       <NightTimeline d={d} />
       <ul className="mt-4 grid grid-cols-3 gap-2">
-        {stats.map(({ icon: Icon, value, label }) => (
+        {stats.map(({ icon: Icon, tone, value, label }) => (
           <li key={label} className="flex flex-col items-center rounded-2xl bg-surface-2 px-1 py-3 text-center">
-            <Icon className="size-5 text-primary" aria-hidden="true" />
+            <IconBadge icon={Icon} tone={tone} className="size-9 rounded-xl [&>svg]:size-5" />
             <span className="mt-1 font-semibold tabular-nums">{value}</span>
             <span className="text-[11px] text-muted-foreground">{label}</span>
           </li>
@@ -1112,9 +1134,9 @@ function NightCard({ d, tags, onEdit }: { d: DiaryEntry; tags: { icon: LucideIco
       </ul>
       {tags.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
-          {tags.map(({ icon: Icon, text }, i) => (
+          {tags.map(({ icon: Icon, tone, text }, i) => (
             <li key={i} className="flex max-w-full items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-sm">
-              <Icon className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+              <IconBadge icon={Icon} tone={tone} className="size-5 rounded-full [&>svg]:size-3" />
               <span className="truncate">{text}</span>
             </li>
           ))}
