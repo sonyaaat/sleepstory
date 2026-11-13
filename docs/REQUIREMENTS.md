@@ -63,7 +63,7 @@ People will try the prototype themselves, so these exist to make that work. They
 | CHK-07 | **Habit step** (see section 3) | P0 | Done | Notebook |
 | CHK-08 | **Done step:** thank-you message ("your provider will have a clearer picture") and the forgiving streak. No score. | P0 | Done | Notebook (wireframe fig. 9), Lit |
 | CHK-09 | **Watch vs diary after saving:** if the simulated watch total differs by 60 min or more, ask *I was lying awake but still / I took the watch off / Not sure*. Shown only after the patient has answered. | P0 | Done | Edith, Lit, Team |
-| CHK-10 | **Rough-night mode:** only 3 questions (time to fall asleep, time awake, quality). Other fields are taken from the patient's usual times and marked as such. | P0 | Done | CA, Notebook |
+| CHK-10 | **Tap answers:** for patients who don't want to talk or type. Opens the same two review pages, empty, with tap options under each question (times around the patient's usual schedule, rough durations and counts, "Other…" for an exact time). Replaced the earlier 3-question rough-night screen. | P0 | Done | CA, Notebook |
 | CHK-11 | **Late entry:** only yesterday can be caught up, and it's marked *late*. Older gaps stay gaps (no backfilling). | P1 | Planned | Lit (paper diaries are backfilled) |
 | CHK-12 | One entry per night; the patient can review and **Edit** it from the Saved screen (saving again replaces it) | P1 | Done | Team, user testing (S2) |
 | CHK-13 | Voice input on phones (needs HTTPS hosting) | P2 | Planned | V0 |

@@ -18,7 +18,7 @@
 | # | Expected action | What the participant should notice or understand |
 |---|---|---|
 | 1 | On the start screen, tap **Skip to Maya's morning** (the morning reminder pops up; tapping it also works) | Understands they are now Maya |
-| 2 | On "How did you sleep?", tap the **microphone** (or **Type it** / **3 quick taps**) | Knows they can talk or type |
+| 2 | On "How did you sleep?", tap the **microphone** (or **Type it** / **Tap answers**) | Knows they can talk or type |
 | 3 | Describe the night in their own words (the six hint tiles show what to cover), then tap **finish** (stop button or Continue) | Talks naturally; no form to fill |
 | 4 | On **"Here's what I heard"**, read the answers the AI filled in | Understands the AI wrote these answers |
 | 5 | Optionally tap the **✓ circle** next to an answer to confirm it, or tap the line to change it | Confirms with one tap instead of re-entering |

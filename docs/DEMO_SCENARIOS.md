@@ -36,7 +36,7 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 | 7 | Watch question | Answers why the watch shows more sleep | Appears only after the diary is saved, and only if the gap is 60 min or more |
 
 **Variations to try:**
-- **Rough night:** tap *Rough night? Just 3 questions* on the story step.
+- **Tap answers:** tap *Tap answers* on the home screen (or *Rather tap your answers* on the typing screen) and pick an option under each question.
 - **No AI:** with no gateway key, the review screen says the simple parser was used, and everything still works.
 - **Vague story:** "slept badly, woke up around 2" → the app asks whether that's *2:00 am* or *2 hours*.
 
