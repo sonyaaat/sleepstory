@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, BedDouble, Bot, CalendarDays, Check, Coffee, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Pill, Plus, Square, Stethoscope, Sunrise, Trophy, Watch, X } from "lucide-react";
+import { BedDouble, Bot, CalendarDays, Check, ChevronRight, Coffee, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Pill, Plus, Square, Stethoscope, Sunrise, Trophy, Watch, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -378,7 +379,6 @@ export function CheckinFlow({
   if (step === "review") {
     const rows = ASKED_FIELDS.filter((k) => k !== "quality");
     const toCheck = rows.filter(needsCheck);
-    const times = values.awakenings == null || values.awakenings === "" ? 0 : Number(values.awakenings);
     const otherMissing = showOther && !otherMed.trim();
     return (
       <PatientShell>
@@ -393,9 +393,7 @@ export function CheckinFlow({
           {extraction && <AiPanel extraction={extraction} />}
         </div>
         <h1 className="mt-6 font-display text-[36px] leading-[1.1]">{extraction ? "Here's what I heard" : "Check your night"}</h1>
-        <p className="mt-2 flex items-center gap-2 text-[17px] text-muted-foreground">
-          <Pencil className="size-4 shrink-0" /> Tap to change. Empty = I don&apos;t know.
-        </p>
+        <p className="mt-2 text-[17px] text-muted-foreground">Tap a line to change it.</p>
 
         {extraction?.mode === "fallback" && (
           <p className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
@@ -403,35 +401,19 @@ export function CheckinFlow({
           </p>
         )}
 
-        {extraction?.ambiguity ? (
-          <div className="mt-4 rounded-3xl bg-brand-soft p-4 ring-1 ring-brand/50">
-            <p className="flex items-start gap-2 font-semibold">
-              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-brand" /> {extraction.ambiguity.question}
+        {toCheck.length > 0 && (
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-3xl bg-brand-soft py-3 pr-3 pl-4 ring-1 ring-brand/50">
+            <p className="text-[15px] font-semibold">
+              {toCheck.length} {toCheck.length === 1 ? "answer" : "answers"} to check
             </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {extraction.ambiguity.options.map((o) => (
-                <Button key={o.label} variant="outline" className="rounded-full" onClick={() => chooseAmbiguity(o.value)}>
-                  {o.label}
-                </Button>
-              ))}
-            </div>
+            <Button
+              variant="brand"
+              className="h-10 rounded-full px-4"
+              onClick={() => setConfirmed((prev) => new Set([...prev, ...toCheck]))}
+            >
+              <Check /> All correct
+            </Button>
           </div>
-        ) : (
-          toCheck.length > 0 && (
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-3xl bg-brand-soft py-3 pr-3 pl-4 ring-1 ring-brand/50">
-              <p className="flex items-center gap-2 text-[15px] font-semibold">
-                <span className="size-2 rounded-full bg-brand" />
-                {toCheck.length} {toCheck.length === 1 ? "answer" : "answers"} to check
-              </p>
-              <Button
-                variant="brand"
-                className="h-10 rounded-full px-4"
-                onClick={() => setConfirmed((prev) => new Set([...prev, ...toCheck]))}
-              >
-                <Check /> All correct
-              </Button>
-            </div>
-          )
         )}
 
         <ul className="mt-4 divide-y divide-border/70 rounded-3xl bg-card px-3 ring-1 ring-border/60">
@@ -442,64 +424,77 @@ export function CheckinFlow({
             const f = extraction?.fields[k];
             const approx = f && f.value === v && f.confidence === "medium";
             const check = needsCheck(k);
+            const ask = extraction?.ambiguity?.field === k ? extraction.ambiguity : null;
             return (
-              <li key={k} className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setEditing(k)}
-                  aria-label={`Change: ${FIELD_META[k].label}`}
-                  className="group my-1 flex min-h-14 flex-1 items-center justify-between gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none active:bg-surface-2"
-                >
-                  <span className="text-[15px] text-muted-foreground">{FIELD_META[k].label}</span>
-                  <span className="ml-auto flex flex-col items-end">
-                    {isUnknown || isMissing ? (
-                      <span className="flex items-center gap-1.5 font-semibold whitespace-nowrap text-muted-foreground">
-                        <HelpCircle className="size-4" /> Don&apos;t know
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2 text-right font-semibold">
-                        {check && <span className="size-2 rounded-full bg-brand" aria-label="Please check" />}
-                        {formatValue(k, v!, approx)}
+              <li key={k} className={cn("py-1", ask && "-mx-3 bg-brand-soft px-3")}>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(k)}
+                    aria-label={`Change: ${FIELD_META[k].label}`}
+                    className="flex min-h-14 flex-1 items-center justify-between gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none active:bg-surface-2"
+                  >
+                    <span className={cn("text-[15px]", ask ? "font-semibold" : "text-muted-foreground")}>
+                      {FIELD_META[k].label}
+                    </span>
+                    {!ask && (
+                      <span className="ml-auto flex flex-col items-end">
+                        <span
+                          className={cn(
+                            "text-right font-semibold whitespace-nowrap",
+                            (isUnknown || isMissing) && "text-muted-foreground",
+                          )}
+                        >
+                          {isUnknown || isMissing ? "Don't know" : formatValue(k, v!, approx)}
+                        </span>
+                        {!isMissing && !isUnknown && assumed.has(k) && (
+                          <span className="text-xs text-muted-foreground">from your usual times</span>
+                        )}
                       </span>
                     )}
-                    {!isMissing && !isUnknown && assumed.has(k) && <span className="text-xs text-muted-foreground">from your usual times</span>}
-                  </span>
-                  {!check && (
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted-foreground transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
-                      <Pencil className="size-3.5" />
-                    </span>
+                    {!check && !ask && <ChevronRight className="size-4 shrink-0 text-muted-foreground/60" />}
+                  </button>
+                  {check && (
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="size-9 shrink-0 rounded-full border-2 border-brand"
+                      aria-label={`Confirm: ${FIELD_META[k].label}`}
+                      onClick={() => setConfirmed((prev) => new Set(prev).add(k))}
+                    >
+                      <Check className="size-4" />
+                    </Button>
                   )}
-                </button>
-                {check && (
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="size-8 shrink-0 rounded-full border-2 border-brand"
-                    aria-label={`Confirm: ${FIELD_META[k].label}`}
-                    onClick={() => setConfirmed((prev) => new Set(prev).add(k))}
-                  >
-                    <Check className="size-4" />
-                  </Button>
+                </div>
+                {ask && (
+                  <div className="flex flex-wrap gap-2 px-2 pb-3" role="group" aria-label={ask.question}>
+                    {ask.options.map((o) => (
+                      <Button
+                        key={o.label}
+                        variant="outline"
+                        className="h-10 rounded-full bg-card"
+                        onClick={() => chooseAmbiguity(o.value)}
+                      >
+                        {o.label}
+                      </Button>
+                    ))}
+                  </div>
                 )}
               </li>
             );
           })}
-          <li className="px-2 py-4">
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-[15px] text-muted-foreground">Sleep quality</span>
-              {values.quality == null && <span className="text-xs font-semibold text-warn-foreground">Pick one</span>}
-            </div>
-            <FieldInput name="quality" value={values.quality} onChange={(v) => setField("quality", v)} />
-          </li>
         </ul>
 
+        <section className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-border/60" aria-labelledby="quality-title">
+          <h2 id="quality-title" className="mb-3 font-semibold">
+            How did you sleep?
+          </h2>
+          <FieldInput name="quality" value={values.quality} onChange={(v) => setField("quality", v)} />
+        </section>
+
+        <section className="mt-4 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
         {followUp && (
-          <Block title={followUp === "woke_reason" ? `What woke you during the night?` : "What kept you awake?"}>
-            {followUp === "woke_reason" && times > 0 && (
-              <p className="-mt-1 mb-3 text-sm text-muted-foreground">
-                You woke up {times === 1 ? "once" : times === 2 ? "twice" : `${times} times`}. Optional.
-              </p>
-            )}
+          <Extra icon={MoonStar} title={followUp === "woke_reason" ? "What woke you?" : "What kept you awake?"}>
             <div className="flex flex-wrap gap-2">
               <ToggleGroup
                 type="multiple"
@@ -529,10 +524,10 @@ export function CheckinFlow({
                 className={INPUT}
               />
             )}
-          </Block>
+          </Extra>
         )}
 
-        <Block title="Medication" hint="Anything you took to help you sleep. Leave empty if none.">
+        <Extra icon={Pill} title="Medication">
           <div className="flex flex-wrap gap-2">
             {medicines.length > 0 && (
               <ToggleGroup type="multiple" variant="outline" className="flex flex-wrap justify-start gap-2" value={meds} onValueChange={setMeds}>
@@ -572,9 +567,9 @@ export function CheckinFlow({
             />
           )}
           {medicinesTaken.length > 0 && <p className="mt-3 text-xs text-muted-foreground">{MEDICINE_SAFETY_LINE}</p>}
-        </Block>
+        </Extra>
 
-        <Block title="Anything different yesterday?" hint="Optional.">
+        <Extra icon={Coffee} title="Anything different yesterday?">
           <ToggleGroup
             type="multiple"
             variant="outline"
@@ -588,14 +583,15 @@ export function CheckinFlow({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-        </Block>
+        </Extra>
+        </section>
 
         <section className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-brand/60" aria-labelledby="provider-notes">
           <h2 id="provider-notes" className="flex items-center gap-2 font-semibold">
             <Stethoscope className="size-5 text-primary" /> For your provider
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Goes into the summary your provider gets before your visit.
+            Your provider sees this before your visit.
           </p>
           {notes.length > 0 && (
             <ul className="mt-3 space-y-2">
@@ -1070,15 +1066,17 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
   );
 }
 
-/** One titled block on the review page. */
-function Block({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+/** One optional part of the review page, inside the shared "extras" card. */
+function Extra({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-border/60">
-      <h2 className="font-semibold">{title}</h2>
-      {hint && <p className="mt-0.5 mb-3 text-sm text-muted-foreground">{hint}</p>}
-      {!hint && <div className="h-3" />}
+    <div className="py-5">
+      <h2 className="mb-3 flex items-center gap-2 font-semibold">
+        <Icon className="size-4 text-primary" aria-hidden="true" />
+        {title}
+        <span className="ml-auto text-xs font-normal text-muted-foreground">Optional</span>
+      </h2>
       {children}
-    </section>
+    </div>
   );
 }
 
