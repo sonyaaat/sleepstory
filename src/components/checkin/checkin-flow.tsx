@@ -48,6 +48,8 @@ type Saved = Extract<CheckinResult, { ok: true }>;
 const COMMON_WOKE = new Set<WokeReason>(["worry", "bathroom", "noise", "phone", "pain"]);
 
 const SMALL_CHIP = "h-10 rounded-full! border-2! px-3.5 text-sm font-semibold";
+/** "+ Other" stands apart from the options: dashed border, primary colour. */
+const OTHER_CHIP = cn(SMALL_CHIP, "border-dashed! text-primary");
 const INPUT = "mt-3 h-11 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2";
 
 export function CheckinFlow({
@@ -545,7 +547,7 @@ export function CheckinFlow({
                   More…
                 </Button>
               )}
-              <Toggle variant="outline" className={SMALL_CHIP} pressed={showWakeOther} onPressedChange={setShowWakeOther}>
+              <Toggle variant="outline" className={OTHER_CHIP} pressed={showWakeOther} onPressedChange={setShowWakeOther}>
                 <Plus /> Other
               </Toggle>
             </div>
@@ -566,7 +568,7 @@ export function CheckinFlow({
         <Extra icon={Pill} title="Medication">
           <div className="flex flex-wrap gap-2">
             {medicines.length > 0 && (
-              <ToggleGroup type="multiple" variant="outline" className="flex flex-wrap justify-start gap-2" value={meds} onValueChange={setMeds}>
+              <ToggleGroup type="multiple" variant="outline" className="contents" value={meds} onValueChange={setMeds}>
                 {medicines.map((m) => (
                   <ToggleGroupItem
                     key={m.name}
@@ -581,7 +583,7 @@ export function CheckinFlow({
             )}
             <Toggle
               variant="outline"
-              className={SMALL_CHIP}
+              className={OTHER_CHIP}
               pressed={showOther}
               onPressedChange={(on) => {
                 setShowOther(on);
@@ -620,7 +622,7 @@ export function CheckinFlow({
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
-            <Toggle variant="outline" className={SMALL_CHIP} pressed={showDayOther} onPressedChange={setShowDayOther}>
+            <Toggle variant="outline" className={OTHER_CHIP} pressed={showDayOther} onPressedChange={setShowDayOther}>
               <Plus /> Other
             </Toggle>
           </div>
