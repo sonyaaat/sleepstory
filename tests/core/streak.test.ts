@@ -25,6 +25,12 @@ describe("dayStreak", () => {
     expect(dayStreak(nights(2, 3, 4), today).days).toBe(3);
   });
 
+  it("doesn't spend the weekly pass on a morning that isn't over yet", () => {
+    const s = dayStreak(nights(2, 3, 5, 6, 7), today);
+    expect(s.days).toBe(5);
+    expect(s.forgiven).toBe(1);
+  });
+
   it("reports milestones", () => {
     const s = dayStreak(nights(...range(1, 7)), today);
     expect(s.reached).toBe(7);

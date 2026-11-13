@@ -128,7 +128,9 @@ export function dayStreak(nightDates: string[], today: string, maxDays = 400): D
   let days = 0;
   let forgiven = 0;
   let lastMiss = -Infinity;
-  for (let i = 1; i <= maxDays; i++) {
+  // Last night not logged yet is still open, not a miss.
+  const start = set.has(addDays(today, -1)) ? 1 : 2;
+  for (let i = start; i <= maxDays; i++) {
     if (set.has(addDays(today, -i))) {
       days++;
       continue;
