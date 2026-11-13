@@ -80,22 +80,30 @@ export default async function PatientHome() {
 
       <div className="mt-8 space-y-3">
         {!logged && <WeekDots week={week} streak={streak.days} />}
-        <SoftCard className="flex gap-3">
-          <CalendarDays className="mt-0.5 size-5 shrink-0 text-primary" />
-          <div className="text-[15px] leading-relaxed">
-            <p>
-              Visit with your primary care provider{" "}
-              <strong>
-                {daysToVisit > 0 ? `in ${daysToVisit} day${daysToVisit === 1 ? "" : "s"}` : daysToVisit === 0 ? "today" : "done"}
-              </strong>
-              , {formatDateLong(patient.visitDate)}.
-            </p>
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Send className="size-3.5" />
-              {patient.sharedAt ? "You approved sharing your Sleep Snapshot." : "Not shared yet. You approve every share."}
-            </p>
-          </div>
-        </SoftCard>
+        {logged && (
+          <SoftCard className="flex gap-3">
+            <CalendarDays className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div className="text-[15px] leading-relaxed">
+              <p>
+                Visit with your primary care provider{" "}
+                <strong>
+                  {daysToVisit > 0
+                    ? `in ${daysToVisit} day${daysToVisit === 1 ? "" : "s"}`
+                    : daysToVisit === 0
+                      ? "today"
+                      : "done"}
+                </strong>
+                , {formatDateLong(patient.visitDate)}.
+              </p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Send className="size-3.5" />
+                {patient.sharedAt
+                  ? "You approved sharing your Sleep Snapshot."
+                  : "Not shared yet. You approve every share."}
+              </p>
+            </div>
+          </SoftCard>
+        )}
         <Button asChild variant="link" className="w-full text-muted-foreground">
           <Link href="/patient/privacy">
             <Lock /> Privacy &amp; your data
