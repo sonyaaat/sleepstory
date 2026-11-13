@@ -24,7 +24,6 @@ export default async function CheckinPage({ searchParams }: { searchParams: Prom
       initialMode={initialMode}
       usual={usual}
       firstName={main.patient.name.split(" ")[0]}
-      visitDate={main.patient.visitDate}
       medicines={main.patient.medications.map((m) => ({ name: m.name, kind: m.kind, planText: planText(m) }))}
     />
   );

@@ -31,7 +31,7 @@
 | 12 | In **"For your provider"**, check that the headache is listed, or **add it** (type or mic) | Knows this goes to the provider before the visit |
 | 13 | Tap **Save** | Done in two short pages |
 | 14 | On the Saved screen, answer **"Your watch saw it differently"** if it appears | Understands their own answer counts, not the watch |
-| 15 | Look at the **streak and badges**, the **"Last night"** timeline and **"This week"** chart, then tap **Edit** and come back | Reads the results from the pictures, without reading text; knows they can still change the entry |
+| 15 | Look at the **streak**, the **"Last night"** timeline and **"This week"** chart, then tap **Edit** and come back | Reads the results from the pictures, without reading text; knows they can still change the entry |
 | 16 | Tap **Back to home** | Done in about 1 minute |
 
 ### Recording observations

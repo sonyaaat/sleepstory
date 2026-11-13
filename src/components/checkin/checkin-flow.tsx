@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { BedDouble, Bot, CalendarDays, Check, ChevronRight, Coffee, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Pill, Plus, Square, Stethoscope, Sunrise, Trophy, Watch, X } from "lucide-react";
+import { BedDouble, Bot, Check, ChevronRight, Coffee, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Pill, Plus, Square, Stethoscope, Sunrise, Watch, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MoonMark, MorningDots, PatientShell, SoftCard } from "@/components/brand";
 import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/app/actions";
 import type { ExtractionResult } from "@/adapters/llm/types";
-import { followUpQuestion, STREAK_MILESTONES, type DayStreak, type UsualTimes } from "@/core/checkin";
+import { followUpQuestion, type DayStreak, type UsualTimes } from "@/core/checkin";
 import { MEDICINE_SAFETY_LINE } from "@/core/medications";
 import { consistencyIssues } from "@/core/metrics";
 import {
@@ -35,7 +35,7 @@ import {
   type SleepAid,
   type WokeReason,
 } from "@/core/schema";
-import { formatClock, formatClock12, formatDateLong, formatDuration, nightMinutes, parseClock } from "@/core/time";
+import { formatClock, formatClock12, formatDuration, nightMinutes, parseClock } from "@/core/time";
 import { cn } from "@/lib/utils";
 import { FieldInput, QUALITY_FACES, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
@@ -57,12 +57,10 @@ export function CheckinFlow({
   medicines,
   usual,
   firstName,
-  visitDate,
 }: {
   initialMode: "voice" | "type" | "quick";
   usual: UsualTimes;
   firstName: string;
-  visitDate: string;
   /** The patient's own sleep medicines, from registration (MED-01). */
   medicines: { name: string; kind: SleepAid; planText: string | null }[];
 }) {
@@ -761,12 +759,6 @@ export function CheckinFlow({
           <StreakCard streak={st} week={result.week} />
           <NightCard d={d} tags={tags} onEdit={() => setStep("review")} />
           <SleepWeek recent={result.recent} prevWeekTstMin={result.prevWeekTstMin} />
-
-          <SoftCard className="flex items-center gap-3 py-4">
-            <CalendarDays className="size-5 shrink-0 text-primary" />
-            <p className="flex-1 font-semibold">{formatDateLong(visitDate)}</p>
-            <span className="text-sm text-muted-foreground">{result.snapshotNights} nights shared</span>
-          </SoftCard>
         </div>
 
         <div className="mt-auto pt-8">
@@ -1074,7 +1066,7 @@ function Extra({
   );
 }
 
-/** Streak with small milestones (CHK-17): big number, this week's flames, and the badge path. */
+/** Streak (CHK-18): big number and this week's flames. */
 function StreakCard({ streak, week }: { streak: DayStreak; week: Saved["week"] }) {
   return (
     <SoftCard>
@@ -1088,51 +1080,7 @@ function StreakCard({ streak, week }: { streak: DayStreak; week: Saved["week"] }
         </p>
       </div>
       <MorningDots week={week} className="mt-5" />
-      <Badges streak={streak} />
     </SoftCard>
-  );
-}
-
-/** Milestone badges: earned ones filled, the next one with a progress ring, later ones faded. */
-function Badges({ streak }: { streak: DayStreak }) {
-  const prev = [...STREAK_MILESTONES].reverse().find((m) => m <= streak.days) ?? 0;
-  return (
-    <ol className="mt-5 grid grid-cols-5 gap-1 border-t border-border/60 pt-4" aria-label="Streak badges">
-      {STREAK_MILESTONES.map((m) => {
-        const earned = streak.days >= m;
-        const isNext = m === streak.next;
-        const isNew = m === streak.reached;
-        const pct = isNext ? Math.round(((streak.days - prev) / (m - prev)) * 100) : 0;
-        return (
-          <li
-            key={m}
-            className="flex flex-col items-center gap-1.5"
-            aria-label={earned ? `${m}-day badge earned` : isNext ? `${m}-day badge: ${m - streak.days} to go` : `${m}-day badge`}
-          >
-            <span
-              className={cn(
-                "flex size-11 items-center justify-center rounded-full",
-                earned && "bg-brand text-brand-foreground",
-                !earned && !isNext && "bg-surface-2 text-muted-foreground/40",
-                isNew && "ring-2 ring-brand ring-offset-2 ring-offset-card",
-              )}
-              style={isNext ? { background: `conic-gradient(var(--brand) ${pct}%, var(--surface-2) 0)` } : undefined}
-            >
-              {isNext ? (
-                <span className="flex size-8 items-center justify-center rounded-full bg-card text-primary">
-                  <Trophy className="size-4" aria-hidden="true" />
-                </span>
-              ) : (
-                <Trophy className="size-5" aria-hidden="true" />
-              )}
-            </span>
-            <span className={cn("text-xs tabular-nums", isNext || isNew ? "font-bold" : "text-muted-foreground")}>
-              {isNew ? "New!" : isNext ? `${m - streak.days} to go` : `${m} days`}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 
