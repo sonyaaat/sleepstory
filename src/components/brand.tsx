@@ -29,17 +29,49 @@ export function PatientShell({ children, className }: { children: React.ReactNod
   );
 }
 
+type Morning = { morning: string; label: string; logged: boolean; isToday: boolean };
+
+/** One circle per morning: a flame when logged, dashed when missed, pulsing for today until it's logged. */
+export function MorningDots({ week, className }: { week: Morning[]; className?: string }) {
+  return (
+    <ol className={cn("grid grid-cols-7 gap-1", className)} aria-label="Mornings with a check-in this week">
+      {week.map((d) => {
+        const missed = !d.logged && !d.isToday;
+        const status = d.logged ? "checked in" : d.isToday ? "not yet, check in today" : "missed";
+        return (
+          <li key={d.morning} className="flex flex-col items-center gap-1.5">
+            <span
+              className={cn(
+                "flex size-9 items-center justify-center rounded-full border-2",
+                d.logged && "border-brand bg-brand text-brand-foreground",
+                missed && "border-dashed border-muted-foreground/40",
+                d.isToday && !d.logged && "animate-pulse border-dashed border-brand",
+              )}
+              aria-label={`${d.label}: ${status}`}
+            >
+              {d.logged && <Flame className="size-[18px]" strokeWidth={2.4} aria-hidden="true" />}
+            </span>
+            <span
+              className={cn(
+                "text-xs text-muted-foreground",
+                missed && "text-muted-foreground/60",
+                d.isToday && "font-bold text-foreground",
+              )}
+            >
+              {d.isToday ? "Today" : d.label}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 /**
  * Streak header plus one circle per morning (CHK-01, CHK-08). Logged mornings show a flame,
  * missed ones stay empty, and today waits for a check-in. Never a score.
  */
-export function WeekDots({
-  week,
-  streak,
-}: {
-  week: { morning: string; label: string; logged: boolean; isToday: boolean }[];
-  streak: number;
-}) {
+export function WeekDots({ week, streak }: { week: Morning[]; streak: number }) {
   const logged = week.filter((d) => d.logged).length;
   const todayDone = week.at(-1)?.logged ?? false;
   return (
@@ -53,36 +85,7 @@ export function WeekDots({
           {logged} of {week.length} mornings
         </p>
       </div>
-      <ol className="mt-4 grid grid-cols-7 gap-1" aria-label="Mornings with a check-in this week">
-        {week.map((d) => {
-          const missed = !d.logged && !d.isToday;
-          const status = d.logged ? "checked in" : d.isToday ? "not yet, check in today" : "missed";
-          return (
-            <li key={d.morning} className="flex flex-col items-center gap-1.5">
-              <span
-                className={cn(
-                  "flex size-9 items-center justify-center rounded-full border-2",
-                  d.logged && "border-brand bg-brand text-brand-foreground",
-                  missed && "border-dashed border-muted-foreground/40",
-                  d.isToday && !d.logged && "animate-pulse border-dashed border-brand",
-                )}
-                aria-label={`${d.label}: ${status}`}
-              >
-                {d.logged && <Flame className="size-[18px]" strokeWidth={2.4} aria-hidden="true" />}
-              </span>
-              <span
-                className={cn(
-                  "text-xs text-muted-foreground",
-                  missed && "text-muted-foreground/60",
-                  d.isToday && "font-bold text-foreground",
-                )}
-              >
-                {d.isToday ? "Today" : d.label}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+      <MorningDots week={week} className="mt-4" />
       {!todayDone && <p className="mt-4 text-sm font-medium">Check in today to keep your streak going.</p>}
     </div>
   );
