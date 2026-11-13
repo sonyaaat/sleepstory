@@ -69,7 +69,7 @@ export default async function PatientHome() {
           <MoonMark className="mt-12 size-14" />
           <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Last night is saved, {firstName}.</h1>
           <div className="mt-8 space-y-3">
-            <WeekDots week={week} />
+            <WeekDots week={week} streak={streak.days} />
             <Button asChild variant="ghost" size="lg" className="w-full">
               <Link href="/patient/checkin?mode=type">
                 <Pencil /> Change last night&apos;s entry
@@ -80,7 +80,7 @@ export default async function PatientHome() {
       )}
 
       <div className="mt-8 space-y-3">
-        {!logged && <WeekDots week={week} />}
+        {!logged && <WeekDots week={week} streak={streak.days} />}
         <SoftCard className="flex gap-3">
           <CalendarDays className="mt-0.5 size-5 shrink-0 text-primary" />
           <div className="text-[15px] leading-relaxed">
