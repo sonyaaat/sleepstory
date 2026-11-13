@@ -206,7 +206,9 @@ export function CheckinFlow({
     setExtraction({ ...extraction, ambiguity: null });
   }
 
-  const followUp = complete ? followUpQuestion(parsed.data) : null;
+  // From the answers so far, so the question doesn't pop in only after sleep quality is picked.
+  const num = (k: DiaryFieldKey) => (unknown.has(k) || values[k] === undefined || values[k] === "" ? null : Number(values[k]));
+  const followUp = followUpQuestion({ awakenings: num("awakenings"), solMin: num("solMin") });
 
   // ---- Quick check-in (rough-night mode, CHK-10) ----
   const [quick, setQuick] = useState<{ quality?: number; solMin?: number; wasoMin?: number }>({});
