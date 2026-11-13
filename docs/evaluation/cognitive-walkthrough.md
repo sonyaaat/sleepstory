@@ -23,15 +23,15 @@
 | 4 | On **"Here's what I heard"**, read the answers the AI filled in | Understands the AI wrote these answers |
 | 5 | For answers with a **✓ circle**, tap it (or **All correct**), or tap the line to change it | Confirms with one tap instead of re-entering |
 | 6 | In the highlighted **"Awake during the night"** line, pick a rough amount, or leave it as **Don't know** | Knows they don't have to guess |
-| 7 | Under **"How did you sleep?"**, tap a face | Sees that quality is the only required answer |
+| 7 | Under **"How did you sleep?"**, tap a face, then tap **Next** | Sees that quality is the only required answer |
 | 8 | Optional: tap **"What did the AI do?"** | Learns what the AI does and doesn't do |
-| 9 | In **"What woke you?"**, pick one or more reasons (optional) | Understands it's about the night, not the morning |
+| 9 | On **"Anything else?"**, in **"What woke you?"**, pick one or more reasons (optional) | Understands everything on this page is optional |
 | 10 | In **Medication**, check that **Melatonin** is selected (or select it) | Knows where to record a sleep medicine |
 | 11 | In **"Anything different yesterday?"**, check that **Late caffeine** is selected | Sees the habit was picked up from the story |
 | 12 | In **"For your provider"**, check that the headache is listed, or **add it** (type or mic) | Knows this goes to the provider before the visit |
-| 13 | Tap **Save** | Done in one page |
+| 13 | Tap **Save** | Done in two short pages |
 | 14 | On the Saved screen, answer **"Your watch saw it differently"** if it appears | Understands their own answer counts, not the watch |
-| 15 | Look at the **streak** and **"Your sleep this week"**, then tap **Edit** on "Last night" and come back | Knows they can still change the entry |
+| 15 | Look at the **streak and badges**, the **"Last night"** timeline and **"This week"** chart, then tap **Edit** and come back | Reads the results from the pictures, without reading text; knows they can still change the entry |
 | 16 | Tap **Back to home** | Done in about 1 minute |
 
 ### Recording observations
@@ -63,7 +63,7 @@ Fill in one row per step during the session.
 - **Step 6:** Did they leave it as "Don't know", or did they invent a number?
 - **Step 10:** Did they find **Medication** without help?
 - **Step 12:** Did they notice "For your provider" and check the headache?
-- **Step 15:** Did they find **Edit** after saving?
+- **Step 15:** Could they say how they slept last night and this week from the charts alone? Did they find **Edit**?
 
 Also record the **total time** and **how many AI answers they corrected** (the app logs both).
 
