@@ -16,7 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MoonMark, MorningDots, PatientShell, SoftCard } from "@/components/brand";
 import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/app/actions";
 import type { ExtractionResult } from "@/adapters/llm/types";
-import { fillRoughNight, followUpQuestion, STREAK_MILESTONES, type DayStreak, type UsualTimes } from "@/core/checkin";
+import { followUpQuestion, STREAK_MILESTONES, type DayStreak, type UsualTimes } from "@/core/checkin";
 import { MEDICINE_SAFETY_LINE } from "@/core/medications";
 import { consistencyIssues } from "@/core/metrics";
 import {
@@ -35,12 +35,12 @@ import {
   type SleepAid,
   type WokeReason,
 } from "@/core/schema";
-import { formatClock12, formatDateLong, formatDuration, nightMinutes } from "@/core/time";
+import { formatClock, formatClock12, formatDateLong, formatDuration, nightMinutes, parseClock } from "@/core/time";
 import { cn } from "@/lib/utils";
 import { FieldInput, QUALITY_FACES, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
 
-type Step = "voice" | "type" | "quick" | "review" | "extras" | "done";
+type Step = "voice" | "type" | "review" | "extras" | "done";
 type Values = Partial<Record<DiaryFieldKey, FieldValue>>;
 type Saved = Extract<CheckinResult, { ok: true }>;
 
@@ -64,12 +64,13 @@ export function CheckinFlow({
   /** The patient's own sleep medicines, from registration (MED-01). */
   medicines: { name: string; kind: SleepAid; planText: string | null }[];
 }) {
-  const [step, setStep] = useState<Step>(initialMode);
+  const [step, setStep] = useState<Step>(initialMode === "quick" ? "review" : initialMode);
+  /** Answering by tapping options instead of talking or typing (CHK-10). */
+  const [manual, setManual] = useState(initialMode === "quick");
   const [story, setStory] = useState("");
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [values, setValues] = useState<Values>({});
   const [assumed, setAssumed] = useState<Set<DiaryFieldKey>>(new Set());
-  const [mode, setMode] = useState<"full" | "rough">("full");
   const [wokeReasons, setWokeReasons] = useState<WokeReason[]>([]);
   const [wakeNote, setWakeNote] = useState("");
   const [showWakeOther, setShowWakeOther] = useState(false);
@@ -152,7 +153,7 @@ export function CheckinFlow({
       setNotes(r.notes.map((n) => ({ text: n.fact, fromStory: true })));
       setHabits(r.habits);
       if (r.sleepAid) preselectAid(r.sleepAid);
-      setMode("full");
+      setManual(false);
       setStep("review");
     } catch (e) {
       toast.error((e as Error).message);
@@ -215,16 +216,21 @@ export function CheckinFlow({
   const num = (k: DiaryFieldKey) => (unknown.has(k) || values[k] === undefined || values[k] === "" ? null : Number(values[k]));
   const followUp = followUpQuestion({ awakenings: num("awakenings"), solMin: num("solMin") });
 
-  // ---- Quick check-in (rough-night mode, CHK-10) ----
-  const [quick, setQuick] = useState<{ quality?: number; solMin?: number; wasoMin?: number }>({});
-  const quickLeft = [quick.quality, quick.solMin, quick.wasoMin].filter((x) => x == null).length;
-  function finishQuick() {
-    const { fields, assumed: a } = fillRoughNight(quick as Required<typeof quick>, usual);
-    setValues(fields);
-    setAssumed(new Set(a));
-    setMode("rough");
+  // ---- Tap answers (CHK-10): the same review page, empty, with options under each question ----
+  function startManual() {
     setExtraction(null);
+    setValues({});
+    setAssumed(new Set());
+    setUnknown(new Set());
+    setConfirmed(new Set());
+    setManual(true);
     setStep("review");
+  }
+
+  function pick(k: DiaryFieldKey, v: string | number) {
+    setField(k, v);
+    // No wakings means no time awake in the night.
+    if (k === "awakenings" && v === 0 && (values.wasoMin === undefined || values.wasoMin === "")) setField("wasoMin", 0);
   }
 
   /** An answer the AI wasn't sure about, not yet confirmed or changed. */
@@ -243,7 +249,7 @@ export function CheckinFlow({
     startSaving(async () => {
       const r = await saveCheckin({
         fields,
-        mode,
+        mode: "full",
         habits,
         medicines: medicinesTaken,
         wokeReasons: followUp ? wokeReasons : [],
@@ -321,63 +327,10 @@ export function CheckinFlow({
           <button
             type="button"
             className="w-full py-2 text-center font-semibold text-primary underline underline-offset-4"
-            onClick={() => setStep("quick")}
+            onClick={startManual}
           >
-            Rough night? Answer in 3 taps
+            Rather tap your answers
           </button>
-        </div>
-      </PatientShell>
-    );
-  }
-
-  if (step === "quick") {
-    return (
-      <PatientShell>
-        <TopLink href="/patient" label="Back" />
-        <h1 className="mt-8 font-display text-[36px] leading-[1.1]">Quick check-in</h1>
-        <p className="mt-2 text-[17px] text-muted-foreground">
-          Three taps. Times come from your usual schedule, and you can change them later.
-        </p>
-        <div className="mt-8 space-y-7">
-          <Segmented
-            label="How did you sleep?"
-            options={[1, 2, 3, 4, 5].map((q) => ({ value: q, label: ["Awful", "Poor", "Okay", "Good", "Great"][q - 1] }))}
-            value={quick.quality}
-            onChange={(v) => setQuick((x) => ({ ...x, quality: v }))}
-          />
-          <Segmented
-            label="How long to fall asleep?"
-            options={[
-              { value: 10, label: "Quickly" },
-              { value: 30, label: "~30 min" },
-              { value: 60, label: "~1 hour" },
-              { value: 90, label: "Longer" },
-            ]}
-            value={quick.solMin}
-            onChange={(v) => setQuick((x) => ({ ...x, solMin: v }))}
-          />
-          <Segmented
-            label="How long were you awake in the night?"
-            options={[
-              { value: 0, label: "Not at all" },
-              { value: 20, label: "A bit" },
-              { value: 45, label: "~45 min" },
-              { value: 90, label: "Longer" },
-            ]}
-            value={quick.wasoMin}
-            onChange={(v) => setQuick((x) => ({ ...x, wasoMin: v }))}
-          />
-        </div>
-        <div className="mt-auto pt-10">
-          {quickLeft > 0 ? (
-            <Button variant="outline" size="xl" disabled className="border-2 opacity-100">
-              {quickLeft} question{quickLeft === 1 ? "" : "s"} left
-            </Button>
-          ) : (
-            <Button variant="brand" size="xl" onClick={finishQuick}>
-              Continue
-            </Button>
-          )}
         </div>
       </PatientShell>
     );
@@ -388,17 +341,23 @@ export function CheckinFlow({
     return (
       <PatientShell>
         <div className="flex items-center justify-between">
-          <button
-            type="button"
-            className="font-semibold text-primary underline underline-offset-4"
-            onClick={() => setStep(mode === "rough" ? "quick" : initialMode === "voice" && speech.supported ? "voice" : "type")}
-          >
-            {mode === "rough" ? "Back" : initialMode === "voice" ? "Record again" : "Edit my words"}
-          </button>
+          {manual && initialMode === "quick" ? (
+            <Link href="/patient" className="font-semibold text-primary underline underline-offset-4">
+              Back
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="font-semibold text-primary underline underline-offset-4"
+              onClick={() => setStep(manual ? "type" : initialMode === "voice" && speech.supported ? "voice" : "type")}
+            >
+              {manual ? "Back" : initialMode === "voice" ? "Record again" : "Edit my words"}
+            </button>
+          )}
           {extraction && <AiPanel extraction={extraction} />}
         </div>
-        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">{extraction ? "Here's what I heard" : "Check your night"}</h1>
-        <p className="mt-2 text-[17px] text-muted-foreground">Tap a line to change it.</p>
+        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">{extraction ? "Here's what I heard" : "Your night"}</h1>
+        <p className="mt-2 text-[17px] text-muted-foreground">{manual ? "Tap an answer for each." : "Tap a line to change it."}</p>
 
         {extraction?.mode === "fallback" && (
           <p className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
@@ -415,6 +374,8 @@ export function CheckinFlow({
             const approx = f && f.value === v && f.confidence === "medium";
             const check = needsCheck(k);
             const ask = extraction?.ambiguity?.field === k ? extraction.ambiguity : null;
+            const picks = manual && isMissing ? quickPicks(k, usual) : null;
+            const inline = Boolean(ask || picks);
             return (
               <li key={k} className={cn("py-1", ask && "-mx-3 bg-brand-soft px-3")}>
                 <div className="flex items-center gap-1">
@@ -424,10 +385,10 @@ export function CheckinFlow({
                     aria-label={`Change: ${FIELD_META[k].label}`}
                     className="flex min-h-14 flex-1 items-center justify-between gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none active:bg-surface-2"
                   >
-                    <span className={cn("text-[15px]", ask ? "font-semibold" : "text-muted-foreground")}>
+                    <span className={cn("text-[15px]", inline ? "font-semibold" : "text-muted-foreground")}>
                       {FIELD_META[k].label}
                     </span>
-                    {!ask && (
+                    {!inline && (
                       <span className="ml-auto flex flex-col items-end">
                         <span
                           className={cn(
@@ -442,7 +403,7 @@ export function CheckinFlow({
                         )}
                       </span>
                     )}
-                    {!check && !ask && <ChevronRight className="size-4 shrink-0 text-muted-foreground/60" />}
+                    {!check && !inline && <ChevronRight className="size-4 shrink-0 text-muted-foreground/60" />}
                   </button>
                   {check && (
                     <Button
@@ -468,6 +429,20 @@ export function CheckinFlow({
                         {o.label}
                       </Button>
                     ))}
+                  </div>
+                )}
+                {picks && (
+                  <div className="flex flex-wrap gap-2 px-2 pb-3" role="group" aria-label={FIELD_META[k].label}>
+                    {picks.map((o) => (
+                      <Button key={o.label} variant="outline" className="h-10 rounded-full" onClick={() => pick(k, o.value)}>
+                        {o.label}
+                      </Button>
+                    ))}
+                    {FIELD_META[k].kind === "clock" && (
+                      <Button variant="ghost" className="h-10 rounded-full px-3" onClick={() => setEditing(k)}>
+                        Other…
+                      </Button>
+                    )}
                   </div>
                 )}
               </li>
@@ -807,6 +782,44 @@ export function CheckinFlow({
 
 // ================= Pieces =================
 
+/** Tap-to-answer options for each diary question; clock options sit around the patient's usual times. */
+function quickPicks(k: DiaryFieldKey, usual: UsualTimes): { label: string; value: string | number }[] {
+  const around = (hhmm: string) =>
+    [-60, 0, 60, 120].map((d) => {
+      const clock = formatClock(parseClock(hhmm) + d);
+      return { label: formatClock12(clock), value: clock };
+    });
+  switch (k) {
+    case "inBed":
+      return around(usual.inBed);
+    case "finalWake":
+      return around(usual.finalWake);
+    case "solMin":
+      return [
+        { label: "Quickly", value: 10 },
+        { label: "~30 min", value: 30 },
+        { label: "~1 hour", value: 60 },
+        { label: "Longer", value: 90 },
+      ];
+    case "awakenings":
+      return [
+        { label: "None", value: 0 },
+        { label: "Once", value: 1 },
+        { label: "Twice", value: 2 },
+        { label: "3+", value: 3 },
+      ];
+    case "wasoMin":
+      return [
+        { label: "Not at all", value: 0 },
+        { label: "A bit", value: 20 },
+        { label: "~45 min", value: 45 },
+        { label: "Longer", value: 90 },
+      ];
+    default:
+      return [];
+  }
+}
+
 function TopLink({ href, label }: { href: string; label: string }) {
   return (
     <Link href={href} className="self-start font-semibold text-primary underline underline-offset-4">
@@ -983,43 +996,6 @@ function StoryHints({ className }: { className?: string }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-/** Text box with a mic button, for "in your own words" answers. */
-function Segmented({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { value: number; label: string }[];
-  value: number | undefined;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <fieldset>
-      <legend className="mb-3 text-[17px] font-semibold">{label}</legend>
-      <ToggleGroup
-        type="single"
-        variant="outline"
-        className="grid w-full gap-2"
-        style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
-        value={value != null ? String(value) : ""}
-        onValueChange={(v) => v && onChange(Number(v))}
-      >
-        {options.map((o) => (
-          <ToggleGroupItem
-            key={o.value}
-            value={String(o.value)}
-            className="h-14 rounded-2xl! border-2! bg-card px-1 text-[15px] font-semibold whitespace-normal"
-          >
-            {o.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-    </fieldset>
   );
 }
 

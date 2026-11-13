@@ -58,7 +58,7 @@ export default async function PatientHome() {
             </Button>
             <Button asChild variant="outline" size="lg" className="h-14 rounded-2xl text-base">
               <Link href="/patient/checkin?mode=quick">
-                <ListChecks /> 3 quick taps
+                <ListChecks /> Tap answers
               </Link>
             </Button>
           </div>
