@@ -74,6 +74,8 @@ export function CheckinFlow({
   const [wakeNote, setWakeNote] = useState("");
   const [showWakeOther, setShowWakeOther] = useState(false);
   const [allReasons, setAllReasons] = useState(false);
+  const [showDayOther, setShowDayOther] = useState(false);
+  const [dayOther, setDayOther] = useState("");
   const [habits, setHabits] = useState<HabitKey[]>([]);
   // MED-02: which of her medicines she took, plus anything new she names.
   const [meds, setMeds] = useState<string[]>([]);
@@ -247,7 +249,7 @@ export function CheckinFlow({
         wokeReasons: followUp ? wokeReasons : [],
         wakeNote: followUp && showWakeOther ? wakeNote.trim() || null : null,
         story: story.trim() || null,
-        dayNote: null,
+        dayNote: showDayOther ? dayOther.trim() || null : null,
         providerNotes: notes.map((n) => n.text.trim()).filter(Boolean),
         quote: extraction?.quote ?? null,
         aiMode: extraction ? extraction.mode : "manual",
@@ -629,19 +631,35 @@ export function CheckinFlow({
         </Extra>
 
         <Extra icon={Coffee} title="Anything different yesterday?">
-          <ToggleGroup
-            type="multiple"
-            variant="outline"
-            className="flex w-full flex-wrap justify-start gap-2"
-            value={habits}
-            onValueChange={(v) => setHabits(v as HabitKey[])}
-          >
-            {HABITS.map((h) => (
-              <ToggleGroupItem key={h.key} value={h.key} className={SMALL_CHIP}>
-                {h.short}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+          <div className="flex flex-wrap gap-2">
+            <ToggleGroup
+              type="multiple"
+              variant="outline"
+              className="contents"
+              value={habits}
+              onValueChange={(v) => setHabits(v as HabitKey[])}
+            >
+              {HABITS.map((h) => (
+                <ToggleGroupItem key={h.key} value={h.key} className={SMALL_CHIP}>
+                  {h.short}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            <Toggle variant="outline" className={SMALL_CHIP} pressed={showDayOther} onPressedChange={setShowDayOther}>
+              <Plus /> Other
+            </Toggle>
+          </div>
+          {showDayOther && (
+            <Input
+              autoFocus
+              aria-label="What else was different yesterday"
+              placeholder="e.g. late shift, travelled"
+              maxLength={200}
+              value={dayOther}
+              onChange={(e) => setDayOther(e.target.value)}
+              className={INPUT}
+            />
+          )}
         </Extra>
         </section>
 
@@ -728,6 +746,7 @@ export function CheckinFlow({
     const tags = [
       ...medicinesTaken.map((m) => ({ icon: Pill, text: m })),
       ...habits.map((h) => ({ icon: Coffee, text: HABITS.find((x) => x.key === h)!.short })),
+      ...(showDayOther && dayOther.trim() ? [{ icon: Coffee, text: dayOther.trim() }] : []),
       ...notes.map((n) => ({ icon: Stethoscope, text: n.text })),
     ];
     return (
