@@ -8,13 +8,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { MoonMark, PatientShell, SoftCard } from "@/components/brand";
+import { MoonMark, MorningDots, PatientShell, SoftCard } from "@/components/brand";
 import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/app/actions";
 import type { ExtractionResult } from "@/adapters/llm/types";
 import { fillRoughNight, followUpQuestion, STREAK_MILESTONES, type DayStreak, type UsualTimes } from "@/core/checkin";
@@ -36,9 +35,9 @@ import {
   type SleepAid,
   type WokeReason,
 } from "@/core/schema";
-import { formatClock12, formatDateLong, formatDuration } from "@/core/time";
+import { formatClock12, formatDateLong, formatDuration, nightMinutes } from "@/core/time";
 import { cn } from "@/lib/utils";
-import { FieldInput, type FieldValue } from "./field-input";
+import { FieldInput, QUALITY_FACES, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
 
 type Step = "voice" | "type" | "quick" | "review" | "extras" | "done";
@@ -742,14 +741,10 @@ export function CheckinFlow({
   if (step === "done" && result && parsed.success) {
     const d = parsed.data;
     const st = result.dayStreak;
-    const summary: [string, string][] = [
-      ...ASKED_FIELDS.map((k): [string, string] => [
-        FIELD_META[k].label,
-        d[k] == null ? "Don't know" : formatValue(k, d[k] as FieldValue, false),
-      ]),
-      ["Medication", medicinesTaken.length ? medicinesTaken.join(", ") : "None"],
-      ["Different yesterday", habits.length ? habits.map((h) => HABITS.find((x) => x.key === h)!.short).join(", ") : "Nothing"],
-      ["For your provider", notes.length ? notes.map((n) => n.text).join("; ") : "Nothing"],
+    const tags = [
+      ...medicinesTaken.map((m) => ({ icon: Pill, text: m })),
+      ...habits.map((h) => ({ icon: Coffee, text: HABITS.find((x) => x.key === h)!.short })),
+      ...notes.map((n) => ({ icon: Stethoscope, text: n.text })),
     ];
     return (
       <PatientShell>
@@ -790,32 +785,14 @@ export function CheckinFlow({
             </SoftCard>
           )}
 
-          <StreakCard streak={st} />
+          <StreakCard streak={st} week={result.week} />
+          <NightCard d={d} tags={tags} onEdit={() => setStep("review")} />
           <SleepWeek recent={result.recent} prevWeekTstMin={result.prevWeekTstMin} />
 
-          <SoftCard>
-            <div className="flex items-center justify-between">
-              <p className="font-semibold">Last night</p>
-              <Button variant="outline" size="sm" className="rounded-full" onClick={() => setStep("review")}>
-                <Pencil /> Edit
-              </Button>
-            </div>
-            <dl className="mt-3 divide-y divide-border/60 text-[15px]">
-              {summary.map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-4 py-2">
-                  <dt className="text-muted-foreground">{label}</dt>
-                  <dd className="text-right font-medium">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </SoftCard>
-
-          <SoftCard className="flex gap-3">
-            <CalendarDays className="mt-0.5 size-5 shrink-0 text-primary" />
-            <p className="text-[15px] leading-relaxed">
-              Visit on <strong>{formatDateLong(visitDate)}</strong>. Your Sleep Snapshot has{" "}
-              <strong>{result.snapshotNights} nights</strong>.
-            </p>
+          <SoftCard className="flex items-center gap-3 py-4">
+            <CalendarDays className="size-5 shrink-0 text-primary" />
+            <p className="flex-1 font-semibold">{formatDateLong(visitDate)}</p>
+            <span className="text-sm text-muted-foreground">{result.snapshotNights} nights shared</span>
           </SoftCard>
         </div>
 
@@ -1112,34 +1089,154 @@ function Extra({ icon: Icon, title, children }: { icon: LucideIcon; title: strin
   );
 }
 
-/** Streak with small milestones (CHK-17). One missed morning a week is forgiven. */
-function StreakCard({ streak }: { streak: DayStreak }) {
-  const prev = [...STREAK_MILESTONES].reverse().find((m) => m <= streak.days) ?? 0;
-  const pct = streak.next ? ((streak.days - prev) / (streak.next - prev)) * 100 : 100;
+/** Streak with small milestones (CHK-17): big number, this week's flames, and the badge path. */
+function StreakCard({ streak, week }: { streak: DayStreak; week: Saved["week"] }) {
   return (
     <SoftCard>
-      <div className="flex items-center gap-3">
-        <span className="flex size-11 items-center justify-center rounded-full bg-brand text-brand-foreground">
-          <Flame className="size-6" />
+      <div className="flex items-center gap-4">
+        <span className="flex size-16 items-center justify-center rounded-full bg-brand text-brand-foreground">
+          <Flame className="size-9" strokeWidth={2.2} aria-hidden="true" />
         </span>
-        <div>
-          <p className="font-display text-2xl leading-none">{streak.days}-day streak</p>
-          {streak.reached && (
-            <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-primary">
-              <Trophy className="size-4" /> New badge: {streak.reached} mornings!
-            </p>
-          )}
-        </div>
+        <p className="flex flex-col">
+          <span className="font-display text-5xl leading-none tabular-nums">{streak.days}</span>
+          <span className="mt-1 text-sm font-semibold text-muted-foreground">day streak</span>
+        </p>
       </div>
-      {streak.next && (
-        <>
-          <Progress value={pct} className="mt-4 h-2.5 bg-surface-2 [&>div]:bg-brand" aria-label="Progress to next badge" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            {streak.next - streak.days} more to your {streak.next}-day badge · missing 1 morning a week is okay
-          </p>
-        </>
+      <MorningDots week={week} className="mt-5" />
+      <Badges streak={streak} />
+    </SoftCard>
+  );
+}
+
+/** Milestone badges: earned ones filled, the next one with a progress ring, later ones faded. */
+function Badges({ streak }: { streak: DayStreak }) {
+  const prev = [...STREAK_MILESTONES].reverse().find((m) => m <= streak.days) ?? 0;
+  return (
+    <ol className="mt-5 grid grid-cols-5 gap-1 border-t border-border/60 pt-4" aria-label="Streak badges">
+      {STREAK_MILESTONES.map((m) => {
+        const earned = streak.days >= m;
+        const isNext = m === streak.next;
+        const isNew = m === streak.reached;
+        const pct = isNext ? Math.round(((streak.days - prev) / (m - prev)) * 100) : 0;
+        return (
+          <li
+            key={m}
+            className="flex flex-col items-center gap-1.5"
+            aria-label={earned ? `${m}-day badge earned` : isNext ? `${m}-day badge: ${m - streak.days} to go` : `${m}-day badge`}
+          >
+            <span
+              className={cn(
+                "flex size-11 items-center justify-center rounded-full",
+                earned && "bg-brand text-brand-foreground",
+                !earned && !isNext && "bg-surface-2 text-muted-foreground/40",
+                isNew && "ring-2 ring-brand ring-offset-2 ring-offset-card",
+              )}
+              style={isNext ? { background: `conic-gradient(var(--brand) ${pct}%, var(--surface-2) 0)` } : undefined}
+            >
+              {isNext ? (
+                <span className="flex size-8 items-center justify-center rounded-full bg-card text-primary">
+                  <Trophy className="size-4" aria-hidden="true" />
+                </span>
+              ) : (
+                <Trophy className="size-5" aria-hidden="true" />
+              )}
+            </span>
+            <span className={cn("text-xs tabular-nums", isNext || isNew ? "font-bold" : "text-muted-foreground")}>
+              {isNew ? "New!" : isNext ? `${m - streak.days} to go` : `${m} days`}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** Last night as a picture: a bed-to-wake timeline, three key numbers, and tags for the extras. */
+function NightCard({ d, tags, onEdit }: { d: DiaryEntry; tags: { icon: LucideIcon; text: string }[]; onEdit: () => void }) {
+  const Face = d.quality ? QUALITY_FACES[d.quality - 1] : null;
+  const stats = [
+    { icon: Hourglass, value: d.solMin == null ? "?" : formatDuration(d.solMin), label: "to fall asleep" },
+    { icon: MoonStar, value: d.awakenings == null ? "?" : `${d.awakenings}×`, label: "woke up" },
+    ...(Face ? [{ icon: Face, value: QUALITY_LABELS[d.quality - 1], label: "sleep" }] : []),
+  ];
+  return (
+    <SoftCard>
+      <div className="flex items-center justify-between">
+        <p className="font-semibold">Last night</p>
+        <Button variant="outline" size="sm" className="rounded-full" onClick={onEdit}>
+          <Pencil /> Edit
+        </Button>
+      </div>
+      <NightTimeline d={d} />
+      <ul className="mt-4 grid grid-cols-3 gap-2">
+        {stats.map(({ icon: Icon, value, label }) => (
+          <li key={label} className="flex flex-col items-center rounded-2xl bg-surface-2 px-1 py-3 text-center">
+            <Icon className="size-5 text-primary" aria-hidden="true" />
+            <span className="mt-1 font-semibold tabular-nums">{value}</span>
+            <span className="text-[11px] text-muted-foreground">{label}</span>
+          </li>
+        ))}
+      </ul>
+      {tags.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-1.5">
+          {tags.map(({ icon: Icon, text }, i) => (
+            <li key={i} className="flex max-w-full items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-sm">
+              <Icon className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+              <span className="truncate">{text}</span>
+            </li>
+          ))}
+        </ul>
       )}
     </SoftCard>
+  );
+}
+
+/**
+ * Bed to wake as one bar: falling asleep and time awake in the night (brand), sleep (chart-1).
+ * Wakings are spread evenly, since the diary doesn't say when they happened.
+ */
+function NightTimeline({ d }: { d: DiaryEntry }) {
+  if (!d.inBed || !d.finalWake) return null;
+  const span = nightMinutes(d.finalWake) - nightMinutes(d.inBed);
+  if (span <= 0) return null;
+  const sol = Math.min(d.solMin ?? 0, span);
+  const wakes = d.awakenings ?? 0;
+  const waso = Math.min(d.wasoMin ?? 0, span - sol);
+  const sleepPiece = (span - sol - waso) / (wakes + 1);
+  const segs: { awake: boolean; min: number }[] = [];
+  if (sol > 0) segs.push({ awake: true, min: sol });
+  for (let i = 0; i <= wakes; i++) {
+    segs.push({ awake: false, min: sleepPiece });
+    if (i < wakes && waso > 0) segs.push({ awake: true, min: waso / wakes });
+  }
+  return (
+    <figure className="mt-4">
+      <div
+        className="flex h-9 gap-[2px] overflow-hidden rounded-[6px]"
+        role="img"
+        aria-label={`In bed ${formatClock12(d.inBed)} to ${formatClock12(d.finalWake)}`}
+      >
+        {segs.map((g, i) => (
+          <div
+            key={i}
+            className={cn("h-full min-w-[3px]", g.awake ? "bg-brand" : "bg-chart-1")}
+            style={{ flexGrow: g.min, flexBasis: 0 }}
+          />
+        ))}
+      </div>
+      <div className="mt-1.5 flex justify-between text-xs font-semibold tabular-nums">
+        <span>{formatClock12(d.inBed)}</span>
+        <span>{formatClock12(d.finalWake)}</span>
+      </div>
+      <figcaption className="mt-1 flex justify-center gap-4 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-[3px] bg-chart-1" /> Asleep
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-[3px] bg-brand" /> Awake
+        </span>
+      </figcaption>
+    </figure>
   );
 }
 
@@ -1155,22 +1252,27 @@ function SleepWeek({ recent, prevWeekTstMin }: { recent: { date: string; tstMin:
   const max = 600; // 10 h
   return (
     <SoftCard>
-      <p className="font-semibold">Your sleep this week</p>
-      <p className="mt-0.5 text-sm text-muted-foreground">
-        Typical night {formatDuration(med)}
-        {diff != null && Math.abs(diff) >= 10 && (
-          <span className={cn("ml-1 font-semibold", diff > 0 ? "text-good" : "text-muted-foreground")}>
-            · {diff > 0 ? "▲" : "▼"} {formatDuration(Math.abs(diff))} vs last week
-          </span>
-        )}
-      </p>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-semibold">This week</p>
+        <p className="text-sm text-muted-foreground tabular-nums">
+          ~{formatDuration(med)} a night
+          {diff != null && Math.abs(diff) >= 10 && (
+            <span
+              className={cn("ml-1.5 font-semibold", diff > 0 ? "text-good" : "text-foreground")}
+              title={`${formatDuration(Math.abs(diff))} ${diff > 0 ? "more" : "less"} than last week`}
+            >
+              {diff > 0 ? "▲" : "▼"} {formatDuration(Math.abs(diff))}
+            </span>
+          )}
+        </p>
+      </div>
       <div className="mt-4 flex h-28 items-end gap-2" role="img" aria-label="Hours of sleep, last 7 nights">
         {recent.map((r, i) => {
           const last = i === recent.length - 1;
           const morning = new Date(`${r.date}T00:00:00Z`);
           morning.setUTCDate(morning.getUTCDate() + 1);
           return (
-            <div key={r.date} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5" title={r.tstMin == null ? "No data" : formatDuration(r.tstMin)}>
+            <div key={r.date} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5" title={r.tstMin == null ? "Not known" : formatDuration(r.tstMin)}>
               {last && (
                 <span className="text-[11px] font-semibold whitespace-nowrap tabular-nums">
                   {r.tstMin == null ? "?" : formatDuration(r.tstMin)}
@@ -1180,7 +1282,7 @@ function SleepWeek({ recent, prevWeekTstMin }: { recent: { date: string; tstMin:
                 <div className="h-6 w-full rounded-t-[4px] border-2 border-b-0 border-dashed border-muted-foreground/40" />
               ) : (
                 <div
-                  className={cn("w-full rounded-t-[4px]", last ? "bg-brand" : "bg-primary/35")}
+                  className={cn("w-full rounded-t-[4px]", last ? "bg-chart-1" : "bg-chart-1/45")}
                   style={{ height: `${(Math.min(r.tstMin, max) / max) * 100}%` }}
                 />
               )}
@@ -1191,9 +1293,6 @@ function SleepWeek({ recent, prevWeekTstMin }: { recent: { date: string; tstMin:
           );
         })}
       </div>
-      {recent[recent.length - 1].tstMin == null && (
-        <p className="mt-2 text-xs text-muted-foreground">? = last night&apos;s total isn&apos;t known (some answers were &ldquo;Don&apos;t know&rdquo;).</p>
-      )}
     </SoftCard>
   );
 }

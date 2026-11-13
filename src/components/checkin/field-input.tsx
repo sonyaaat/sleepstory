@@ -6,7 +6,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { FIELD_META, QUALITY_LABELS, type DiaryFieldKey } from "@/core/schema";
 
 /** One face per sleep quality answer, from very poor to very good. */
-const QUALITY_FACES = [Frown, Annoyed, Meh, Smile, Laugh];
+export const QUALITY_FACES = [Frown, Annoyed, Meh, Smile, Laugh];
 
 export type FieldValue = string | number | undefined;
 
