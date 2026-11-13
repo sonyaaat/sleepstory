@@ -523,9 +523,8 @@ export function CheckinFlow({
           Back
         </button>
         <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Anything else?</h1>
-        <p className="mt-2 text-[17px] text-muted-foreground">All optional. I&apos;ve picked what you mentioned.</p>
 
-        <section className="mt-4 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
+        <section className="mt-6 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
         {followUp && (
           <Extra icon={MoonStar} title={followUp === "woke_reason" ? "What woke you?" : "What kept you awake?"}>
             <div className="flex flex-wrap gap-2">
