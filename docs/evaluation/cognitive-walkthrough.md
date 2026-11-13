@@ -18,14 +18,14 @@
 | # | Expected action | What the participant should notice or understand |
 |---|---|---|
 | 1 | On the start screen, tap **Skip to Maya's morning** (the morning reminder pops up; tapping it also works) | Understands they are now Maya |
-| 2 | On "How did you sleep?", tap the **microphone** (or "Rather type it") | Knows they can talk or type |
-| 3 | Describe the night in their own words, then tap **finish** (stop button or Continue) | Talks naturally; no form to fill |
+| 2 | On "How did you sleep?", tap the **microphone** (or **Type it** / **3 quick taps**) | Knows they can talk or type |
+| 3 | Describe the night in their own words (the six hint tiles show what to cover), then tap **finish** (stop button or Continue) | Talks naturally; no form to fill |
 | 4 | On **"Here's what I heard"**, read the answers the AI filled in | Understands the AI wrote these answers |
-| 5 | For answers with a **yellow dot**, tap **✓** (or **All correct**), or tap the answer to change it | Confirms with one tap instead of re-entering |
-| 6 | Leave **"Awake during the night"** as **Don't know** | Knows they don't have to guess |
-| 7 | Pick a **sleep quality** (one tap) | Sees that quality is the only required answer |
+| 5 | For answers with a **✓ circle**, tap it (or **All correct**), or tap the line to change it | Confirms with one tap instead of re-entering |
+| 6 | In the highlighted **"Awake during the night"** line, pick a rough amount, or leave it as **Don't know** | Knows they don't have to guess |
+| 7 | Under **"How did you sleep?"**, tap a face | Sees that quality is the only required answer |
 | 8 | Optional: tap **"What did the AI do?"** | Learns what the AI does and doesn't do |
-| 9 | In **"What woke you during the night?"**, pick one or more reasons (optional) | Understands it's about the night, not the morning |
+| 9 | In **"What woke you?"**, pick one or more reasons (optional) | Understands it's about the night, not the morning |
 | 10 | In **Medication**, check that **Melatonin** is selected (or select it) | Knows where to record a sleep medicine |
 | 11 | In **"Anything different yesterday?"**, check that **Late caffeine** is selected | Sees the habit was picked up from the story |
 | 12 | In **"For your provider"**, check that the headache is listed, or **add it** (type or mic) | Knows this goes to the provider before the visit |
