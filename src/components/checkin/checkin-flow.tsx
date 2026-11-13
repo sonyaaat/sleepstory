@@ -41,9 +41,12 @@ import { cn } from "@/lib/utils";
 import { FieldInput, type FieldValue } from "./field-input";
 import { useSpeech } from "./use-speech";
 
-type Step = "voice" | "type" | "quick" | "review" | "done";
+type Step = "voice" | "type" | "quick" | "review" | "extras" | "done";
 type Values = Partial<Record<DiaryFieldKey, FieldValue>>;
 type Saved = Extract<CheckinResult, { ok: true }>;
+
+/** Wake reasons shown first; the rest sit behind "More…". */
+const COMMON_WOKE = new Set<WokeReason>(["worry", "bathroom", "noise", "phone", "pain"]);
 
 const SMALL_CHIP = "h-10 rounded-full! border-2! px-3.5 text-sm font-semibold";
 const INPUT = "mt-3 h-11 rounded-2xl border-0 bg-surface-2 text-base focus-visible:ring-2 focus-visible:ring-brand dark:bg-surface-2";
@@ -71,6 +74,7 @@ export function CheckinFlow({
   const [wokeReasons, setWokeReasons] = useState<WokeReason[]>([]);
   const [wakeNote, setWakeNote] = useState("");
   const [showWakeOther, setShowWakeOther] = useState(false);
+  const [allReasons, setAllReasons] = useState(false);
   const [habits, setHabits] = useState<HabitKey[]>([]);
   // MED-02: which of her medicines she took, plus anything new she names.
   const [meds, setMeds] = useState<string[]>([]);
@@ -381,7 +385,6 @@ export function CheckinFlow({
   if (step === "review") {
     const rows = ASKED_FIELDS.filter((k) => k !== "quality");
     const toCheck = rows.filter(needsCheck);
-    const otherMissing = showOther && !otherMed.trim();
     return (
       <PatientShell>
         <div className="flex items-center justify-between">
@@ -494,6 +497,72 @@ export function CheckinFlow({
           <FieldInput name="quality" value={values.quality} onChange={(v) => setField("quality", v)} />
         </section>
 
+        {issues.length > 0 && (
+          <div className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
+            <p className="font-semibold">Something doesn&apos;t add up</p>
+            <ul className="mt-1 list-disc pl-4">
+              {issues.map((i) => (
+                <li key={i}>{i}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
+          <Button variant="brand" size="xl" disabled={!complete || issues.length > 0} onClick={() => setStep("extras")}>
+            {qualityMissing ? "Pick how you slept" : "Next"}
+          </Button>
+        </div>
+
+        <Sheet open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
+          <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl px-6 pb-8">
+            {editing && (
+              <>
+                <SheetHeader className="px-0">
+                  <SheetTitle className="font-display text-2xl font-normal">{FIELD_META[editing].label}</SheetTitle>
+                  <SheetDescription>Change it to what really happened.</SheetDescription>
+                </SheetHeader>
+                <FieldInput name={editing} value={unknown.has(editing) ? undefined : values[editing]} onChange={(v) => setField(editing, v)} />
+                <Button variant="brand" size="xl" className="mt-6" onClick={() => setEditing(null)}>
+                  Done
+                </Button>
+                {UNKNOWABLE.includes(editing) && (
+                  <Button
+                    variant="ghost"
+                    size="xl"
+                    className="mt-1"
+                    onClick={() => {
+                      const k = editing;
+                      setUnknown((prev) => new Set(prev).add(k));
+                      setValues((prev) => ({ ...prev, [k]: undefined }));
+                      setEditing(null);
+                    }}
+                  >
+                    <HelpCircle /> I don&apos;t know
+                  </Button>
+                )}
+              </>
+            )}
+          </SheetContent>
+        </Sheet>
+      </PatientShell>
+    );
+  }
+
+  if (step === "extras") {
+    const otherMissing = showOther && !otherMed.trim();
+    return (
+      <PatientShell>
+        <button
+          type="button"
+          className="self-start font-semibold text-primary underline underline-offset-4"
+          onClick={() => setStep("review")}
+        >
+          Back
+        </button>
+        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Anything else?</h1>
+        <p className="mt-2 text-[17px] text-muted-foreground">All optional. I&apos;ve picked what you mentioned.</p>
+
         <section className="mt-4 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
         {followUp && (
           <Extra icon={MoonStar} title={followUp === "woke_reason" ? "What woke you?" : "What kept you awake?"}>
@@ -505,12 +574,17 @@ export function CheckinFlow({
                 value={wokeReasons}
                 onValueChange={(v) => setWokeReasons(v as WokeReason[])}
               >
-                {WOKE_REASONS.map((r) => (
+                {WOKE_REASONS.filter((r) => allReasons || COMMON_WOKE.has(r.key) || wokeReasons.includes(r.key)).map((r) => (
                   <ToggleGroupItem key={r.key} value={r.key} className={SMALL_CHIP}>
                     {r.label}
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
+              {!allReasons && (
+                <Button variant="ghost" className="h-10 rounded-full px-3.5 text-sm font-semibold" onClick={() => setAllReasons(true)}>
+                  More…
+                </Button>
+              )}
               <Toggle variant="outline" className={SMALL_CHIP} pressed={showWakeOther} onPressedChange={setShowWakeOther}>
                 <Plus /> Other
               </Toggle>
@@ -655,55 +729,12 @@ export function CheckinFlow({
           </div>
         </section>
 
-        {issues.length > 0 && (
-          <div className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
-            <p className="font-semibold">Something doesn&apos;t add up</p>
-            <ul className="mt-1 list-disc pl-4">
-              {issues.map((i) => (
-                <li key={i}>{i}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
-          <Button variant="brand" size="xl" disabled={!complete || issues.length > 0 || otherMissing || saving} onClick={save}>
+        <div className="sticky bottom-0 -mx-6 mt-auto bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
+          <Button variant="brand" size="xl" disabled={!complete || otherMissing || saving} onClick={save}>
             {saving ? <Loader2 className="animate-spin" /> : <Check />}
-            {qualityMissing ? "Pick sleep quality to save" : otherMissing ? "Add the medication name" : "Save"}
+            {otherMissing ? "Add the medication name" : "Save"}
           </Button>
         </div>
-
-        <Sheet open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
-          <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl px-6 pb-8">
-            {editing && (
-              <>
-                <SheetHeader className="px-0">
-                  <SheetTitle className="font-display text-2xl font-normal">{FIELD_META[editing].label}</SheetTitle>
-                  <SheetDescription>Change it to what really happened.</SheetDescription>
-                </SheetHeader>
-                <FieldInput name={editing} value={unknown.has(editing) ? undefined : values[editing]} onChange={(v) => setField(editing, v)} />
-                <Button variant="brand" size="xl" className="mt-6" onClick={() => setEditing(null)}>
-                  Done
-                </Button>
-                {UNKNOWABLE.includes(editing) && (
-                  <Button
-                    variant="ghost"
-                    size="xl"
-                    className="mt-1"
-                    onClick={() => {
-                      const k = editing;
-                      setUnknown((prev) => new Set(prev).add(k));
-                      setValues((prev) => ({ ...prev, [k]: undefined }));
-                      setEditing(null);
-                    }}
-                  >
-                    <HelpCircle /> I don&apos;t know
-                  </Button>
-                )}
-              </>
-            )}
-          </SheetContent>
-        </Sheet>
       </PatientShell>
     );
   }
@@ -1068,14 +1099,13 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
   );
 }
 
-/** One optional part of the review page, inside the shared "extras" card. */
+/** One part of the "Anything else?" card. */
 function Extra({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
   return (
     <div className="py-5">
       <h2 className="mb-3 flex items-center gap-2 font-semibold">
         <Icon className="size-4 text-primary" aria-hidden="true" />
         {title}
-        <span className="ml-auto text-xs font-normal text-muted-foreground">Optional</span>
       </h2>
       {children}
     </div>
