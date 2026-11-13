@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, BedDouble, Bot, CalendarDays, Check, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Plus, Square, Stethoscope, Sunrise, Trophy, Watch, X } from "lucide-react";
+import { AlertTriangle, BedDouble, Bot, CalendarDays, Check, Coffee, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Pill, Plus, Square, Stethoscope, Sunrise, Trophy, Watch, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -957,23 +957,26 @@ function VoiceScreen({
   );
 }
 
-/** Four icons for what to cover. Habits and pills are asked on the review page, so they're left out here. */
+/** What to cover, each with a short example answer (the test story's night). Deliberately general, so it fits any night. */
 const STORY_HINTS = [
-  { icon: BedDouble, label: "Bedtime" },
-  { icon: Hourglass, label: "Falling asleep" },
-  { icon: MoonStar, label: "Night wakings" },
-  { icon: Sunrise, label: "Wake up time" },
+  { icon: BedDouble, label: "Bedtime", example: "12:30" },
+  { icon: Hourglass, label: "Fell asleep", example: "in ~1 hour" },
+  { icon: MoonStar, label: "At night", example: "woke 2 times" },
+  { icon: Sunrise, label: "Wake up", example: "8:15" },
+  { icon: Pill, label: "Pills", example: "melatonin" },
+  { icon: Coffee, label: "Your day", example: "coffee, stress" },
 ];
 
 function StoryHints({ className }: { className?: string }) {
   return (
-    <ul className={cn("grid grid-cols-4 gap-2", className)} aria-label="Things to mention">
-      {STORY_HINTS.map(({ icon: Icon, label }) => (
-        <li key={label} className="flex flex-col items-center gap-1.5 text-center">
-          <span className="flex size-11 items-center justify-center rounded-full bg-surface-2 text-primary ring-1 ring-border/60">
-            <Icon className="size-5" aria-hidden="true" />
-          </span>
-          <span className="text-xs leading-tight text-muted-foreground">{label}</span>
+    <ul className={cn("grid grid-cols-3 gap-2", className)} aria-label="Things to mention, with examples">
+      {STORY_HINTS.map(({ icon: Icon, label, example }) => (
+        <li key={label} className="rounded-2xl bg-card px-3 py-2.5 ring-1 ring-border/60">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold">
+            <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+            {label}
+          </p>
+          <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{example}</p>
         </li>
       ))}
     </ul>
