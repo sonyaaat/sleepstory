@@ -383,7 +383,6 @@ export function CheckinFlow({
 
   if (step === "review") {
     const rows = ASKED_FIELDS.filter((k) => k !== "quality");
-    const toCheck = rows.filter(needsCheck);
     return (
       <PatientShell>
         <div className="flex items-center justify-between">
@@ -403,21 +402,6 @@ export function CheckinFlow({
           <p className="mt-4 rounded-2xl bg-warn px-4 py-3 text-sm text-warn-foreground">
             The AI wasn&apos;t available, so please check each line.
           </p>
-        )}
-
-        {toCheck.length > 0 && (
-          <div className="mt-4 flex items-center justify-between gap-3 rounded-3xl bg-brand-soft py-3 pr-3 pl-4 ring-1 ring-brand/50">
-            <p className="text-[15px] font-semibold">
-              {toCheck.length} {toCheck.length === 1 ? "answer" : "answers"} to check
-            </p>
-            <Button
-              variant="brand"
-              className="h-10 rounded-full px-4"
-              onClick={() => setConfirmed((prev) => new Set([...prev, ...toCheck]))}
-            >
-              <Check /> All correct
-            </Button>
-          </div>
         )}
 
         <ul className="mt-4 divide-y divide-border/70 rounded-3xl bg-card px-3 ring-1 ring-border/60">

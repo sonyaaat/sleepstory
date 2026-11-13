@@ -21,7 +21,7 @@
 | 2 | On "How did you sleep?", tap the **microphone** (or **Type it** / **3 quick taps**) | Knows they can talk or type |
 | 3 | Describe the night in their own words (the six hint tiles show what to cover), then tap **finish** (stop button or Continue) | Talks naturally; no form to fill |
 | 4 | On **"Here's what I heard"**, read the answers the AI filled in | Understands the AI wrote these answers |
-| 5 | For answers with a **✓ circle**, tap it (or **All correct**), or tap the line to change it | Confirms with one tap instead of re-entering |
+| 5 | Optionally tap the **✓ circle** next to an answer to confirm it, or tap the line to change it | Confirms with one tap instead of re-entering |
 | 6 | In the highlighted **"Awake during the night"** line, pick a rough amount, or leave it as **Don't know** | Knows they don't have to guess |
 | 7 | Under **"How did you sleep?"**, tap a face, then tap **Next** | Sees that quality is the only required answer |
 | 8 | Optional: tap **"What did the AI do?"** | Learns what the AI does and doesn't do |
