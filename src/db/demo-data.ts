@@ -130,6 +130,9 @@ function planFor(weekIndex: number): NightPlan {
  * Includes missed nights, late entries, late caffeine linked to worse nights,
  * and a watch that overestimates sleep on bad nights.
  */
+/** Nights before last night that Maya skipped in the current week. */
+const MAYA_RECENT_MISS = 4;
+
 export function mayaNights(today: string, seed = 21): Night[] {
   const r = rng(seed);
   const lastNight = addDays(today, -1);
@@ -240,7 +243,9 @@ export function mayaNights(today: string, seed = 21): Night[] {
       }),
     );
   }
-  return nights;
+  // One missed morning in the last week, so the home screen shows a gap the streak forgives.
+  const missed = addDays(lastNight, -MAYA_RECENT_MISS);
+  return nights.filter((n) => n.date !== missed);
 }
 
 /** A lighter, generic dataset for the extra students in the provider list. */
