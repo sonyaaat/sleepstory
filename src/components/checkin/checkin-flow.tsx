@@ -553,7 +553,7 @@ export function CheckinFlow({
               <ToggleGroup
                 type="multiple"
                 variant="outline"
-                className="flex flex-wrap justify-start gap-2"
+                className="contents"
                 value={wokeReasons}
                 onValueChange={(v) => setWokeReasons(v as WokeReason[])}
               >
