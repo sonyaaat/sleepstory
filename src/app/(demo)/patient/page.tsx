@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Keyboard, Lock, Mic, Pencil, Send } from "lucide-react";
+import { CalendarDays, Keyboard, ListChecks, Lock, Mic, Pencil, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
 import { MorningNotification } from "@/components/checkin/morning-notification";
@@ -36,9 +36,6 @@ export default async function PatientHome() {
         <>
           <p className="mt-10 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
           <h1 className="mt-1.5 font-display text-[40px] leading-[1.1]">How did you sleep?</h1>
-          <p className="mt-3.5 text-[17px] leading-relaxed text-muted-foreground">
-            Just talk. I&apos;ll fill in your sleep diary.
-          </p>
 
           <div className="flex flex-1 flex-col items-center justify-center gap-5 py-10">
             <Link
@@ -53,15 +50,17 @@ export default async function PatientHome() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2">
-            <Button asChild variant="ghost" size="lg" className="text-base">
+          <div className="grid grid-cols-2 gap-3">
+            <Button asChild variant="outline" size="lg" className="h-14 rounded-2xl text-base">
               <Link href="/patient/checkin?mode=type">
-                <Keyboard /> Rather type it
+                <Keyboard /> Type it
               </Link>
             </Button>
-            <Link href="/patient/checkin?mode=quick" className="py-2 font-semibold text-primary underline underline-offset-4">
-              Rough night? Answer in 3 taps
-            </Link>
+            <Button asChild variant="outline" size="lg" className="h-14 rounded-2xl text-base">
+              <Link href="/patient/checkin?mode=quick">
+                <ListChecks /> 3 quick taps
+              </Link>
+            </Button>
           </div>
         </>
       ) : (
