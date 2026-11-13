@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, Bot, CalendarDays, Check, Flame, HelpCircle, Keyboard, Loader2, Mic, Pencil, Plus, Square, Stethoscope, Trophy, Watch, X } from "lucide-react";
+import { AlertTriangle, BedDouble, Bot, CalendarDays, Check, Flame, HelpCircle, Hourglass, Keyboard, Loader2, Mic, MoonStar, Pencil, Plus, Square, Stethoscope, Sunrise, Trophy, Watch, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -282,8 +282,7 @@ export function CheckinFlow({
         <TopLink href="/patient" label="Back" />
         <p className="mt-8 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
         <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">Tell me about last night</h1>
-        <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">Any words are fine.</p>
-        <StoryHints className="mt-5" />
+        <StoryHints className="mt-6" />
         <Label htmlFor="story" className="sr-only">
           Your night
         </Label>
@@ -883,9 +882,7 @@ function VoiceScreen({
       <h1 className="mt-8 font-display text-[40px] leading-[1.1]">
         {loading ? "Reading your story…" : listening ? "Listening…" : story ? "Got it" : "Tap to start"}
       </h1>
-      <p className="mt-2 text-[17px] text-muted-foreground">
-        {loading ? "Turning your words into your sleep diary." : "Talk naturally. You can stop any time."}
-      </p>
+      {loading && <p className="mt-2 text-[17px] text-muted-foreground">Turning your words into your sleep diary.</p>}
 
       <div className="mt-8 mb-6 flex h-10 items-center justify-center gap-[6px]" aria-hidden="true">
         {Array.from({ length: 28 }, (_, i) => (
@@ -960,29 +957,26 @@ function VoiceScreen({
   );
 }
 
-/** A gentle reminder of what to cover. Deliberately general, so it fits any night. */
+/** Four icons for what to cover. Habits and pills are asked on the review page, so they're left out here. */
 const STORY_HINTS = [
-  "When you went to bed",
-  "How long to fall asleep",
-  "Waking up in the night",
-  "When you got up",
-  "How you feel this morning",
-  "Your day yesterday: coffee, stress, screens, exercise",
-  "Any sleep aid or pills",
+  { icon: BedDouble, label: "Bedtime" },
+  { icon: Hourglass, label: "Falling asleep" },
+  { icon: MoonStar, label: "Night wakings" },
+  { icon: Sunrise, label: "Wake up time" },
 ];
 
 function StoryHints({ className }: { className?: string }) {
   return (
-    <div className={className}>
-      <p className="mb-2 text-sm text-muted-foreground">You could mention:</p>
-      <ul className="flex flex-wrap gap-1.5" aria-label="Things you could mention">
-        {STORY_HINTS.map((h) => (
-          <li key={h} className="rounded-full bg-surface-2 px-3 py-1.5 text-sm text-foreground/85 ring-1 ring-border/60">
-            {h}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul className={cn("grid grid-cols-4 gap-2", className)} aria-label="Things to mention">
+      {STORY_HINTS.map(({ icon: Icon, label }) => (
+        <li key={label} className="flex flex-col items-center gap-1.5 text-center">
+          <span className="flex size-11 items-center justify-center rounded-full bg-surface-2 text-primary ring-1 ring-border/60">
+            <Icon className="size-5" aria-hidden="true" />
+          </span>
+          <span className="text-xs leading-tight text-muted-foreground">{label}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
