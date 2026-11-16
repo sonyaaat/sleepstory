@@ -40,6 +40,21 @@ export function gatewayConfigured(): boolean {
 
 export class TruncatedOutputError extends Error {}
 
+/**
+ * The gateway key has a concurrency limit, so a request can be refused (429) while another one runs.
+ * Retry briefly; the caller's 8 s timeout (AI-08) still bounds the whole thing.
+ */
+async function createWithRetry(client: OpenAI, body: OpenAI.ChatCompletionCreateParamsNonStreaming, signal?: AbortSignal) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await client.chat.completions.create(body, { signal });
+    } catch (err) {
+      if (!(err instanceof OpenAI.RateLimitError) || attempt >= 4 || signal?.aborted) throw err;
+      await new Promise((r) => setTimeout(r, 250 + attempt * 150));
+    }
+  }
+}
+
 /** Returns the parsed JSON from the model. Throws on timeout, network errors or unparsable output. */
 export async function gatewayExtract(story: string, signal?: AbortSignal): Promise<unknown> {
   const client = new OpenAI({
@@ -59,7 +74,7 @@ export async function gatewayExtract(story: string, signal?: AbortSignal): Promi
       { role: "user" as const, content: story.slice(0, 2000) },
     ],
   };
-  const res = await client.chat.completions.create(body as OpenAI.ChatCompletionCreateParamsNonStreaming, { signal });
+  const res = await createWithRetry(client, body as OpenAI.ChatCompletionCreateParamsNonStreaming, signal);
   const choice = res.choices[0];
   if (choice?.finish_reason === "length") throw new TruncatedOutputError("Model output was cut off");
   const text = choice?.message?.content ?? "";
