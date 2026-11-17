@@ -4,8 +4,8 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 ## How a tester uses the prototype
 
-1. Open the app. The start screen offers **Try as Maya** (the main path) and, from P1, **Start as myself**.
-2. *Try as Maya* gives the tester their own copy of Maya's 8 weeks of made-up data. Other testers never see it.
+1. Open the app. The start screen offers **Try it as Maya, from sign-up** and **Skip to Maya's morning** (the main path).
+2. Either button gives the tester their own copy of Maya's 8 weeks of made-up data. Other testers never see it.
 3. A **tester bar** sits at the top of every screen. It's a demo tool, not part of the product:
    - **Patient ↔ Provider**: switch sides to see your own entry appear on the Snapshot.
    - **Next morning →**: move the demo date forward one day, so you can log another night.
@@ -17,30 +17,29 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 ## Scenario 1: Log last night (patient)
 
-**Setup:** *Try as Maya* → patient home.
+**Setup:** **Skip to Maya's morning** → patient home.
 
 **Task given to the tester:**
-> You're Maya. Last night you went to bed at 12:30, it took you about an hour to fall asleep, you woke up twice for about 40 minutes in total, and you got up at 8:15. You had an energy drink at 4 pm and took a melatonin before bed. Log your night.
+> You're Maya. Last night you went to bed around 12:30, it took you about an hour to fall asleep because you kept thinking about your exam, you woke up twice for about 20 minutes in total, and you got up at 8:15. You slept badly. You had an energy drink at 4 pm, scrolled your phone in bed, took a melatonin, and had a bad headache. Log your night and make sure your provider will know about the melatonin and the headache.
 
 **Expected steps:**
 
 | # | Screen | What the tester does | What should happen |
 |---|---|---|---|
-| 1 | Home | Taps **Log last night** | Sees the forgiving streak and days until the visit. No score. |
-| 2 | Story | Types or says the night in their own words | Mic button works in desktop Chrome; text always works |
-| 3 | Review | Checks the 8 fields, fixes anything wrong | Fields are filled from the story. Unsure fields are highlighted. "Assumed" values are labelled. An ambiguous answer gets a question with options. The "What did the AI do?" panel explains the AI's role. |
-| 4 | Follow-up | Answers "What woke you up?" | Only one question, because there were awakenings |
-| 5 | Habits | Keeps "Late caffeine" (pre-selected *from your story*) | One tap is enough |
-| 5b | Habits | Checks **Took a sleep aid → Melatonin** (pre-selected from the story) and taps **Save** | Her own medicines appear as chips; **+ Something else** adds a new one |
-| 6 | Done | Reads the thank-you message | Streak goes up; no score |
-| 7 | Watch question | Answers why the watch shows more sleep | Appears only after the diary is saved, and only if the gap is 60 min or more |
+| 1 | Home | Taps the **microphone** (or **Type it**) | Sees the streak with flames for logged mornings and a dashed circle for a missed one. No score. |
+| 2 | Story | Says or types the night | Six hint tiles show what to cover. The mic works in Chrome; typing always works. |
+| 3 | Here's what I heard | Checks the diary answers and the face for sleep quality, optionally taps ✓, taps a line to change it, then **Next** | Answers are filled from the story. Unsure ones have a ✓ circle. An unclear answer is asked inline with options. "What did the AI do?" explains the AI's role. |
+| 4 | Anything else? | Checks that **Melatonin**, **Late caffeine** and the headache are already there, then **Save** | Everything here is optional and prefilled from the story. "+ Other" adds a medicine, a wake reason or a habit that isn't listed. |
+| 5 | Saved | Looks at the streak, the night timeline and the weekly chart, then taps **Edit** and comes back | Results are shown as pictures. Edit reopens the answers, and saving again replaces the entry. |
+| 6 | Watch question | Answers why the watch shows more sleep, if asked | Appears only after saving, and only if the gap is 60 min or more |
 
 **Variations to try:**
 - **Tap answers:** tap *Tap answers* on the home screen (or *Rather tap your answers* on the typing screen) and pick an option under each question.
 - **No AI:** with no gateway key, the review screen says the simple parser was used, and everything still works.
 - **Vague story:** "slept badly, woke up around 2" → the app asks whether that's *2:00 am* or *2 hours*.
+- **I don't know:** "I woke up twice, I don't remember for how long" → the app asks how long, and the answer can stay *Don't know*.
 
-**Success:** the night is saved with correct fields in about 60 seconds, and the tester could fix anything the AI got wrong.
+**Success:** the night is saved with correct answers in about a minute, and the tester could fix anything the AI got wrong.
 
 ## Scenario 2: Read the Sleep Snapshot (provider)
 
@@ -49,16 +48,16 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 **Task given to the tester:**
 > You're Maya's primary care provider, and you have one minute before her visit. Find out: has her insomnia improved, is there anything you should screen for, can you trust her watch data, and what does she want to talk about?
 
-**Where the answers are:**
+**Where the answers are** (default **Simple** layout):
 
 | Question | Where on the Snapshot | Expected answer with Maya's data |
 |---|---|---|
-| Has it improved? | Headline: ISI baseline vs now; metrics table first vs last 4 weeks | ISI went down but is still in the subthreshold or moderate band; time to fall asleep improved |
-| Anything to screen for? | Screening and red flags | PHQ-2 positive → *consider PHQ-9* |
-| Sleep medicines? | Sleep medicines section (layout B) or "Anything to act on?" (layout A) | Zopiclone: used more often than planned in 1 of 8 weeks, then stopped; melatonin about 2 nights a week; **Nytol is new** (self-started, not on her list) |
-| What seems linked to bad nights? | What seems linked (max 3 rows) | Studying late, stressful days and late caffeine, each with night counts and "linked, not proof" |
-| Can you trust the watch? | Watch vs diary | The watch shows about an hour more sleep on bad nights; Maya says she was lying awake still |
-| What does she want to discuss? | In their words | Her quote and "wants to discuss" text. If the tester did scenario 1 first, their own words appear here. |
+| Has it improved? | Verdict at the top, sleep diary table (first vs last 4 weeks) | "Sleep is getting better"; Insomnia Severity Index 20 → 14 (moderate → subthreshold) |
+| Anything to act on? | Needs attention | PHQ-2 positive → *consider PHQ-9*; zopiclone taken more often than planned in 1 of 8 weeks; **Nytol is new** (self-started) |
+| Sleep medicines? | Sleep medicines table | Zopiclone stopped; melatonin about 2 nights a week; Nytol new |
+| What seems linked to bad nights? | Worse nights tend to follow | Stressful days, studying late and late caffeine; most often woken by racing thoughts |
+| What does she want to discuss? | Patient wants to talk about | Her own words. If the tester did scenario 1 first, their note (e.g. the headache) appears here. |
+| Can you trust the watch? | Layouts **A**, **B** or **Original** (switch at the top) | The watch shows more sleep than the diary on bad nights; Maya says she was lying awake still |
 
 **Variation:** tap **Download PDF**. The Snapshot fits on one printed page.
 
@@ -74,6 +73,6 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 ## Before a demo
 
-- `npm run dev`, open http://localhost:3000, click **Try as Maya**, run both scenarios once.
+- `npm run dev`, open http://localhost:3000, click **Skip to Maya's morning**, run both scenarios once.
 - Check that the review screen says the AI was used (not the fallback). If it shows the fallback, check `JANUS_API_KEY` in `.env.local`.
 - Press **New tester** between visitors.

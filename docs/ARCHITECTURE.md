@@ -21,7 +21,7 @@ Node 22 is pinned in `.tool-versions`.
 ```
 src/
   app/                      Next.js pages and API routes (thin: no business logic)
-    page.tsx                Start screen: Try as Maya / Start as myself
+    page.tsx                Start screen: Try as Maya from sign-up / Skip to Maya's morning
     patient/                Home, check-in flow, My sleep, privacy page
     provider/               Patient list, Sleep Snapshot (/provider/snapshot/[id])
     api/                    extract, checkin, watch answer, tester actions
