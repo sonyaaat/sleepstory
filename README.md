@@ -6,10 +6,13 @@ Each morning, the patient spends about 60 seconds describing last night in their
 
 This is the technical (AI) solution of team SSLAAM's project for CS497 / HLTH480 (Fall 2026). The team's non-technical solution, the sleep habit cards, is not part of this repository.
 
+**Evaluating the prototype?** Start with [docs/GUIDE.md](docs/GUIDE.md): the problem, how to open it, the key tasks to try, and the need behind each feature.
+
 ## Project documents
 
 | Document | What's in it |
 |---|---|
+| [docs/GUIDE.md](docs/GUIDE.md) | Short guide for graders and testers: how to open the prototype, key tasks, features and the need behind each |
 | [docs/PRODUCT.md](docs/PRODUCT.md) | The problem, target users, persona, and the design principles behind every feature |
 | [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Every feature and requirement, with its ID, priority, status, and the research or feedback behind it |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What gets built in which phase, and what's done so far |
