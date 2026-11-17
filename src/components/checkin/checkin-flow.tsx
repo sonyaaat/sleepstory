@@ -1035,12 +1035,17 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
             <span className="font-semibold">Input:</span> only the words you said or typed about last night.
           </p>
           <p>
-            <span className="font-semibold">Output:</span> the 8 standard sleep diary answers (Consensus Sleep Diary),
-            plus habits you mentioned.
+            <span className="font-semibold">Output:</span> the standard sleep diary answers (Consensus Sleep Diary),
+            plus the habits, sleep medicine and anything worth telling your provider that you mentioned.
           </p>
           <p>
-            <span className="font-semibold">Limits:</span> it can misread things. Answers with a yellow dot, or marked
-            &ldquo;assumed&rdquo;, are ones it was unsure about. You have the last word on every answer.
+            <span className="font-semibold">Limits:</span> it can misread things. Answers with a ✓ circle, or marked
+            &ldquo;from your usual times&rdquo;, are ones it was unsure about. If something is unclear, it asks you
+            instead of guessing. You have the last word on every answer.
+          </p>
+          <p>
+            <span className="font-semibold">Fairness:</span> it was built and tested with English stories. Other
+            languages, strong accents in voice typing, or slang may be read less accurately, so please check each line.
           </p>
           <p>
             <span className="font-semibold">Never:</span> it doesn&apos;t calculate your sleep numbers, give a sleep
