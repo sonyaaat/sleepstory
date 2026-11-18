@@ -36,7 +36,7 @@ export function NightCalendar({
   size?: "sm" | "md";
 }) {
   const weeks = Array.from({ length: Math.ceil(days.length / 7) }, (_, i) => days.slice(i * 7, i * 7 + 7));
-  const cell = size === "sm" ? "h-5" : "h-7";
+  const cell = size === "sm" ? "h-5 print:h-4" : "h-7";
   const firstDow = (new Date(`${days[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;
   const heads = Array.from({ length: 7 }, (_, i) => WEEKDAYS[(firstDow + i) % 7]);
   return (
