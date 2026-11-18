@@ -52,12 +52,12 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 | Question | Where on the Snapshot | Expected answer with Maya's data |
 |---|---|---|
-| Has it improved? | Verdict at the top, sleep diary table (first vs last 4 weeks) | "Sleep is getting better"; Insomnia Severity Index 20 → 14 (moderate → subthreshold) |
+| Has it improved? | Verdict and Insomnia Severity Index scale at the top; sleep diary week by week (numbers and 8-week bars) | "Sleep is getting better"; Insomnia Severity Index 20 → 14 (moderate → subthreshold) |
 | Anything to act on? | Needs attention | PHQ-2 positive → *consider PHQ-9*; zopiclone taken more often than planned in 1 of 8 weeks; **Nytol is new** (self-started) |
 | Sleep medicines? | Sleep medicines table | Zopiclone stopped; melatonin about 2 nights a week; Nytol new |
 | What seems linked to bad nights? | Worse nights tend to follow | Stressful days, studying late and late caffeine; most often woken by racing thoughts |
 | What does she want to discuss? | Patient wants to talk about | Her own words. If the tester did scenario 1 first, their note (e.g. the headache) appears here. |
-| Can you trust the watch? | Layouts **A**, **B** or **Original** (switch at the top) | The watch shows more sleep than the diary on bad nights; Maya says she was lying awake still |
+| Can you trust the watch? | Watch vs diary | The watch shows about an hour more sleep than the diary; Maya says she was lying awake still |
 
 **Variation:** tap **Download PDF**. The Snapshot fits on one printed page.
 
