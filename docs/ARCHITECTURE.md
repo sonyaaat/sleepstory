@@ -48,6 +48,7 @@ src/
     session.ts              Demo sessions: create, reset, next morning, new tester, event log
 prisma/schema.prisma
 tests/                      Vitest tests, mirroring src/core and src/adapters/llm
+mobile-demo/                Phone demo: a static, browser-only build of the same screens (see its README)
 ```
 
 **Rule:** `src/core` never imports from `app`, `adapters` or `db`. Pages call core functions with data from `db`.

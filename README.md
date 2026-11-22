@@ -43,6 +43,17 @@ npm test          # unit tests for metrics, scoring and AI-output validation
 npm run lint
 ```
 
+## Phone demo
+
+A browser-only copy of the app that anyone can open on a phone (iPhone or Android) or a computer, from a link or a QR code: **https://melvinmo.github.io/sleepstory-demo/**
+
+Every page works with Maya's made-up data, which each phone keeps for itself. It is built from the same code and lives in [mobile-demo/](mobile-demo/); its README explains how it works and how to update it.
+
+```bash
+npm run demo:dev                                        # the phone demo at http://localhost:3001
+npm run demo:deploy -- --repo MelvinMo/sleepstory-demo  # rebuild it and publish it to the link above
+```
+
 ## Working on this project together
 
 - **Before starting a feature**, find its ID in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and set its status to *In progress*.

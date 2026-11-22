@@ -26,6 +26,7 @@ All data is made up. Use the demo persona **Maya**, a 21-year-old student with i
 | Option | How | What works |
 |---|---|---|
 | **Live app** (Demo Day) | At our table, or run it locally (below). Open the start page and click **Skip to Maya's morning**. | Everything: voice or text, AI, editing, the provider Snapshot |
+| **Phone demo** (QR code) | Scan the QR code, or open https://melvinmo.github.io/sleepstory-demo/ on a phone or a computer. Tap **Skip to Maya's morning**. | Every page: the check-in (type it, tap answers, or voice where the browser supports it), the Saved screen, onboarding, privacy and the provider Snapshot. The data stays on the phone. |
 | **Clickable prototype** (backup) | Open `SleepStory-prototype.html` (shared by the team) in any browser, on a phone or a computer. | The main patient path, from the home screen to the Saved screen. Only the main buttons are active. |
 | **Run locally** | Node.js 22, then `npm install`, `cp .env.example .env.local` (add the AI key), `npm run db:push`, `npm run dev`, and open http://localhost:3000 | Same as the live app. Without an AI key, a simple rule-based parser is used instead, and the app says so. |
 
@@ -82,3 +83,4 @@ Every requirement, with its status and source, is in [REQUIREMENTS.md](REQUIREME
 - **Watch data:** simulated.
 - **Provider side:** demo-only. In the real product, the provider would receive the Snapshot only after the patient approves.
 - **Data:** Maya's 8 weeks are made up.
+- **Phone demo:** the story is read by a simple rule-based reader in the browser instead of the self-hosted AI model, and the screens show its answers the same way. Nothing leaves the phone, and no session log is kept.
