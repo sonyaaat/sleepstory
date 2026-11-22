@@ -49,6 +49,7 @@ People will try the prototype themselves, so these exist to make that work. They
 | DEMO-10 | Provider list shows 2 more students with lighter data, for realism | P0 | Done | Team |
 | DEMO-11 | Session log *recording*: check-in duration, number of AI fields the tester corrected, AI mode used, Snapshot viewing time | P0 | Done | V0 (data sanity), Rubric (evidence for evaluation) |
 | DEMO-12 | Session log *page* for the team to read results after testing | P1 | Planned | Team |
+| DEMO-13 | **Phone demo:** a browser-only copy of the app at a public link (QR code), built from the same code, so anyone can open every page on their own phone. Each phone keeps its own copy of Maya's data; Reset and New tester work. The story is read by the rule-based reader in the browser and shown the same way as the AI's answers. No session log. | P1 | Done | Team (testers use their own phones) |
 
 ## 2. Morning check-in (CHK)
 

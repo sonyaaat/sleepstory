@@ -9,6 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "db:push": "dotenv -e .env.local -- prisma db push",
+    "demo:dev": "next dev mobile-demo --port 3001",
+    "demo:build": "next build mobile-demo",
+    "demo:deploy": "node mobile-demo/scripts/deploy.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
