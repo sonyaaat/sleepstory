@@ -27,7 +27,7 @@ export async function patientList(sessionId: string) {
   const rows = await prisma.patient.findMany({
     where: { sessionId },
     include: { _count: { select: { nights: true } } },
-    orderBy: { visitDate: "asc" },
+    orderBy: [{ isMain: "desc" }, { visitDate: "asc" }], // Maya first, then by visit date
   });
   return rows.map((r) => ({ ...patientFromRow(r), nightCount: r._count.nights }));
 }

@@ -53,6 +53,6 @@ export async function patientWithNights(sessionId: string, patientId: string) {
 
 export async function patientList(sessionId: string) {
   return [...patientsOf(sessionId)]
-    .sort((a, b) => a.visitDate.localeCompare(b.visitDate))
+    .sort((a, b) => Number(b.isMain) - Number(a.isMain) || a.visitDate.localeCompare(b.visitDate)) // Maya first
     .map((p) => ({ ...toView(p), nightCount: p.nights.length }));
 }
