@@ -56,7 +56,7 @@ export function OriginalView({ s }: { s: Snapshot }) {
       <footer className="border-t pt-3 text-xs text-muted-foreground">
         Method: patient-reported Consensus Sleep Diary entries, confirmed by the patient; values are medians. Watch data
         from a consumer device, which tends to overestimate sleep in insomnia. Associations are not causes. This summary
-        is not a diagnosis. Generated {formatDateLong(s.generatedOn)} by SleepStory (course prototype, made-up data).
+        is not a diagnosis. Generated {formatDateLong(s.generatedOn)} by SleepSnap (course prototype, made-up data).
       </footer>
     </div>
   );

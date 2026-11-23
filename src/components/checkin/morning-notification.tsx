@@ -32,7 +32,7 @@ export function MorningNotification({ firstName, time, streakDays }: { firstName
           </span>
           <span className="min-w-0">
             <span className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-              <span className="font-semibold tracking-wide uppercase">SleepStory</span>
+              <span className="font-semibold tracking-wide uppercase">SleepSnap</span>
               <span>{time}</span>
             </span>
             <span className="mt-0.5 block font-semibold">Good morning, {firstName}</span>

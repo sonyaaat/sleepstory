@@ -95,7 +95,7 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
         <SoftCard className="mt-8 space-y-2 text-[15px] leading-relaxed">
           <p className="font-semibold">For this demo</p>
           <p className="text-muted-foreground">
-            Maya has already been using SleepStory for 8 weeks, so you&apos;ll see her history. Your changes are saved to her
+            Maya has already been using SleepSnap for 8 weeks, so you&apos;ll see her history. Your changes are saved to her
             profile{changedScreens ? ` (you changed ${changedScreens} screen${changedScreens === 1 ? "" : "s"})` : ""}.
           </p>
         </SoftCard>
@@ -135,7 +135,7 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
       {step === 0 && (
         <>
           <MoonMark className="mt-8 size-12" />
-          <h1 className="mt-5 font-display text-[36px] leading-[1.1]">Welcome to SleepStory</h1>
+          <h1 className="mt-5 font-display text-[36px] leading-[1.1]">Welcome to SleepSnap</h1>
           <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">
             A one-minute morning check-in, and a one-page summary for your primary care provider before each visit.
           </p>

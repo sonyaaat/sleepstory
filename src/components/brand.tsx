@@ -1,4 +1,4 @@
-// Shared visual pieces for the SleepStory look (reference design in docs/design/inspiration).
+// Shared visual pieces for the SleepSnap look (reference design in docs/design/inspiration).
 
 import { Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-2", className)}>
       <MoonMark className="size-[22px]" />
-      <span className="font-display text-lg">SleepStory</span>
+      <span className="font-display text-lg">SleepSnap</span>
     </span>
   );
 }

@@ -121,8 +121,8 @@ export function SnapshotFooter({ s }: { s: Snapshot }) {
   return (
     <footer className="border-t pt-2 text-[11px] text-muted-foreground">
       Patient-reported sleep diary (Consensus Sleep Diary), confirmed by the patient · medians · consumer watches tend to
-      overestimate sleep in insomnia · linked ≠ caused · not a diagnosis · generated {formatDate(s.generatedOn)} (course
-      prototype, made-up data)
+      overestimate sleep in insomnia · linked ≠ caused · not a diagnosis · generated {formatDate(s.generatedOn)} by SleepSnap
+      (course prototype, made-up data)
     </footer>
   );
 }

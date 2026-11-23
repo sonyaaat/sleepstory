@@ -9,7 +9,7 @@ const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
 const russo = Russo_One({ variable: "--font-russo", subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "SleepStory",
+  title: "SleepSnap",
   description: "A 60-second morning sleep check-in and a one-page Sleep Snapshot for your primary care provider.",
 };
 

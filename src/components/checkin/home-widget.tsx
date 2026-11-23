@@ -12,7 +12,7 @@ export function HomeWidget({ streakDays, logged }: { streakDays: number; logged:
     <>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          <MoonMark className="size-4" /> SleepStory
+          <MoonMark className="size-4" /> SleepSnap
         </span>
         <span className="mt-2 block font-display text-xl leading-tight">{logged ? "Last night saved" : "How did you sleep?"}</span>
         <span className="mt-1.5 flex items-center gap-1 text-sm font-semibold">

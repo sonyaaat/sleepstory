@@ -358,7 +358,7 @@ export function SimpleView({ s }: { s: Snapshot }) {
 
       <footer className="border-t pt-2 text-[11px] text-muted-foreground">
         From the patient&apos;s own sleep diary (Consensus Sleep Diary), confirmed each morning · medians · linked does not
-        mean caused · not a diagnosis · generated {formatDate(s.generatedOn)} · course prototype, made-up data
+        mean caused · not a diagnosis · generated {formatDate(s.generatedOn)} by SleepSnap · course prototype, made-up data
       </footer>
     </div>
   );

@@ -53,7 +53,7 @@ const SECTIONS: Section[] = [
     product: [
       "The model will run on servers in Canada under a written agreement, and we will publish where it runs.",
       "We follow the principles for responsible generative AI set by Canada's federal, provincial and territorial privacy commissioners: be open about the AI's role, keep people in control, and keep only what's needed.",
-      "SleepStory is designed so that it doesn't diagnose or recommend treatment. Health Canada regulates software that does, as a medical device.",
+      "SleepSnap is designed so that it doesn't diagnose or recommend treatment. Health Canada regulates software that does, as a medical device.",
     ],
   },
   {
@@ -65,7 +65,7 @@ const SECTIONS: Section[] = [
       "We never store audio. Only the text you see in the box is saved.",
     ],
     product: [
-      "Speech recognition will run on our own server (an open-source model), so your voice stays within SleepStory.",
+      "Speech recognition will run on our own server (an open-source model), so your voice stays within SleepSnap.",
     ],
   },
   {
@@ -78,7 +78,7 @@ const SECTIONS: Section[] = [
     product: [
       "Only you, until you approve sharing before a visit. Then only the primary care provider you chose sees your one-page Snapshot.",
       "Your provider is a health information custodian under Ontario's PHIPA and must protect your information under that law.",
-      "SleepStory staff can't browse your entries. Technical access is limited to what is needed to run the service, and every access is logged.",
+      "SleepSnap staff can't browse your entries. Technical access is limited to what is needed to run the service, and every access is logged.",
       "We never sell your information, use it for advertising, or share it with your school, employer or insurer.",
       "Research use happens only with your separate, optional consent, and you can say no without losing anything.",
     ],
@@ -95,7 +95,7 @@ const SECTIONS: Section[] = [
       "Hosting in Canada.",
       "An electronic audit log of every access to your information, as PHIPA requires of health information custodians.",
       "Snapshots sent by secure, expiring links, never as health details inside an email. This follows the Ontario privacy commissioner's guidance on emailing health information.",
-      "A written agreement with each clinic that sets out how SleepStory handles information on the clinic's behalf.",
+      "A written agreement with each clinic that sets out how SleepSnap handles information on the clinic's behalf.",
       "A named privacy officer who is accountable for following this policy.",
     ],
   },
@@ -109,9 +109,9 @@ const SECTIONS: Section[] = [
     product: [
       "Access: ask for a copy of everything we hold about you.",
       "Correction: ask us to fix anything that's wrong.",
-      "Withdraw consent: stop sharing or stop using SleepStory at any time. Information already shared with your provider stays in their records, as with any health record.",
+      "Withdraw consent: stop sharing or stop using SleepSnap at any time. Information already shared with your provider stays in their records, as with any health record.",
       "Delete: delete your account and data from the app.",
-      "Complain: contact our privacy officer first. You can also complain to the Information and Privacy Commissioner of Ontario (about health information held by your provider) or the Office of the Privacy Commissioner of Canada (about how SleepStory as a company handles your information).",
+      "Complain: contact our privacy officer first. You can also complain to the Information and Privacy Commissioner of Ontario (about health information held by your provider) or the Office of the Privacy Commissioner of Canada (about how SleepSnap as a company handles your information).",
     ],
   },
   {
@@ -215,7 +215,7 @@ export default function PrivacyPage() {
         <FlaskConical />
         <AlertTitle>This is a course prototype</AlertTitle>
         <AlertDescription>
-          SleepStory is a student project (CS497 / HLTH480, University of Waterloo), not a medical device and not a
+          SleepSnap is a student project (CS497 / HLTH480, University of Waterloo), not a medical device and not a
           live service. Each section below says what this prototype does <strong>today</strong> and what the real
           product will do. Please don&apos;t enter real health information.
         </AlertDescription>
@@ -250,11 +250,11 @@ export default function PrivacyPage() {
           <AccordionContent className="space-y-2 text-sm">
             <p>
               <strong>PHIPA</strong> (Ontario) protects personal health information held by health care providers such
-              as your primary care provider. When SleepStory works on a clinic&apos;s behalf, it must follow the
+              as your primary care provider. When SleepSnap works on a clinic&apos;s behalf, it must follow the
               clinic&apos;s duties under PHIPA through a written agreement.
             </p>
             <p>
-              <strong>PIPEDA</strong> (Canada) applies to how SleepStory, as a company, handles your personal
+              <strong>PIPEDA</strong> (Canada) applies to how SleepSnap, as a company, handles your personal
               information. It is built on ten fair information principles, including consent, limiting collection,
               safeguards, openness and your right to access your information.
             </p>
