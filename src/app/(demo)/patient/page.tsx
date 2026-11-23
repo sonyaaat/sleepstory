@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarDays, Keyboard, ListChecks, Lock, Mic, Pencil, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
+import { HomeWidget } from "@/components/checkin/home-widget";
 import { MorningNotification } from "@/components/checkin/morning-notification";
 import { dayStreak, weekMornings } from "@/core/checkin";
 import { addDays, daysBetween, formatClock12, formatDateLong } from "@/core/time";
@@ -104,6 +105,7 @@ export default async function PatientHome() {
             </div>
           </SoftCard>
         )}
+        <HomeWidget streakDays={streak.days} logged={logged} />
         <Button asChild variant="link" className="w-full text-muted-foreground">
           <Link href="/patient/privacy">
             <Lock /> Privacy &amp; your data

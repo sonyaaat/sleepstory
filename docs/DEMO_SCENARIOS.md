@@ -30,7 +30,7 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 | 2 | Story | Says or types the night | Six hint tiles show what to cover. The mic works in Chrome; typing always works. |
 | 3 | Here's what I heard | Checks the diary answers and the face for sleep quality, optionally taps ✓, taps a line to change it, then **Next** | Answers are filled from the story. Unsure ones have a ✓ circle. An unclear answer is asked inline with options. "What did the AI do?" explains the AI's role. |
 | 4 | Anything else? | Checks that **Melatonin**, **Late caffeine** and the headache are already there, then **Save** | Everything here is optional and prefilled from the story. "+ Other" adds a medicine, a wake reason or a habit that isn't listed. |
-| 5 | Saved | Looks at the streak, the night timeline and the weekly chart, then taps **Edit** and comes back | Results are shown as pictures. Edit reopens the answers, and saving again replaces the entry. |
+| 5 | Saved | Looks at the streak and badges, the night timeline and the weekly chart, then taps **Edit** and comes back | Results are shown as pictures. Edit reopens the answers, and saving again replaces the entry. |
 | 6 | Watch question | Answers why the watch shows more sleep, if asked | Appears only after saving, and only if the gap is 60 min or more |
 
 **Variations to try:**
