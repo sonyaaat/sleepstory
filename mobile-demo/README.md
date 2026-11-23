@@ -2,7 +2,7 @@
 
 A copy of SleepStory that runs entirely in the browser, so anyone can open every page on their own phone from a link or a QR code. It is built from the app's own code in `../src`, and nothing there is changed for it (DEMO-13, decision #32).
 
-**Live:** https://melvinmo.github.io/sleepstory-demo/
+**Live:** https://sonyaaat.github.io/sleepstory/
 
 ## How it works
 
@@ -20,11 +20,11 @@ A copy of SleepStory that runs entirely in the browser, so anyone can open every
 ```bash
 npm run demo:dev                                    # http://localhost:3001
 npm run demo:build                                  # static site in mobile-demo/out
-npm run demo:deploy -- --repo <owner>/<repo>        # build and publish to that repo's gh-pages branch
+npm run demo:deploy                                 # build and publish to the live link
 ```
 
-The live link is the `gh-pages` branch of `MelvinMo/sleepstory-demo`. The deploy script builds with the repo name as the base path and adds a commit on top of `gh-pages` (never a force push). If GitHub Pages is turned on for the team repo (Settings → Pages → Deploy from a branch → `gh-pages`, done by the repo owner), `npm run demo:deploy` publishes to https://sonyaaat.github.io/sleepstory/ instead.
+The live link is GitHub Pages on this repo, served from the `gh-pages` branch (Settings → Pages → Deploy from a branch → `gh-pages`). The deploy script builds with the repo name as the base path and adds a commit on top of `gh-pages` (never a force push). `npm run demo:deploy -- --repo <owner>/<repo>` publishes to another repo's `gh-pages` instead.
 
 ## When the app changes
 
-Run `npm run demo:deploy -- --repo MelvinMo/sleepstory-demo` again. Changes to pages and components come through on their own. If `src/app/actions.ts`, `src/db/queries.ts` or `src/db/session.ts` change, make the same change in `lib/`.
+Run `npm run demo:deploy` again. Changes to pages and components come through on their own. If `src/app/actions.ts`, `src/db/queries.ts` or `src/db/session.ts` change, make the same change in `lib/`.
