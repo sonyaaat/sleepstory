@@ -134,16 +134,16 @@ The layout follows the team's Sleep Snapshot wireframe (notebook, figure 10).
 |---|---|---|---|---|
 | PRV-01 | **Patient list:** 3 students with visit date and share status | P0 | Done | Team |
 | PRV-02 | **Header:** name, age, period covered, data completeness ("49 of 56 nights logged, 4 late"), watch source | P0 | Done | CA |
-| PRV-03 | **Headline:** ISI at baseline vs now with severity band, the biggest change, number of red flags | P0 | Done | CA, Edith (one-page summary) |
-| PRV-04 | **Metrics table:** first 4 weeks vs last 4 weeks (medians) for time to fall asleep, awake during the night, total sleep, time in bed, sleep efficiency, awakenings, poor nights per week (efficiency under 85%) | P0 | Done | CA (Somryst precedent, Ontario guideline) |
-| PRV-05 | **Chart:** nightly sleep efficiency, a 7-night average line, and markers on sleep-aid nights | P0 | Done | CA, Notebook (wireframe) |
-| PRV-06 | **Sleep aids:** nights per week by type, compared across periods | P0 | Done | CA |
-| PRV-07 | **Screening and red flags**, each with a suggested next step ("Consider PHQ-9") | P0 | Done | CA |
+| PRV-03 | **Headline:** overall verdict (how many diary measures improved, weeks 1–4 vs 5–8) and the Insomnia Severity Index at baseline vs now on its 0–28 scale with the severity bands | P0 | Done | CA, Edith (one-page summary) |
+| PRV-04 | **Typical night and week by week:** a bed-to-up timeline of a typical night (asleep vs awake in bed) for weeks 1–4 and 5–8; then time to fall asleep, awake during the night, total sleep and sleep efficiency (medians), weeks 1–4 → 5–8 with better/worse, each with 8 weekly bars and its goal line | P0 | Done | CA, Notebook (wireframe) |
+| PRV-05 | ~~**Chart:** nightly sleep efficiency, a 7-night average line, and markers on sleep-aid nights~~ Replaced by the weekly bars and the typical-night timeline (PRV-04), which are easier to read in two minutes. | P0 | Removed | Team (Sofiia) |
+| PRV-06 | **Sleep medicines:** each medicine, who started it and the plan, with nights a week in weeks 1–4 vs 5–8 shown as dots | P0 | Done | CA |
+| PRV-07 | **Screening and red flags**, each with a suggested next step ("Consider PHQ-9"), plus medicine issues (new, or above plan); the screening questions that came back clear are listed in one line | P0 | Done | CA |
 | PRV-08 | **What seems linked to bad nights:** at most 3 rows, each with the number of nights and the caveat | P0 | Done | CA, Edith |
 | PRV-09 | **Watch vs diary:** median watch total vs diary total, how many nights were mismatched, and the patient's explanations | P0 | Done | Edith, Lit |
 | PRV-10 | **In their words:** 1–2 verbatim quotes (the newest first, so a tester sees their own) and "wants to discuss" | P0 | Done | CA, Notebook |
 | PRV-11 | **Footer:** method (patient-reported diary, consumer watch data), "not a diagnosis", date generated | P0 | Done | CA (safety) |
-| PRV-12 | **Download PDF:** a print layout that fits one page | P0 | In progress | Notebook (one-page snapshot) |
+| PRV-12 | **Download PDF:** a print layout that fits one page | P0 | Done | Notebook (one-page snapshot) |
 | PRV-13 | "How was this calculated?" explanation on each number | P1 | Planned | Rubric (AI role clear), Larry (trust) |
 | PRV-14 | **Provider modules:** turn on ready-made extras per patient (anxiety screen GAD-2, sleep-aid taper, CBT-I sleep window). Shown as a "coming soon" toggle in P2, built later. | P2 / Later | Planned | Brenda (adjust by patient group), CA |
 | PRV-15 | Send the Snapshot by email as a secure, expiring link (no health data in the email itself) | Later | Planned | CA (Ontario IPC email guidance) |

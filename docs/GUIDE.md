@@ -71,7 +71,7 @@ The top bar is a demo tool, not part of the product. Use **Reset** to restore Ma
 | **For your provider** notes, prefilled from the story | Symptoms like a headache were easy to miss | User testing |
 | Forgiving streak (one missed morning a week is okay) and a home-screen widget | Testers said they would forget and that logging every day felt long; streaks motivate without punishing | User testing; research on sleep-tracking anxiety (no sleep score) |
 | Saved screen with a night timeline, a weekly chart and streak badges | Testers wanted to see progress and something motivating, without reading | User testing |
-| One-page **Sleep Snapshot**: verdict, what needs attention, diary table, one chart, medicines, the patient's own words | Providers have about a minute before the visit | Community partner feedback, provider time studies |
+| One-page **Sleep Snapshot**: verdict, what needs attention, a typical night, week-by-week bars, medicines, the patient's own words, what bad nights follow, watch vs diary | Providers have about two minutes before the visit | Community partner feedback, provider time studies |
 | Watch is compared only after the diary is saved | Watches overestimate sleep in insomnia; the gap itself is useful | Literature, expert interview |
 | Patient approves every share | Privacy and trust | Community partner feedback |
 

@@ -45,22 +45,22 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 **Setup:** tester bar → **Provider** → patient list → Maya.
 
 **Task given to the tester:**
-> You're Maya's primary care provider, and you have one minute before her visit. Find out: has her insomnia improved, is there anything you should screen for, can you trust her watch data, and what does she want to talk about?
+> You're Maya's primary care provider, and you have two minutes before her visit. Find out: has her insomnia improved, is there anything you should screen for, can you trust her watch data, and what does she want to talk about?
 
-**Where the answers are** (default **Simple** layout):
+**Where the answers are:**
 
 | Question | Where on the Snapshot | Expected answer with Maya's data |
 |---|---|---|
-| Has it improved? | Verdict and Insomnia Severity Index scale at the top; sleep diary week by week (numbers and 8-week bars) | "Sleep is getting better"; Insomnia Severity Index 20 → 14 (moderate → subthreshold) |
-| Anything to act on? | Needs attention | PHQ-2 positive → *consider PHQ-9*; zopiclone taken more often than planned in 1 of 8 weeks; **Nytol is new** (self-started) |
-| Sleep medicines? | Sleep medicines table | Zopiclone stopped; melatonin about 2 nights a week; Nytol new |
+| Has it improved? | Verdict and Insomnia Severity Index scale at the top; **A typical night** (timeline, weeks 1–4 vs 5–8); **Week by week** (numbers and 8 weekly bars with the goal line) | "Sleep is getting better"; Insomnia Severity Index 20 → 14 (moderate → subthreshold) |
+| Anything to act on? | Needs attention | PHQ-2 positive → *consider PHQ-9*; zopiclone taken more often than planned in 1 of 8 weeks; **Nytol is new** (self-started); the other screening questions are clear |
+| Sleep medicines? | Sleep medicines (dots for nights a week) | Zopiclone stopped; melatonin about 2 nights a week; Nytol new |
 | What seems linked to bad nights? | Worse nights tend to follow | Stressful days, studying late and late caffeine; most often woken by racing thoughts |
 | What does she want to discuss? | Patient wants to talk about | Her own words. If the tester did scenario 1 first, their note (e.g. the headache) appears here. |
 | Can you trust the watch? | Watch vs diary | The watch shows about an hour more sleep than the diary; Maya says she was lying awake still |
 
 **Variation:** tap **Download PDF**. The Snapshot fits on one printed page.
 
-**Success:** the tester answers all four questions in under a minute without scrolling back and forth.
+**Success:** the tester answers all four questions in under two minutes without scrolling back and forth.
 
 ## Questions to ask testers at the end
 

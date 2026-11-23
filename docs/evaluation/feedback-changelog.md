@@ -26,4 +26,4 @@ Fill in after Demo Day. One row per comment.
 | 8 | Would forget to log every morning, and doing it every day felt long | Testers | Added a home-screen widget that starts the check-in with one tap (a mock-up in the prototype) and a forgiving streak. A mock reminder pop-up was tried and removed because it covered the home screen |
 | 9 | Wanted to see progress and something motivating after saving | Testers | The Saved screen shows the streak with small rewards (badges), a timeline of last night and a weekly chart with the trend, with little text |
 | 10 | Wanted a way to answer without talking or typing | Team review | **Tap answers** opens the same pages with options to tap |
-| 11 | The provider Snapshot was too complicated to read | Team review | Added a **Simple** layout as the default: one verdict, what needs attention, one table, one chart |
+| 11 | The provider Snapshot was too complicated to read | Team review | One Snapshot instead of five layouts: a verdict, what needs attention, a typical-night timeline, week-by-week bars, medicines, the patient's words, what bad nights follow and watch vs diary. It prints on one page |
