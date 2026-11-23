@@ -3,9 +3,8 @@ import { CalendarDays, Keyboard, ListChecks, Lock, Mic, Pencil, Send } from "luc
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
 import { HomeWidget } from "@/components/checkin/home-widget";
-import { MorningNotification } from "@/components/checkin/morning-notification";
 import { dayStreak, weekMornings } from "@/core/checkin";
-import { addDays, daysBetween, formatClock12, formatDateLong } from "@/core/time";
+import { addDays, daysBetween, formatDateLong } from "@/core/time";
 import { mainPatient, requireSession } from "@/db/queries";
 
 export default async function PatientHome() {
@@ -24,13 +23,6 @@ export default async function PatientHome() {
 
   return (
     <PatientShell>
-      {!logged && (
-        <MorningNotification
-          firstName={firstName}
-          time={formatClock12(patient.usualDay?.reminderTime ?? "07:30")}
-          streakDays={streak.days}
-        />
-      )}
       <Logo />
 
       {!logged ? (

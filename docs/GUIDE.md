@@ -69,7 +69,7 @@ The top bar is a demo tool, not part of the product. Use **Reset** to restore Ma
 | Two short pages instead of four | Fewer steps, less to read | User testing (3 sessions) |
 | **Medication** section | Testers couldn't find where to record melatonin | User testing |
 | **For your provider** notes, prefilled from the story | Symptoms like a headache were easy to miss | User testing |
-| Forgiving streak (one missed morning a week is okay), a morning reminder and a home-screen widget | Testers said they would forget and that logging every day felt long; streaks motivate without punishing | User testing; research on sleep-tracking anxiety (no sleep score) |
+| Forgiving streak (one missed morning a week is okay) and a home-screen widget | Testers said they would forget and that logging every day felt long; streaks motivate without punishing | User testing; research on sleep-tracking anxiety (no sleep score) |
 | Saved screen with a night timeline, a weekly chart and streak badges | Testers wanted to see progress and something motivating, without reading | User testing |
 | One-page **Sleep Snapshot**: verdict, what needs attention, diary table, one chart, medicines, the patient's own words | Providers have about a minute before the visit | Community partner feedback, provider time studies |
 | Watch is compared only after the diary is saved | Watches overestimate sleep in insomnia; the gap itself is useful | Literature, expert interview |
@@ -79,7 +79,7 @@ Every requirement, with its status and source, is in [REQUIREMENTS.md](REQUIREME
 
 ## What is simulated
 
-- **Morning reminder and home-screen widget:** mock-ups on the home screen. A real widget needs an installed app.
+- **Home-screen widget:** a mock-up on the home screen. A real widget needs an installed app.
 - **Watch data:** simulated.
 - **Provider side:** demo-only. In the real product, the provider would receive the Snapshot only after the patient approves.
 - **Data:** Maya's 8 weeks are made up.

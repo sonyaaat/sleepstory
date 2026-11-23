@@ -23,7 +23,7 @@ Fill in after Demo Day. One row per comment.
 | 5 | Re-entering what was already said in the voice note felt pointless | Testers | Answers are prefilled from the story; unsure ones can be confirmed with one tap |
 | 6 | "Was yesterday different from usual?" and "Got out of bed" were confusing | Testers | Removed both; habits are one optional row of chips with "+ Other" |
 | 7 | No way to check or fix an entry after saving | Testers | The Saved screen shows the entry with **Edit** |
-| 8 | Would forget to log every morning, and doing it every day felt long | Testers | Added a morning reminder and a home-screen widget that starts the check-in with one tap (both mock-ups in the prototype), and a forgiving streak |
+| 8 | Would forget to log every morning, and doing it every day felt long | Testers | Added a home-screen widget that starts the check-in with one tap (a mock-up in the prototype) and a forgiving streak. A mock reminder pop-up was tried and removed because it covered the home screen |
 | 9 | Wanted to see progress and something motivating after saving | Testers | The Saved screen shows the streak with small rewards (badges), a timeline of last night and a weekly chart with the trend, with little text |
 | 10 | Wanted a way to answer without talking or typing | Team review | **Tap answers** opens the same pages with options to tap |
 | 11 | The provider Snapshot was too complicated to read | Team review | Added a **Simple** layout as the default: one verdict, what needs attention, one table, one chart |

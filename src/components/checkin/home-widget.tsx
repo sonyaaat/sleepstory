@@ -1,6 +1,6 @@
 // A mock home-screen widget for the demo (CHK-18). In a real app the widget sits on the phone's home
 // screen, so the morning check-in starts with one tap. A web prototype can't add one, so the home page
-// shows what it looks like, like the mock morning reminder.
+// shows what it looks like.
 
 import Link from "next/link";
 import { Check, Flame, Mic } from "lucide-react";
