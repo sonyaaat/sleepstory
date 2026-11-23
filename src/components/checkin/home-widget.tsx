@@ -39,7 +39,6 @@ export function HomeWidget({ streakDays, logged }: { streakDays: number; logged:
           {body}
         </Link>
       )}
-      <figcaption className="mt-1.5 text-center text-[11px] text-muted-foreground">Demo of the home-screen widget</figcaption>
     </figure>
   );
 }
