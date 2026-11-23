@@ -5,7 +5,6 @@
 
 import { AlertTriangle, ArrowDown, ArrowUp, CheckCircle2, MessageCircle, Minus, Moon, Pill, Watch } from "lucide-react";
 import { cn } from "cn";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PeriodStats } from "@/core/metrics";
 import { ISI_BAND_LABELS, type IsiBand } from "@/core/questionnaires";
@@ -415,49 +414,52 @@ function WeekByWeek({ s }: { s: Snapshot }) {
 
 // ---- 5. Medicines and the patient's own words ----
 
-/** Nights a week as seven dots, so "2 → 0" reads at a glance. */
-function NightDots({ n, label }: { n: number | null; label: string }) {
-  return (
-    <span className="flex items-center gap-1.5" aria-label={`${label}: ${n ?? "no data"} nights a week`}>
-      <span className="flex gap-0.5">
-        {Array.from({ length: 7 }, (_, i) => (
-          <span key={i} className={cn("size-2 rounded-full", n != null && i < n ? "bg-chart-1" : "bg-muted ring-1 ring-border")} />
-        ))}
-      </span>
-      <span className="w-3 text-right font-semibold text-foreground tabular-nums">{n ?? "–"}</span>
-    </span>
-  );
+const nightsText = (n: number | null) => (n == null ? "–" : n === 0 ? "none" : `${n} night${n === 1 ? "" : "s"}`);
+
+/** What changed between the two periods, in one word. Neutral on purpose: more melatonin isn't "worse". */
+function medChange(isNew: boolean, before: number | null, now: number | null) {
+  if (isNew) return { text: "new", icon: null, tone: "font-semibold text-warn-foreground" };
+  if (before == null || now == null || before === now) return { text: "same", icon: Minus, tone: "text-muted-foreground" };
+  if (now === 0) return { text: "stopped", icon: ArrowDown, tone: "text-foreground" };
+  return now > before
+    ? { text: "more often", icon: ArrowUp, tone: "text-foreground" }
+    : { text: "less often", icon: ArrowDown, tone: "text-foreground" };
 }
 
 function Medicines({ s }: { s: Snapshot }) {
   if (s.medications.length === 0) return null;
+  const cols = "grid grid-cols-[minmax(0,1fr)_4.25rem_4.25rem_5.25rem] items-baseline gap-x-2";
   return (
     <Section title="Sleep medicines" icon={Pill} aside="nights a week">
-      <ul className="space-y-3 print:space-y-1.5">
-        {s.medications.map((m) => (
-          <li key={m.name} className="space-y-1">
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <span className="font-medium">{m.name}</span>
-              {m.isNew && (
-                <Badge variant="outline" className="border-warn-foreground/40 text-warn-foreground">
-                  New
-                </Badge>
-              )}
-              <span className="text-xs text-muted-foreground">
-                {m.startedBy === "provider" ? "prescribed" : "self-started"}
-                {m.planText && `, ${m.planText}`}
+      <div className={cn(cols, "border-b pb-1.5 text-[11px] text-muted-foreground")}>
+        <span />
+        <span>Weeks 1–4</span>
+        <span>Weeks 5–8</span>
+        <span>Change</span>
+      </div>
+      <ul className="divide-y divide-border">
+        {s.medications.map((m) => {
+          const before = nightsPerWeek(m.firstPerWeek);
+          const now = nightsPerWeek(m.secondPerWeek);
+          const c = medChange(m.isNew, before, now);
+          return (
+            <li key={m.name} className={cn(cols, "py-2 text-sm print:py-1")}>
+              <span className="leading-tight">
+                <span className="font-medium">{m.name}</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  {m.startedBy === "provider" ? "prescribed" : "self-started"}
+                  {m.planText && `, ${m.planText}`}
+                </span>
               </span>
-            </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-2">
-                weeks 1–4 <NightDots n={nightsPerWeek(m.firstPerWeek)} label="Weeks 1–4" />
+              <span className="text-muted-foreground tabular-nums">{nightsText(before)}</span>
+              <span className="font-semibold tabular-nums">{nightsText(now)}</span>
+              <span className={cn("inline-flex items-center gap-1 text-xs", c.tone)}>
+                {c.icon && <c.icon className="size-3.5" />}
+                {c.text}
               </span>
-              <span className="flex items-center gap-2">
-                weeks 5–8 <NightDots n={nightsPerWeek(m.secondPerWeek)} label="Weeks 5–8" />
-              </span>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </Section>
   );
@@ -525,7 +527,6 @@ function WorseNights({ s }: { s: Snapshot }) {
           </span>
         </p>
       )}
-      <p className="mt-2 text-xs text-muted-foreground">Linked, not proof of cause.</p>
     </Section>
   );
 }
@@ -541,7 +542,7 @@ function WatchVsDiary({ s }: { s: Snapshot }) {
     { label: "Watch", v: watch, tone: "bg-muted-foreground/45" },
   ];
   return (
-    <Section title="Watch vs diary" icon={Watch} aside={`total sleep, ${w.nightsWithWatch} nights with both`}>
+    <Section title="Watch vs diary" icon={Watch} aside="total sleep, typical night">
       <ul className="space-y-1.5">
         {bars.map((b) => (
           <li key={b.label} className="grid grid-cols-[3rem_minmax(0,1fr)_3.75rem] items-center gap-3 text-sm">
@@ -553,20 +554,11 @@ function WatchVsDiary({ s }: { s: Snapshot }) {
           </li>
         ))}
       </ul>
-      <ul className="mt-3 space-y-1 text-sm print:mt-1.5">
-        <li>
-          The watch shows <span className="font-semibold tabular-nums">{fmtMin(Math.abs(w.diffMed))}</span>{" "}
-          {w.diffMed >= 0 ? "more" : "less"} sleep on a typical night; {w.mismatched} of {w.nightsWithWatch} nights differ by 1 h or more.
-        </li>
-        {w.answers.lying_awake > 0 && (
-          <li className="text-muted-foreground">
-            Patient: &ldquo;lying awake but still&rdquo; on {w.answers.lying_awake} of those nights.
-          </li>
-        )}
-      </ul>
-      <p className="mt-2 text-xs text-muted-foreground">
-        Consumer watches tend to overestimate sleep in insomnia. Everything else on this page uses the diary.
-      </p>
+      {w.answers.lying_awake > 0 && (
+        <p className="mt-3 text-sm print:mt-1.5">
+          Patient: &ldquo;lying awake but still&rdquo; <span className="text-muted-foreground">({w.answers.lying_awake} nights)</span>
+        </p>
+      )}
     </Section>
   );
 }
@@ -607,7 +599,7 @@ export function SleepSnapshot({ s }: { s: Snapshot }) {
 
       <footer className="border-t pt-2 text-[11px] text-muted-foreground">
         From the patient&apos;s own sleep diary (Consensus Sleep Diary), confirmed each morning · typical = median · linked
-        does not mean caused · not a diagnosis · generated {formatDate(s.generatedOn)} by SleepSnap · course prototype,
+        does not mean caused · consumer watches tend to overestimate sleep in insomnia · not a diagnosis · generated {formatDate(s.generatedOn)} by SleepSnap · course prototype,
         made-up data
       </footer>
     </div>
