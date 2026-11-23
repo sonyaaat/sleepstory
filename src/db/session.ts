@@ -3,7 +3,7 @@
 
 import "server-only";
 import { cookies } from "next/headers";
-import { addDays, todayISO } from "@/core/time";
+import { todayISO } from "@/core/time";
 import { prisma } from "./client";
 import { extraPatients, mayaPatient, type DemoPatient } from "./demo-data";
 import { nightToRow, patientToRow } from "./mappers";
@@ -58,13 +58,6 @@ export async function resetSession(sessionId: string) {
   await prisma.session.update({ where: { id: sessionId }, data: { today } });
   await seed(sessionId, session.kind as SessionKind, today);
   await logEvent(sessionId, "session_reset");
-}
-
-/** Moves the simulated date forward one day (DEMO-05). */
-export async function nextMorning(sessionId: string) {
-  const session = await prisma.session.findUniqueOrThrow({ where: { id: sessionId } });
-  await prisma.session.update({ where: { id: sessionId }, data: { today: addDays(session.today, 1) } });
-  await logEvent(sessionId, "next_morning", { today: addDays(session.today, 1) });
 }
 
 /** Forgets the session cookie so the next visitor starts fresh (DEMO-07). */

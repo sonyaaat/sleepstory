@@ -8,7 +8,6 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 2. Either button gives the tester their own copy of Maya's 8 weeks of made-up data. Other testers never see it.
 3. A **tester bar** sits at the top of every screen. It's a demo tool, not part of the product:
    - **Patient ↔ Provider**: switch sides to see your own entry appear on the Snapshot.
-   - **Next morning →**: move the demo date forward one day, so you can log another night.
    - **Reset**: restore Maya's original data.
    - **New tester**: start a fresh session (for the next person at a Demo Day table).
 4. The app quietly records a session log: how long the check-in took, how many AI fields the tester corrected, whether the AI or the fallback was used, and how long the Snapshot was open. The team uses it as evaluation evidence (DEMO-11).

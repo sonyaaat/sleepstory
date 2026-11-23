@@ -59,7 +59,7 @@ All data belongs to a demo **Session** (one per tester, identified by a cookie).
 
 | Model | Key fields |
 |---|---|
-| **Session** | `id`, `kind` (`maya` or `self`), `today` (the simulated date, moved by *Next morning*) |
+| **Session** | `id`, `kind` (`maya` or `self`), `today` (the simulated date) |
 | **Patient** | `sessionId`, `name`, `age`, `providerName`, `visitDate`, `consentAt`, `usualDay` (JSON), `isiBaseline` / `isiPrevisit` (JSON answers), `screening` (JSON), `discuss`, `sharedAt`, `watchConnected` |
 | **Night** | `patientId`, `date` (the evening the night started), `mode` (`full` or `rough`), the 8 diary fields, `habits` (JSON), `sleepAid`, `wokeReason`, `note`, `quote`, `lateEntry`, `watchTstMin`, `watchAnswer`, `aiFieldsCorrected`, `source` (`ai`, `fallback`, `manual`, `seed`) |
 | **Event** | `sessionId`, `type`, `data` (JSON), `at`: the session log (DEMO-11) |

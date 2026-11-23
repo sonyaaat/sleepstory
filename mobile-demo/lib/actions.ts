@@ -12,7 +12,7 @@ import { addDays, formatClock, parseClock } from "@/core/time";
 import type { UsualDay } from "@/db/demo-data";
 import { navigate } from "./navigation";
 import { mainPatient, requireSession } from "./queries";
-import { createSession, currentSession, endSession, logEvent, nextMorning, resetSession } from "./session";
+import { createSession, currentSession, endSession, logEvent, resetSession } from "./session";
 import { getState, setState, type StoredPatient } from "./store";
 
 function updatePatient(id: string, change: (p: StoredPatient) => StoredPatient) {
@@ -65,11 +65,6 @@ export async function saveOnboarding(input: OnboardingInput): Promise<{ ok: true
   }));
   await logEvent(s.id, "onboarding_done", { durationMs: d.durationMs, screensChanged: d.changed });
   return { ok: true };
-}
-
-export async function testerNextMorning() {
-  const s = await requireSession();
-  await nextMorning(s.id);
 }
 
 export async function testerReset() {

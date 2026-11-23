@@ -1,7 +1,7 @@
 // Browser version of src/db/session.ts: the same functions, backed by the phone's storage instead of a
 // database and a cookie. Keep it in step with the real file.
 
-import { addDays, todayISO } from "@/core/time";
+import { todayISO } from "@/core/time";
 import { seedPatients } from "./seed";
 import { getState, setState, type StoredPatient, type StoredSession } from "./store";
 
@@ -45,15 +45,6 @@ export async function resetSession(sessionId: string) {
   const today = todayISO();
   setState({ v: 1, session: { ...s, today }, patients: seed(s.kind, today) });
   await logEvent(sessionId, "session_reset");
-}
-
-/** Moves the simulated date forward one day (DEMO-05). */
-export async function nextMorning(sessionId: string) {
-  const state = getState();
-  if (state.session?.id !== sessionId) return;
-  const today = addDays(state.session.today, 1);
-  setState({ ...state, session: { ...state.session, today } });
-  await logEvent(sessionId, "next_morning", { today });
 }
 
 /** Forgets this phone's session so the next visitor starts fresh (DEMO-07). */

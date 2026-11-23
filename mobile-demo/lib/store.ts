@@ -9,7 +9,7 @@ import type { UsualDay } from "@/db/demo-data";
 export interface StoredSession {
   id: string;
   kind: "maya" | "self";
-  /** Simulated date YYYY-MM-DD, moved by "Next morning". */
+  /** Simulated date YYYY-MM-DD. */
   today: string;
   createdAt: string;
 }

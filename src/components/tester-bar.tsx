@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ClipboardList, FlaskConical, RotateCcw, Sunrise, UserPlus } from "lucide-react";
+import { ClipboardList, FlaskConical, RotateCcw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { testerNewTester, testerNextMorning, testerReset } from "@/app/actions";
+import { testerNewTester, testerReset } from "@/app/actions";
 import { formatDate } from "@/core/time";
 import { TesterSwitch } from "./tester-switch";
 import { ThemeToggle } from "./theme-toggle";
@@ -25,11 +25,6 @@ export function TesterBar({ today }: { today: string }) {
               <ClipboardList /> <span className="hidden lg:inline">Onboarding</span>
             </Link>
           </Button>
-          <form action={testerNextMorning}>
-            <Button size="sm" variant="ghost" aria-label="Next morning" title="Move the demo date to tomorrow">
-              <Sunrise /> <span className="hidden sm:inline">Next morning</span>
-            </Button>
-          </form>
           <form action={testerReset}>
             <Button size="sm" variant="ghost" aria-label="Reset demo data" title="Restore Maya's original data">
               <RotateCcw /> <span className="hidden sm:inline">Reset</span>

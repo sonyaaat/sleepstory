@@ -14,7 +14,7 @@ import { prisma } from "@/db/client";
 import { nightToRow } from "@/db/mappers";
 import { mainPatient, requireSession } from "@/db/queries";
 import type { UsualDay } from "@/db/demo-data";
-import { createSession, endSession, logEvent, nextMorning, resetSession } from "@/db/session";
+import { createSession, endSession, logEvent, resetSession } from "@/db/session";
 
 // ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-07) ----
 
@@ -62,12 +62,6 @@ export async function saveOnboarding(input: OnboardingInput): Promise<{ ok: true
   await logEvent(s.id, "onboarding_done", { durationMs: d.durationMs, screensChanged: d.changed });
   revalidatePath("/", "layout");
   return { ok: true };
-}
-
-export async function testerNextMorning() {
-  const s = await requireSession();
-  await nextMorning(s.id);
-  revalidatePath("/", "layout");
 }
 
 export async function testerReset() {

@@ -41,7 +41,7 @@ People will try the prototype themselves, so these exist to make that work. They
 | DEMO-02 | Start screen option **Start as myself** (goes through onboarding) | P1 | Planned | Team |
 | DEMO-03 | Each tester gets their own copy of the demo data (session cookie), so testers never see each other's entries | P0 | Done | Team |
 | DEMO-04 | Tester bar on every screen: **Patient ↔ Provider** switch | P0 | Done | Team |
-| DEMO-05 | Tester bar: **Next morning →** moves the demo date forward one day | P0 | Done | Team |
+| DEMO-05 | ~~Tester bar: **Next morning →** moves the demo date forward one day~~ Removed: not needed for the real demo; **Reset** restores Maya's morning for the next visitor. | P0 | Removed | Team (Sofiia) |
 | DEMO-06 | Tester bar: **Reset** restores this tester's demo data | P0 | Done | Team |
 | DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | Done | Team |
 | DEMO-08 | **Add 4 weeks of sample nights** for "Start as myself", so the Snapshot isn't empty | P1 | Planned | Team |
