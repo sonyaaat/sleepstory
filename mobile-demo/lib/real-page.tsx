@@ -34,10 +34,7 @@ async function render(page: PageName, query: URLSearchParams, id: string | undef
     case "provider":
       return (await load.provider()).default();
     case "snapshot":
-      return (await load.snapshot()).default({
-        params: Promise.resolve({ id: id ?? "" }),
-        searchParams: Promise.resolve({ view: query.get("view") ?? undefined }),
-      });
+      return (await load.snapshot()).default({ params: Promise.resolve({ id: id ?? "" }) });
   }
 }
 
