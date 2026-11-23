@@ -18,6 +18,7 @@ export interface NightMetrics {
 }
 
 const clockOrNull = (t: string | null) => (t == null ? null : nightMinutes(t));
+const clockMedian = (times: (string | null)[]) => median(nums(times.map(clockOrNull)));
 
 export function nightMetrics(f: DiaryEntry): NightMetrics {
   const inBed = clockOrNull(f.inBed);
@@ -88,6 +89,11 @@ export interface PeriodStats {
   tibMed: number | null;
   seMed: number | null;
   awakeningsMed: number | null;
+  /** Typical clock times, as minutes after noon (so 00:30 = 750), for the typical-night timeline. */
+  inBedMed: number | null;
+  lightsOutMed: number | null;
+  finalWakeMed: number | null;
+  outOfBedMed: number | null;
   /** Poor nights per 7 logged nights, so missing nights don't look like good ones. */
   poorPerWeek: number | null;
   /** Sleep-aid nights per 7 logged nights, by type. */
@@ -118,6 +124,10 @@ export function periodStats(nights: Night[], from: string, to: string): PeriodSt
     tibMed: median(nums(m.map((x) => x.tibMin))),
     seMed: median(se),
     awakeningsMed: median(nums(list.map((x) => x.awakenings))),
+    inBedMed: clockMedian(list.map((x) => x.inBed)),
+    lightsOutMed: clockMedian(list.map((x) => x.lightsOut)),
+    finalWakeMed: clockMedian(list.map((x) => x.finalWake)),
+    outOfBedMed: clockMedian(list.map((x) => x.outOfBed)),
     // per 7 nights where efficiency could be computed
     poorPerWeek: se.length ? (se.filter((v) => v < POOR_SE_THRESHOLD).length / se.length) * 7 : null,
     aidPerWeek,

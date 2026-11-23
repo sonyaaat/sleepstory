@@ -83,6 +83,17 @@ describe("periods", () => {
     expect(first.aidPerWeek.prescription).toBe(0);
   });
 
+  it("gives typical bed and wake times across midnight, as minutes after noon", () => {
+    const list = [
+      night({ date: "2026-11-01", inBed: "23:30", outOfBed: "07:30" }),
+      night({ date: "2026-11-02", inBed: "00:30", outOfBed: "08:30" }),
+      night({ date: "2026-11-03", inBed: "01:00", outOfBed: null }),
+    ];
+    const s = periodStats(list, "2026-11-01", "2026-11-07");
+    expect(s.inBedMed).toBe(750); // 00:30, not the middle of the day
+    expect(s.outOfBedMed).toBe(1200); // 08:00, from the two nights that have it
+  });
+
   it("counts poor nights per 7 logged nights", () => {
     const s = periodStats(nights, "2026-09-14", "2026-10-11");
     // solMin 60: TST 390/480 = 81% -> poor every night
