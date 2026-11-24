@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, FlaskConical, Keyboard, ListChecks, Lock, Mic, Pencil, Send } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
 import { HomeWidget } from "@/components/checkin/home-widget";
@@ -23,20 +23,16 @@ export default async function PatientHome() {
 
   return (
     <PatientShell>
-      <Logo />
-
-      <Alert className="mt-5 rounded-2xl border-none bg-brand-soft px-4 py-3">
-        <FlaskConical />
-        <AlertTitle>Demo version</AlertTitle>
-        <AlertDescription>
-          A made-up student&apos;s last 8 weeks are already filled in, so you can see the streak and the provider&apos;s
-          report right away. Log last night to add your own.
-        </AlertDescription>
-      </Alert>
+      <div className="flex items-center justify-between gap-3">
+        <Logo />
+        <Badge variant="outline" className="font-normal text-muted-foreground">
+          <FlaskConical /> Demo · 8 weeks pre-filled
+        </Badge>
+      </div>
 
       {!logged ? (
         <>
-          <p className="mt-7 text-[17px] text-muted-foreground">Good morning</p>
+          <p className="mt-10 text-[17px] text-muted-foreground">Good morning</p>
           <h1 className="mt-1.5 font-display text-[40px] leading-[1.1]">How did you sleep?</h1>
 
           <div className="flex flex-1 flex-col items-center justify-center gap-5 py-10">
