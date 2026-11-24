@@ -998,16 +998,13 @@ const STORY_HINTS = [
 
 function StoryHints({ className }: { className?: string }) {
   return (
-    // Phones: one row of small chips (icon + label) to leave room for the story; examples from `sm` up.
-    <ul className={cn("flex flex-wrap gap-1.5 sm:grid sm:grid-cols-3 sm:gap-2", className)} aria-label="Things to mention, with examples">
+    // Same cards as on larger screens, a little shorter on phones.
+    <ul className={cn("grid grid-cols-3 gap-2", className)} aria-label="Things to mention, with examples">
       {STORY_HINTS.map(({ icon, tone, label, example }) => (
-        <li
-          key={label}
-          className="flex items-center gap-1.5 rounded-full bg-card py-1 pr-3 pl-1 ring-1 ring-border/60 sm:block sm:rounded-2xl sm:p-3"
-        >
-          <IconBadge icon={icon} tone={tone} className="size-6 rounded-full sm:size-7 sm:rounded-lg [&>svg]:size-3.5 sm:[&>svg]:size-4" />
-          <p className="text-[13px] leading-tight font-semibold sm:mt-2">{label}</p>
-          <p className="hidden truncate text-[13px] text-muted-foreground sm:mt-0.5 sm:block">{example}</p>
+        <li key={label} className="min-w-0 rounded-2xl bg-card px-2.5 py-2.5 ring-1 ring-border/60 sm:px-3 sm:py-3">
+          <IconBadge icon={icon} tone={tone} className="size-6 sm:size-7 [&>svg]:size-3.5 sm:[&>svg]:size-4" />
+          <p className="mt-1.5 text-[13px] leading-tight font-semibold sm:mt-2">{label}</p>
+          <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{example}</p>
         </li>
       ))}
     </ul>
