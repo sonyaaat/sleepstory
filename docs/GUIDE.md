@@ -25,8 +25,8 @@ All data is made up. Use the demo persona **Maya**, a 21-year-old student with i
 
 | Option | How | What works |
 |---|---|---|
-| **Live app** (Demo Day) | At our table, or run it locally (below). Open the start page and click **Skip to Maya's morning**. | Everything: voice or text, AI, editing, the provider Snapshot |
-| **Phone demo** (QR code) | Scan the QR code, or open https://sonyaaat.github.io/sleepstory/ on a phone or a computer. Tap **Skip to Maya's morning**. | Every page: the check-in (type it, tap answers, or voice where the browser supports it), the Saved screen, onboarding, privacy and the provider Snapshot. The data stays on the phone. |
+| **Live app** (Demo Day) | At our table, or run it locally (below). Open the app; it starts on Maya's morning. | Everything: voice or text, AI, editing, the provider Snapshot |
+| **Phone demo** (QR code) | Scan the QR code, or open https://sonyaaat.github.io/sleepstory/ on a phone or a computer. It starts on Maya's morning. | Every page: the check-in (type it, tap answers, or voice where the browser supports it), the Saved screen, onboarding, privacy and the provider Snapshot. The data stays on the phone. |
 | **Clickable prototype** (backup) | Open `SleepStory-prototype.html` (shared by the team) in any browser, on a phone or a computer. | The main patient path, from the home screen to the Saved screen. Only the main buttons are active. |
 | **Run locally** | Node.js 22, then `npm install`, `cp .env.example .env.local` (add the AI key), `npm run db:push`, `npm run dev`, and open http://localhost:3000 | Same as the live app. Without an AI key, a simple rule-based parser is used instead, and the app says so. |
 

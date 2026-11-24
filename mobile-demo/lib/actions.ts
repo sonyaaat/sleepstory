@@ -24,10 +24,10 @@ const nightIdOf = (patientId: string, date: string) => `${patientId}:${date}`;
 
 // ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-07) ----
 
-/** Start screen: "Try it as Maya, from sign-up" goes through onboarding first; otherwise straight to Maya's morning. */
-export async function startAsMaya(formData: FormData) {
+/** A new visitor gets their own copy of Maya's data and lands on her morning. */
+export async function startAsMaya() {
   await createSession("maya");
-  navigate(formData.get("next") === "onboarding" ? "/patient/onboarding" : "/patient");
+  navigate("/patient", { replace: true });
 }
 
 // ---- Onboarding (ONB-01 to ONB-05): Maya's answers are pre-filled; edits really change her data ----

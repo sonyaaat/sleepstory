@@ -37,7 +37,7 @@ People will try the prototype themselves, so these exist to make that work. They
 
 | ID | Requirement | Priority | Status | Why |
 |---|---|---|---|---|
-| DEMO-01 | Start screen with **Try as Maya** (main path, with 8 weeks of history) | P0 | Done | Rubric: visitors try core features end to end |
+| DEMO-01 | Opening the app starts as **Maya** (8 weeks of history) on her morning; **Go through sign-up** on patient home | P0 | Done | Rubric: visitors try core features end to end |
 | DEMO-02 | Start screen option **Start as myself** (goes through onboarding) | P1 | Planned | Team |
 | DEMO-03 | Each tester gets their own copy of the demo data (session cookie), so testers never see each other's entries | P0 | Done | Team |
 | DEMO-04 | Tester bar on every screen: **Patient ↔ Provider** switch | P0 | Done | Team |
@@ -105,7 +105,7 @@ About 2–3 minutes. Each step feeds something used later.
 | ONB-03 | **Safety questions:** loud snoring or stopped breathing, restless legs, dozing while driving, PHQ-2 (2 mood questions) | P1 | Done | CA |
 | ONB-04 | **Your usual day** (caffeine, alcohol, school-night bedtime, exercise) and current sleep aids | P1 | Done | CA |
 | ONB-05 | **Your care:** provider (simulated), next visit date, reminder time, "Connect watch (demo)" | P1 | Done | Notebook |
-| ONB-06 | **Demo onboarding for Maya:** "Try it as Maya, from sign-up" (or "Skip to Maya's morning"); 6 screens with progress dots, every answer pre-filled from Maya's profile and editable; edits are saved to her profile and show up in the check-in and Snapshot; then the normal Maya flow. "Onboarding" in the demo bar replays it. | P0 | Done | Sofiia (demo shows the full journey) |
+| ONB-06 | **Demo onboarding for Maya:** "Go through sign-up" on patient home; 6 screens with progress dots, every answer pre-filled from Maya's profile and editable; edits are saved to her profile and show up in the check-in and Snapshot; then the normal Maya flow. "Onboarding" in the demo bar replays it. | P0 | Done | Sofiia (demo shows the full journey) |
 
 ## 5. Before the visit (VIS)
 

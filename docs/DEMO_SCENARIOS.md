@@ -4,8 +4,8 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 ## How a tester uses the prototype
 
-1. Open the app. The start screen offers **Try it as Maya, from sign-up** and **Skip to Maya's morning** (the main path).
-2. Either button gives the tester their own copy of Maya's 8 weeks of made-up data. Other testers never see it.
+1. Open the app. It goes straight to Maya's morning (patient home). **Go through sign-up**, under **Type it / Tap answers**, opens onboarding.
+2. Each tester gets their own copy of Maya's 8 weeks of made-up data. Other testers never see it.
 3. A **tester bar** sits at the top of every screen. It's a demo tool, not part of the product:
    - **Patient ↔ Provider**: switch sides to see your own entry appear on the Snapshot.
    - **Reset**: restore Maya's original data.
@@ -16,7 +16,7 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 ## Scenario 1: Log last night (patient)
 
-**Setup:** **Skip to Maya's morning** → patient home.
+**Setup:** open the app → patient home.
 
 **Task given to the tester:**
 > You're Maya. Last night you went to bed around 12:30, it took you about an hour to fall asleep because you kept thinking about your exam, you woke up twice for about 20 minutes in total, and you got up at 8:15. You slept badly. You had an energy drink at 4 pm, scrolled your phone in bed, took a melatonin, and had a bad headache. Log your night and make sure your provider will know about the melatonin and the headache.
@@ -72,6 +72,6 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 ## Before a demo
 
-- `npm run dev`, open http://localhost:3000, click **Skip to Maya's morning**, run both scenarios once.
+- `npm run dev`, open http://localhost:3000, run both scenarios once.
 - Check that the review screen says the AI was used (not the fallback). If it shows the fallback, check `JANUS_API_KEY` in `.env.local`.
 - Press **New tester** between visitors.

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { z } from "zod";
 import { verifyQuote } from "@/adapters/llm/validate";
 import { simulatedWatch } from "@/adapters/wearables";
@@ -18,10 +18,10 @@ import { createSession, endSession, logEvent, resetSession } from "@/db/session"
 
 // ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-07) ----
 
-/** Start screen: "See how sign-up works" goes through onboarding first; otherwise straight to Maya's morning. */
-export async function startAsMaya(formData: FormData) {
+/** A new visitor gets their own copy of Maya's data and lands on her morning. */
+export async function startAsMaya() {
   await createSession("maya");
-  redirect(formData.get("next") === "onboarding" ? "/patient/onboarding" : "/patient");
+  redirect("/patient", RedirectType.replace);
 }
 
 // ---- Onboarding (ONB-01 to ONB-05): Maya's answers are pre-filled; edits really change her data ----
