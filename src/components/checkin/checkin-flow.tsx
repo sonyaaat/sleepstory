@@ -495,7 +495,8 @@ export function CheckinFlow({
         </BottomBar>
 
         <Sheet open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
-          <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl px-6 pb-8">
+          {/* Opens from the top: on phones the keyboard comes up from the bottom and would cover the field. */}
+          <SheetContent side="top" className="mx-auto max-w-md rounded-b-3xl px-5 pt-2 pb-6 sm:px-6">
             {editing && (
               <>
                 <SheetHeader className="px-0">
