@@ -740,10 +740,12 @@ export function CheckinFlow({
     ];
     return (
       <PatientShell>
-        <MoonMark className="mt-6 size-12" />
-        <h1 className="mt-4 font-display text-[30px] leading-[1.08] sm:mt-5 sm:text-[36px]">Saved. Thank you.</h1>
+        <h1 className="mt-4 flex items-center gap-3 font-display text-[30px] leading-[1.08] sm:mt-6 sm:text-[36px]">
+          <MoonMark className="size-9 shrink-0 sm:size-10" />
+          Saved. Thank you.
+        </h1>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-5 space-y-3 sm:mt-6">
           {result.watchTstMin != null && result.mismatch && !watchAnswered && (
             <SoftCard className="ring-brand/60">
               <p className="flex items-center gap-2 font-semibold">
