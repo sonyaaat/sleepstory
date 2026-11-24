@@ -565,21 +565,16 @@ export function CheckinFlow({
                   More…
                 </Button>
               )}
-              <Toggle variant="outline" className={OTHER_CHIP} pressed={showWakeOther} onPressedChange={setShowWakeOther}>
-                <Plus /> Other
-              </Toggle>
-            </div>
-            {showWakeOther && (
-              <Input
-                autoFocus
-                aria-label="What woke you, in your own words"
+              <OtherEntry
+                open={showWakeOther}
+                onOpenChange={setShowWakeOther}
+                value={wakeNote}
+                onChange={setWakeNote}
+                label="What woke you, in your own words"
                 placeholder="e.g. my roommate came home late"
                 maxLength={200}
-                value={wakeNote}
-                onChange={(e) => setWakeNote(e.target.value)}
-                className={INPUT}
               />
-            )}
+            </div>
           </Extra>
         )}
 
@@ -599,29 +594,16 @@ export function CheckinFlow({
                 ))}
               </ToggleGroup>
             )}
-            <Toggle
-              variant="outline"
-              className={OTHER_CHIP}
-              pressed={showOther}
-              onPressedChange={(on) => {
-                setShowOther(on);
-                if (!on) setOtherMed("");
-              }}
-            >
-              <Plus /> Other
-            </Toggle>
-          </div>
-          {showOther && (
-            <Input
-              autoFocus
-              aria-label="Name of the medication"
+            <OtherEntry
+              open={showOther}
+              onOpenChange={setShowOther}
+              value={otherMed}
+              onChange={setOtherMed}
+              label="Name of the medication"
               placeholder="Name, e.g. Nytol"
               maxLength={60}
-              value={otherMed}
-              onChange={(e) => setOtherMed(e.target.value)}
-              className={INPUT}
             />
-          )}
+          </div>
           {medicinesTaken.length > 0 && <p className="mt-3 text-xs text-muted-foreground">{MEDICINE_SAFETY_LINE}</p>}
         </Extra>
 
@@ -640,21 +622,16 @@ export function CheckinFlow({
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
-            <Toggle variant="outline" className={OTHER_CHIP} pressed={showDayOther} onPressedChange={setShowDayOther}>
-              <Plus /> Other
-            </Toggle>
-          </div>
-          {showDayOther && (
-            <Input
-              autoFocus
-              aria-label="What else was different yesterday"
+            <OtherEntry
+              open={showDayOther}
+              onOpenChange={setShowDayOther}
+              value={dayOther}
+              onChange={setDayOther}
+              label="What else was different yesterday"
               placeholder="e.g. late shift, travelled"
               maxLength={200}
-              value={dayOther}
-              onChange={(e) => setDayOther(e.target.value)}
-              className={INPUT}
             />
-          )}
+          </div>
         </Extra>
 
         <Extra icon={Stethoscope} tone="provider" title="For your provider" hint="Your provider sees this before your visit.">
@@ -1069,7 +1046,97 @@ function AiPanel({ extraction }: { extraction: ExtractionResult }) {
   );
 }
 
-/** One part of the "Anything else?" card. */
+/**
+ * "+ Other" chip. Tapping it opens a field; Enter (the keyboard's Done) or ✓ turns the text into a selected chip
+ * and closes the keyboard, so it's clear the answer was taken. Tap the chip to change it; confirm it empty to remove it.
+ * Sits inside a `flex-wrap` row: the field takes a full line of its own.
+ */
+function OtherEntry({
+  open,
+  onOpenChange,
+  value,
+  onChange,
+  label,
+  placeholder,
+  maxLength,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+  placeholder: string;
+  maxLength: number;
+}) {
+  // Text already filled in from the story shows as a chip straight away.
+  const [editing, setEditing] = useState(open && !value.trim());
+  const text = value.trim();
+
+  const commit = () => {
+    setEditing(false);
+    if (!text) {
+      onChange("");
+      onOpenChange(false);
+    }
+  };
+
+  if (open && !editing && text) {
+    return (
+      <Toggle
+        variant="outline"
+        className={cn(SMALL_CHIP, "max-w-full")}
+        pressed
+        onPressedChange={() => setEditing(true)}
+        aria-label={`${label}: ${text}. Tap to change`}
+      >
+        <span className="truncate">{text}</span>
+        <Pencil className="size-3.5 opacity-70" />
+      </Toggle>
+    );
+  }
+
+  return (
+    <>
+      <Toggle
+        variant="outline"
+        className={OTHER_CHIP}
+        pressed={open}
+        onPressedChange={(on) => {
+          onOpenChange(on);
+          setEditing(on);
+          if (!on) onChange("");
+        }}
+      >
+        <Plus /> Other
+      </Toggle>
+      {open && (
+        <form
+          className="flex w-full basis-full items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            commit();
+          }}
+        >
+          <Input
+            autoFocus
+            enterKeyHint="done"
+            aria-label={label}
+            placeholder={placeholder}
+            maxLength={maxLength}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={cn(INPUT, "mt-0 flex-1")}
+          />
+          <Button type="submit" size="icon-lg" variant="outline" className="size-11 shrink-0 rounded-full" aria-label="Add">
+            <Check />
+          </Button>
+        </form>
+      )}
+    </>
+  );
+}
+
+/** One part of the "What else affected your sleep?" card. */
 function Extra({
   icon,
   tone,
