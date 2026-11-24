@@ -37,7 +37,7 @@ Voice input works in Google Chrome. In other browsers, use **Type it** or **Tap 
 1. **Log last night as Maya.** On the home screen, tap the microphone (or **Type it**) and describe the night, for example:
    > I went to bed around 12:30 but it took me about an hour to fall asleep because I kept thinking about my exam. I woke up twice and was awake for about 20 minutes in total. I got up at 8:15 and slept pretty badly. I had an energy drink at 4 pm, scrolled my phone in bed and took a melatonin before bed. I also had a really bad headache.
 
-   Check the answers on **Here's what I heard** and change one by tapping it. Tap **Next**, look at **Anything else?** and tap **Save**. On the Saved screen, try **Edit**.
+   Check the answers on **Here's what I heard** and change one by tapping it. Tap **Next**, look at **What else affected your sleep?** and tap **Save**. On the Saved screen, try **Edit**.
 2. **Log a night without talking or typing.** Tap **Tap answers** on the home screen and pick an option under each question.
 3. **Read the Sleep Snapshot as the provider.** In the top bar, switch to **Provider** and open Maya. Find out whether her sleep is improving, what needs attention, which sleep medicines she takes, and what she wants to talk about. Try **Download PDF**.
 

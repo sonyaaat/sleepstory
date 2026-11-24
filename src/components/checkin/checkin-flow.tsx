@@ -541,7 +541,7 @@ export function CheckinFlow({
         >
           Back
         </button>
-        <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:text-[36px] sm:mt-6">Anything else?</h1>
+        <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:text-[36px] sm:mt-6">What else affected your sleep?</h1>
 
         <section className="mt-6 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
         {followUp && (
