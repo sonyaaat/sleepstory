@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { MoonMark, MorningDots, PatientShell, SoftCard } from "@/components/brand";
+import { BottomBar, MoonMark, MorningDots, PatientShell, SHELL, SoftCard } from "@/components/brand";
 import { answerWatch, logClientEvent, saveCheckin, type CheckinResult } from "@/app/actions";
 import type { ExtractionResult } from "@/adapters/llm/types";
 import { followUpQuestion, STREAK_MILESTONES, type DayStreak, type UsualTimes } from "@/core/checkin";
@@ -314,9 +314,9 @@ export function CheckinFlow({
     return (
       <PatientShell>
         <TopLink href="/patient" label="Back" />
-        <p className="mt-8 text-[17px] text-muted-foreground">Good morning</p>
-        <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">Tell me about last night</h1>
-        <StoryHints className="mt-6" />
+        <p className="mt-4 text-[17px] text-muted-foreground sm:mt-8">Good morning</p>
+        <h1 className="mt-1 font-display text-[30px] leading-[1.1] sm:text-[36px] sm:mt-1.5">Tell me about last night</h1>
+        <StoryHints className="mt-4 sm:mt-6" />
         <Label htmlFor="story" className="sr-only">
           Your night
         </Label>
@@ -324,17 +324,17 @@ export function CheckinFlow({
           id="story"
           rows={7}
           autoFocus
-          className="mt-6 min-h-44 rounded-3xl border-0 bg-card p-5 text-lg leading-relaxed ring-1 ring-border/60 placeholder:text-muted-foreground/70 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-brand dark:bg-card"
+          className="mt-4 min-h-32 rounded-3xl border-0 bg-card p-4 text-lg sm:mt-6 sm:min-h-44 sm:p-5 leading-relaxed ring-1 ring-border/60 placeholder:text-muted-foreground/70 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-brand dark:bg-card"
           placeholder="Went to bed around 12:30, took about an hour to fall asleep, woke up twice…"
           value={story}
           onChange={(e) => setStory(e.target.value)}
         />
         {speech.supported && (
-          <Button variant="ghost" className="mt-3 self-start" onClick={() => setStep("voice")}>
+          <Button variant="ghost" className="mt-2 self-start sm:mt-3" onClick={() => setStep("voice")}>
             <Mic /> Speak instead
           </Button>
         )}
-        <div className="mt-auto space-y-3 pt-8">
+        <BottomBar className="space-y-1">
           <Button variant="brand" size="xl" disabled={!story.trim() || loading} onClick={() => readStory()}>
             {loading ? (
               <>
@@ -351,7 +351,7 @@ export function CheckinFlow({
           >
             Rather tap your answers
           </button>
-        </div>
+        </BottomBar>
       </PatientShell>
     );
   }
@@ -376,7 +376,7 @@ export function CheckinFlow({
           )}
           {extraction && <AiPanel extraction={extraction} />}
         </div>
-        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">{extraction ? "Here's what I heard" : "Your night"}</h1>
+        <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:text-[36px] sm:mt-6">{extraction ? "Here's what I heard" : "Your night"}</h1>
         <p className="mt-2 text-[17px] text-muted-foreground">{manual ? "Tap an answer for each." : "Tap a line to change it."}</p>
 
         {extraction?.mode === "fallback" && (
@@ -488,11 +488,11 @@ export function CheckinFlow({
           </div>
         )}
 
-        <div className="sticky bottom-0 -mx-6 mt-6 bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
+        <BottomBar className="mt-6">
           <Button variant="brand" size="xl" disabled={!complete || issues.length > 0} onClick={() => setStep("extras")}>
             {qualityMissing ? "Pick how you slept" : "Next"}
           </Button>
-        </div>
+        </BottomBar>
 
         <Sheet open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
           <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl px-6 pb-8">
@@ -540,7 +540,7 @@ export function CheckinFlow({
         >
           Back
         </button>
-        <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Anything else?</h1>
+        <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:text-[36px] sm:mt-6">Anything else?</h1>
 
         <section className="mt-6 divide-y divide-border/70 rounded-3xl bg-card px-5 ring-1 ring-border/60">
         {followUp && (
@@ -718,12 +718,12 @@ export function CheckinFlow({
         </Extra>
         </section>
 
-        <div className="sticky bottom-0 -mx-6 mt-auto bg-gradient-to-t from-background from-70% to-transparent px-6 pt-6 pb-4">
+        <BottomBar>
           <Button variant="brand" size="xl" disabled={!complete || otherMissing || saving} onClick={save}>
             {saving ? <Loader2 className="animate-spin" /> : <Check />}
             {otherMissing ? "Add the medication name" : "Save"}
           </Button>
-        </div>
+        </BottomBar>
       </PatientShell>
     );
   }
@@ -740,7 +740,7 @@ export function CheckinFlow({
     return (
       <PatientShell>
         <MoonMark className="mt-6 size-12" />
-        <h1 className="mt-5 font-display text-[36px] leading-[1.08]">Saved. Thank you.</h1>
+        <h1 className="mt-4 font-display text-[30px] leading-[1.08] sm:mt-5 sm:text-[36px]">Saved. Thank you.</h1>
 
         <div className="mt-6 space-y-3">
           {result.watchTstMin != null && result.mismatch && !watchAnswered && (
@@ -896,7 +896,7 @@ function VoiceScreen({
   const text = speech.interim ? `${story} ${speech.interim}`.trim() : story;
 
   return (
-    <main className="mx-auto flex min-h-[calc(100dvh-49px)] w-full max-w-md flex-col px-6 pt-8 pb-10">
+    <main className={SHELL}>
       <div className="flex items-center justify-between">
         <Link href="/patient" className="font-semibold text-primary underline underline-offset-4" onClick={speech.stop}>
           Cancel
@@ -908,12 +908,12 @@ function VoiceScreen({
           </span>
         )}
       </div>
-      <h1 className="mt-8 font-display text-[40px] leading-[1.1]">
+      <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:mt-8 sm:text-[40px]">
         {loading ? "Reading your story…" : listening ? "Listening…" : story ? "Got it" : "Tap to start"}
       </h1>
       {loading && <p className="mt-2 text-[17px] text-muted-foreground">Turning your words into your sleep diary.</p>}
 
-      <div className="mt-8 mb-6 flex h-10 items-center justify-center gap-[6px]" aria-hidden="true">
+      <div className="mt-4 mb-4 flex h-8 items-center justify-center gap-[6px] sm:mt-8 sm:mb-6 sm:h-10" aria-hidden="true">
         {Array.from({ length: 28 }, (_, i) => (
           <span
             key={i}
@@ -937,10 +937,10 @@ function VoiceScreen({
         value={text}
         onChange={(e) => setStory(e.target.value)}
         placeholder="Your words will appear here as you talk."
-        className="min-h-56 flex-1 resize-none rounded-3xl border-0 bg-card p-6 text-xl leading-relaxed ring-1 ring-border/60 placeholder:text-muted-foreground/70 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-brand dark:bg-card"
+        className="min-h-28 flex-1 resize-none rounded-3xl border-0 bg-card p-4 text-lg sm:min-h-56 sm:p-6 sm:text-xl leading-relaxed ring-1 ring-border/60 placeholder:text-muted-foreground/70 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-brand dark:bg-card"
       />
 
-      <div className="mt-8 flex flex-col items-center gap-3">
+      <BottomBar className="mt-4 flex flex-col items-center gap-2 pt-4 sm:mt-8 sm:gap-3">
         {loading ? (
           <Loader2 className="size-10 animate-spin text-brand" />
         ) : listening ? (
@@ -975,13 +975,13 @@ function VoiceScreen({
         >
           <Keyboard className="size-4" /> Type instead
         </button>
-        <p className="text-center text-xs text-muted-foreground/80">
-          Voice uses your browser&apos;s speech service (in Chrome, that&apos;s Google).{" "}
-          <Link href="/patient/privacy" className="underline">
-            Learn more
-          </Link>
-        </p>
-      </div>
+      </BottomBar>
+      <p className="text-center text-xs text-muted-foreground/80">
+        Voice uses your browser&apos;s speech service (in Chrome, that&apos;s Google).{" "}
+        <Link href="/patient/privacy" className="underline">
+          Learn more
+        </Link>
+      </p>
     </main>
   );
 }
@@ -998,12 +998,16 @@ const STORY_HINTS = [
 
 function StoryHints({ className }: { className?: string }) {
   return (
-    <ul className={cn("grid grid-cols-3 gap-2", className)} aria-label="Things to mention, with examples">
+    // Phones: one row of small chips (icon + label) to leave room for the story; examples from `sm` up.
+    <ul className={cn("flex flex-wrap gap-1.5 sm:grid sm:grid-cols-3 sm:gap-2", className)} aria-label="Things to mention, with examples">
       {STORY_HINTS.map(({ icon, tone, label, example }) => (
-        <li key={label} className="rounded-2xl bg-card px-3 py-3 ring-1 ring-border/60">
-          <IconBadge icon={icon} tone={tone} />
-          <p className="mt-2 text-[13px] leading-tight font-semibold">{label}</p>
-          <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{example}</p>
+        <li
+          key={label}
+          className="flex items-center gap-1.5 rounded-full bg-card py-1 pr-3 pl-1 ring-1 ring-border/60 sm:block sm:rounded-2xl sm:p-3"
+        >
+          <IconBadge icon={icon} tone={tone} className="size-6 rounded-full sm:size-7 sm:rounded-lg [&>svg]:size-3.5 sm:[&>svg]:size-4" />
+          <p className="text-[13px] leading-tight font-semibold sm:mt-2">{label}</p>
+          <p className="hidden truncate text-[13px] text-muted-foreground sm:mt-0.5 sm:block">{example}</p>
         </li>
       ))}
     </ul>

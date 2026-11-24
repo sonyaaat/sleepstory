@@ -20,12 +20,24 @@ export function Logo({ className }: { className?: string }) {
   );
 }
 
-/** Mobile-first page frame for the patient side. */
+/** Mobile-first page frame for the patient side: tighter on phones, roomier from `sm` up. */
+export const SHELL = "mx-auto flex min-h-[calc(100dvh-49px)] w-full max-w-md flex-col px-5 pt-4 pb-6 sm:px-6 sm:pt-8 sm:pb-10";
+
 export function PatientShell({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <main className={cn(SHELL, className)}>{children}</main>;
+}
+
+/** The screen's main action, pinned to the bottom so it's always in reach; content scrolls under it. */
+export function BottomBar({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <main className={cn("mx-auto flex min-h-[calc(100dvh-49px)] w-full max-w-md flex-col px-6 pt-8 pb-10", className)}>
+    <div
+      className={cn(
+        "sticky bottom-0 z-10 -mx-5 mt-auto bg-gradient-to-t from-background from-70% to-transparent px-5 pt-6 pb-4 sm:-mx-6 sm:px-6",
+        className,
+      )}
+    >
       {children}
-    </main>
+    </div>
   );
 }
 
