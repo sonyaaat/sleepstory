@@ -1,4 +1,4 @@
-// Demo sessions (DEMO-03, DEMO-05 to DEMO-07): each tester gets their own copy of the data.
+// Demo sessions (DEMO-03, DEMO-05, DEMO-06): each tester gets their own copy of the data.
 // Server-only: uses the request cookies.
 
 import "server-only";
@@ -58,11 +58,6 @@ export async function resetSession(sessionId: string) {
   await prisma.session.update({ where: { id: sessionId }, data: { today } });
   await seed(sessionId, session.kind as SessionKind, today);
   await logEvent(sessionId, "session_reset");
-}
-
-/** Forgets the session cookie so the next visitor starts fresh (DEMO-07). */
-export async function endSession() {
-  (await cookies()).delete(SESSION_COOKIE);
 }
 
 /** Session log for evaluation (DEMO-11). */

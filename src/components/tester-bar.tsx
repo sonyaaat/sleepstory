@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ClipboardList, FlaskConical, RotateCcw, UserPlus } from "lucide-react";
+import { ClipboardList, FlaskConical, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { testerNewTester, testerReset } from "@/app/actions";
+import { testerReset } from "@/app/actions";
 import { formatDate } from "@/core/time";
 import { TesterSwitch } from "./tester-switch";
 import { ThemeToggle } from "./theme-toggle";
 
-/** Demo tools, not part of the product (DEMO-04 to DEMO-07). Hidden when printing; scrolls away on phones. */
+/** Demo tools, not part of the product (DEMO-04 to DEMO-06). Hidden when printing; scrolls away on phones. */
 export function TesterBar({ today }: { today: string }) {
   return (
     <div className="relative z-40 border-b sm:sticky sm:top-0 border-border/60 bg-deep/95 backdrop-blur print:hidden">
@@ -28,11 +28,6 @@ export function TesterBar({ today }: { today: string }) {
           <form action={testerReset}>
             <Button size="sm" variant="ghost" aria-label="Reset demo data" title="Restore the original demo data">
               <RotateCcw /> <span className="hidden sm:inline">Reset</span>
-            </Button>
-          </form>
-          <form action={testerNewTester}>
-            <Button size="sm" variant="ghost" aria-label="New tester" title="Start fresh for the next person">
-              <UserPlus /> <span className="hidden sm:inline">New tester</span>
             </Button>
           </form>
           <ThemeToggle />

@@ -9,7 +9,6 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 3. A **tester bar** sits at the top of every screen. It's a demo tool, not part of the product:
    - **Patient ↔ Provider**: switch sides to see your own entry appear on the Snapshot.
    - **Reset**: restore Maya's original data.
-   - **New tester**: start a fresh session (for the next person at a Demo Day table).
 4. The app quietly records a session log: how long the check-in took, how many AI fields the tester corrected, whether the AI or the fallback was used, and how long the Snapshot was open. The team uses it as evaluation evidence (DEMO-11).
 
 **About Maya:** 21, third-year student. Insomnia since first year, worse around midterms. Late caffeine and studying in bed. Sometimes takes melatonin; had a short course of a prescription sleep aid. Her watch tends to overestimate her sleep on bad nights. Her visit with her primary care provider is in a few days, and she has already approved sharing her Snapshot.
@@ -74,4 +73,4 @@ How testers use the prototype, and the scenarios for the team meeting, the peer 
 
 - `npm run dev`, open http://localhost:3000, run both scenarios once.
 - Check that the review screen says the AI was used (not the fallback). If it shows the fallback, check `JANUS_API_KEY` in `.env.local`.
-- Press **New tester** between visitors.
+- Press **Reset** between visitors.

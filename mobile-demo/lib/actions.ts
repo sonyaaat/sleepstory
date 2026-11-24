@@ -12,7 +12,7 @@ import { addDays, formatClock, parseClock } from "@/core/time";
 import type { UsualDay } from "@/db/demo-data";
 import { navigate } from "./navigation";
 import { mainPatient, requireSession } from "./queries";
-import { createSession, currentSession, endSession, logEvent, resetSession } from "./session";
+import { createSession, currentSession, logEvent, resetSession } from "./session";
 import { getState, setState, type StoredPatient } from "./store";
 
 function updatePatient(id: string, change: (p: StoredPatient) => StoredPatient) {
@@ -22,7 +22,7 @@ function updatePatient(id: string, change: (p: StoredPatient) => StoredPatient) 
 
 const nightIdOf = (patientId: string, date: string) => `${patientId}:${date}`;
 
-// ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-07) ----
+// ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-06) ----
 
 /** A new visitor gets their own copy of Maya's data and lands on her morning. */
 export async function startAsMaya() {
@@ -71,11 +71,6 @@ export async function testerReset() {
   const s = await requireSession();
   await resetSession(s.id);
   navigate("/patient");
-}
-
-export async function testerNewTester() {
-  await endSession();
-  navigate("/");
 }
 
 // ---- Check-in (CHK-03 to CHK-10) ----
@@ -200,7 +195,7 @@ export async function answerWatch(nightId: string, answer: "lying_awake" | "took
 // ---- Session log (DEMO-11) ----
 
 export async function logClientEvent(type: "checkin_started" | "snapshot_viewed", data: Record<string, unknown>) {
-  // Never changes page: it also runs as a page closes (e.g. after "New tester").
+  // Never changes page: it also runs as a page closes.
   const s = await currentSession();
   if (s) await logEvent(s.id, type, data);
 }

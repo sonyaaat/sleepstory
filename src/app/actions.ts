@@ -14,9 +14,9 @@ import { prisma } from "@/db/client";
 import { nightToRow } from "@/db/mappers";
 import { mainPatient, requireSession } from "@/db/queries";
 import type { UsualDay } from "@/db/demo-data";
-import { createSession, endSession, logEvent, resetSession } from "@/db/session";
+import { createSession, logEvent, resetSession } from "@/db/session";
 
-// ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-07) ----
+// ---- Start screen and tester bar (DEMO-01, DEMO-04 to DEMO-06) ----
 
 /** A new visitor gets their own copy of Maya's data and lands on her morning. */
 export async function startAsMaya() {
@@ -69,11 +69,6 @@ export async function testerReset() {
   await resetSession(s.id);
   revalidatePath("/", "layout");
   redirect("/patient");
-}
-
-export async function testerNewTester() {
-  await endSession();
-  redirect("/");
 }
 
 // ---- Check-in (CHK-03 to CHK-10) ----

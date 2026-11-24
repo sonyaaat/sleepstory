@@ -47,11 +47,6 @@ export async function resetSession(sessionId: string) {
   await logEvent(sessionId, "session_reset");
 }
 
-/** Forgets this phone's session so the next visitor starts fresh (DEMO-07). */
-export async function endSession() {
-  setState({ v: 1, session: null, patients: [] });
-}
-
 /** The session log (DEMO-11) goes to the team's database in the real app; a phone has nowhere to send it. */
 export async function logEvent(sessionId: string, type: string, data: Record<string, unknown> = {}) {
   void [sessionId, type, data];

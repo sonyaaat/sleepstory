@@ -41,7 +41,7 @@ Voice input works in Google Chrome. In other browsers, use **Type it** or **Tap 
 2. **Log a night without talking or typing.** Tap **Tap answers** on the home screen and pick an option under each question.
 3. **Read the Sleep Snapshot as the provider.** In the top bar, switch to **Provider** and open Maya. Find out whether her sleep is improving, what needs attention, which sleep medicines she takes, and what she wants to talk about. Try **Download PDF**.
 
-The top bar is a demo tool, not part of the product. Use **Reset** to restore Maya's data and **New tester** to start fresh.
+The top bar is a demo tool, not part of the product. Use **Reset** to restore Maya's data and start fresh.
 
 ## What the AI does
 

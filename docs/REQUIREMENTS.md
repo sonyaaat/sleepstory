@@ -43,13 +43,13 @@ People will try the prototype themselves, so these exist to make that work. They
 | DEMO-04 | Tester bar on every screen: **Patient ↔ Provider** switch | P0 | Done | Team |
 | DEMO-05 | ~~Tester bar: **Next morning →** moves the demo date forward one day~~ Removed: not needed for the real demo; **Reset** restores Maya's morning for the next visitor. | P0 | Removed | Team (Sofiia) |
 | DEMO-06 | Tester bar: **Reset** restores this tester's demo data | P0 | Done | Team |
-| DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | Done | Team |
+| DEMO-07 | Tester bar: **New tester** starts a fresh session | P0 | Removed (2026-11-23): **Reset** covers it | Team |
 | DEMO-08 | **Add 4 weeks of sample nights** for "Start as myself", so the Snapshot isn't empty | P1 | Planned | Team |
 | DEMO-09 | Generated 8-week dataset for Maya: midterm period, late caffeine, watch overestimating sleep on bad nights, some missed nights and late entries | P0 | Done | Lit, Edith |
 | DEMO-10 | Provider list shows 2 more students with lighter data, for realism | P0 | Done | Team |
 | DEMO-11 | Session log *recording*: check-in duration, number of AI fields the tester corrected, AI mode used, Snapshot viewing time | P0 | Done | V0 (data sanity), Rubric (evidence for evaluation) |
 | DEMO-12 | Session log *page* for the team to read results after testing | P1 | Planned | Team |
-| DEMO-13 | **Phone demo:** a browser-only copy of the app at a public link (QR code), built from the same code, so anyone can open every page on their own phone. Each phone keeps its own copy of Maya's data; Reset and New tester work. The story is read by the rule-based reader in the browser and shown the same way as the AI's answers. No session log. | P1 | Done | Team (testers use their own phones) |
+| DEMO-13 | **Phone demo:** a browser-only copy of the app at a public link (QR code), built from the same code, so anyone can open every page on their own phone. Each phone keeps its own copy of Maya's data; Reset works. The story is read by the rule-based reader in the browser and shown the same way as the AI's answers. No session log. | P1 | Done | Team (testers use their own phones) |
 
 ## 2. Morning check-in (CHK)
 
