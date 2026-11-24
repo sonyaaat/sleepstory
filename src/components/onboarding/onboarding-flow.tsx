@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { MoonMark, PatientShell, SoftCard } from "@/components/brand";
+import { BottomBar, MoonMark, PatientShell, SoftCard } from "@/components/brand";
 import { saveOnboarding } from "@/app/actions";
 import { MEDICINE_SAFETY_LINE, planText, type Medication } from "@/core/medications";
 import { ALCOHOL_OPTIONS, CAFFEINE_OPTIONS, EXERCISE_OPTIONS, type OnboardingInput } from "@/core/onboarding";
@@ -86,24 +86,24 @@ export function OnboardingFlow({ initial, providerName }: { initial: OnboardingI
     return (
       <PatientShell>
         <ProgressDots step={6} />
-        <MoonMark className="mt-10 size-16" />
-        <h1 className="mt-8 font-display text-[40px] leading-[1.08]">You&apos;re all set.</h1>
+        <MoonMark className="mt-6 size-12 sm:mt-10 sm:size-16" />
+        <h1 className="mt-5 font-display text-[32px] leading-[1.08] sm:mt-8 sm:text-[40px]">You&apos;re all set.</h1>
         <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
           Each morning at {care.reminderTime.replace(/^0/, "")} you&apos;ll get a short message. Tap it and tell me how you
           slept: about a minute.
         </p>
-        <SoftCard className="mt-8 space-y-2 text-[15px] leading-relaxed">
+        <SoftCard className="mt-6 space-y-2 text-[15px] leading-relaxed sm:mt-8">
           <p className="font-semibold">For this demo</p>
           <p className="text-muted-foreground">
             This demo account already has 8 weeks of sleep diary, so you&apos;ll see its history. Your changes are saved to
             it{changedScreens ? ` (you changed ${changedScreens} screen${changedScreens === 1 ? "" : "s"})` : ""}.
           </p>
         </SoftCard>
-        <div className="mt-auto pt-8">
+        <BottomBar>
           <Button variant="brand" size="xl" onClick={() => router.push("/patient")}>
             Go to this morning
           </Button>
-        </div>
+        </BottomBar>
       </PatientShell>
     );
   }
@@ -127,19 +127,19 @@ export function OnboardingFlow({ initial, providerName }: { initial: OnboardingI
       <ProgressDots step={step} />
 
       {step > 0 && (
-        <p className="mt-6 flex items-center gap-2 rounded-2xl bg-brand-soft px-4 py-2.5 text-sm">
+        <p className="mt-4 flex items-center gap-2 rounded-2xl bg-brand-soft px-4 py-2.5 text-sm sm:mt-6">
           <Sparkles className="size-4 shrink-0 text-brand" /> Demo answers are filled in. Change anything you like.
         </p>
       )}
 
       {step === 0 && (
         <>
-          <MoonMark className="mt-8 size-12" />
-          <h1 className="mt-5 font-display text-[36px] leading-[1.1]">Welcome to SleepSnap</h1>
+          <MoonMark className="mt-5 size-10 sm:mt-8 sm:size-12" />
+          <h1 className="mt-3 font-display text-[30px] leading-[1.1] sm:mt-5 sm:text-[36px]">Welcome to SleepSnap</h1>
           <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">
             A one-minute morning check-in, and a one-page summary for your primary care provider before each visit.
           </p>
-          <SoftCard className="mt-6">
+          <SoftCard className="mt-4 sm:mt-6">
             <p className="flex items-center gap-2 font-semibold">
               <Lock className="size-4 text-primary" /> Your privacy, in short
             </p>
@@ -153,12 +153,6 @@ export function OnboardingFlow({ initial, providerName }: { initial: OnboardingI
               Read the full privacy page
             </Link>
           </SoftCard>
-          <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl bg-card p-4 ring-1 ring-border/60">
-            <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5 size-5" />
-            <span className="text-[15px] leading-relaxed">
-              I understand how my information is used, and that I approve every share with my provider.
-            </span>
-          </label>
         </>
       )}
 
@@ -251,12 +245,21 @@ export function OnboardingFlow({ initial, providerName }: { initial: OnboardingI
 
       {step === 5 && <SafetyStep screening={screening} setScreening={setScreening} />}
 
-      <div className="sticky bottom-0 -mx-6 mt-auto bg-gradient-to-t from-background from-70% to-transparent px-6 pt-8 pb-4">
+      <BottomBar className="space-y-3">
+        {/* Consent sits right above the button it unlocks, so it's never hidden below the fold. */}
+        {step === 0 && (
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-card p-3.5 ring-1 ring-border/60 sm:p-4">
+            <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5 size-5" />
+            <span className="text-sm leading-snug sm:text-[15px] sm:leading-relaxed">
+              I understand how my information is used, and that I approve every share with my provider.
+            </span>
+          </label>
+        )}
         <Button variant="brand" size="xl" disabled={!canContinue || saving} onClick={next}>
           {saving ? <Loader2 className="animate-spin" /> : step === 5 ? <Check /> : null}
           {step === 0 ? "I agree, let's start" : step === 5 ? "Finish" : "Next"}
         </Button>
-      </div>
+      </BottomBar>
     </PatientShell>
   );
 }
@@ -283,7 +286,7 @@ function ProgressDots({ step }: { step: number }) {
 }
 
 function Title({ children }: { children: React.ReactNode }) {
-  return <h1 className="mt-6 font-display text-[34px] leading-[1.1]">{children}</h1>;
+  return <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:mt-6 sm:text-[34px]">{children}</h1>;
 }
 
 function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
