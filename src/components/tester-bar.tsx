@@ -6,10 +6,10 @@ import { formatDate } from "@/core/time";
 import { TesterSwitch } from "./tester-switch";
 import { ThemeToggle } from "./theme-toggle";
 
-/** Demo tools, not part of the product (DEMO-04 to DEMO-07). Hidden when printing. */
+/** Demo tools, not part of the product (DEMO-04 to DEMO-07). Hidden when printing; scrolls away on phones. */
 export function TesterBar({ today }: { today: string }) {
   return (
-    <div className="sticky top-0 z-40 border-b border-border/60 bg-deep/95 backdrop-blur print:hidden">
+    <div className="relative z-40 border-b sm:sticky sm:top-0 border-border/60 bg-deep/95 backdrop-blur print:hidden">
       <div className="mx-auto flex h-12 max-w-5xl items-center gap-2 px-3 text-sm">
         <span
           className="hidden items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase sm:flex"
