@@ -20,13 +20,13 @@ export function TesterBar({ today }: { today: string }) {
         <TesterSwitch />
         <span className="hidden text-xs text-muted-foreground md:inline">Today: {formatDate(today)}</span>
         <div className="ml-auto flex items-center gap-0.5">
-          <Button asChild size="sm" variant="ghost" aria-label="Replay onboarding" title="Go through Maya's sign-up again">
+          <Button asChild size="sm" variant="ghost" aria-label="Replay onboarding" title="Go through sign-up again">
             <Link href="/patient/onboarding">
               <ClipboardList /> <span className="hidden lg:inline">Onboarding</span>
             </Link>
           </Button>
           <form action={testerReset}>
-            <Button size="sm" variant="ghost" aria-label="Reset demo data" title="Restore Maya's original data">
+            <Button size="sm" variant="ghost" aria-label="Reset demo data" title="Restore the original demo data">
               <RotateCcw /> <span className="hidden sm:inline">Reset</span>
             </Button>
           </form>

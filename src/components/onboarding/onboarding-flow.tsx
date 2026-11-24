@@ -34,7 +34,7 @@ const STEPS = ["Welcome", "Your care", "Your usual day", "Sleep medicines", "Sle
 const CHIP = "h-11 rounded-full! border-2! px-4 text-[15px] font-semibold";
 const KIND_LABEL: Record<SleepAid, string> = { melatonin: "Melatonin", otc: "Over-the-counter", prescription: "Prescription" };
 
-export function OnboardingFlow({ initial, providerName, firstName }: { initial: OnboardingInitial; providerName: string; firstName: string }) {
+export function OnboardingFlow({ initial, providerName }: { initial: OnboardingInitial; providerName: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0); // 0..5 = screens, 6 = done
   const [consent, setConsent] = useState(false);
@@ -87,7 +87,7 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
       <PatientShell>
         <ProgressDots step={6} />
         <MoonMark className="mt-10 size-16" />
-        <h1 className="mt-8 font-display text-[40px] leading-[1.08]">You&apos;re all set, {firstName}.</h1>
+        <h1 className="mt-8 font-display text-[40px] leading-[1.08]">You&apos;re all set.</h1>
         <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
           Each morning at {care.reminderTime.replace(/^0/, "")} you&apos;ll get a short message. Tap it and tell me how you
           slept: about a minute.
@@ -95,13 +95,13 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
         <SoftCard className="mt-8 space-y-2 text-[15px] leading-relaxed">
           <p className="font-semibold">For this demo</p>
           <p className="text-muted-foreground">
-            Maya has already been using SleepSnap for 8 weeks, so you&apos;ll see her history. Your changes are saved to her
-            profile{changedScreens ? ` (you changed ${changedScreens} screen${changedScreens === 1 ? "" : "s"})` : ""}.
+            This demo account already has 8 weeks of sleep diary, so you&apos;ll see its history. Your changes are saved to
+            it{changedScreens ? ` (you changed ${changedScreens} screen${changedScreens === 1 ? "" : "s"})` : ""}.
           </p>
         </SoftCard>
         <div className="mt-auto pt-8">
           <Button variant="brand" size="xl" onClick={() => router.push("/patient")}>
-            Go to Maya&apos;s morning
+            Go to this morning
           </Button>
         </div>
       </PatientShell>
@@ -128,7 +128,7 @@ export function OnboardingFlow({ initial, providerName, firstName }: { initial: 
 
       {step > 0 && (
         <p className="mt-6 flex items-center gap-2 rounded-2xl bg-brand-soft px-4 py-2.5 text-sm">
-          <Sparkles className="size-4 shrink-0 text-brand" /> Maya&apos;s answers are filled in. Change anything you like.
+          <Sparkles className="size-4 shrink-0 text-brand" /> Demo answers are filled in. Change anything you like.
         </p>
       )}
 

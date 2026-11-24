@@ -15,7 +15,6 @@ export default async function OnboardingPage() {
   const u = p.usualDay;
   return (
     <OnboardingFlow
-      firstName={p.name.split(" ")[0]}
       providerName={p.providerName}
       initial={{
         visitDate: p.visitDate,

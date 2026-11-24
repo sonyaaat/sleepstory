@@ -78,11 +78,9 @@ export function CheckinFlow({
   initialMode,
   medicines,
   usual,
-  firstName,
 }: {
   initialMode: "voice" | "type" | "quick";
   usual: UsualTimes;
-  firstName: string;
   /** The patient's own sleep medicines, from registration (MED-01). */
   medicines: { name: string; kind: SleepAid; planText: string | null }[];
 }) {
@@ -316,7 +314,7 @@ export function CheckinFlow({
     return (
       <PatientShell>
         <TopLink href="/patient" label="Back" />
-        <p className="mt-8 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
+        <p className="mt-8 text-[17px] text-muted-foreground">Good morning</p>
         <h1 className="mt-1.5 font-display text-[36px] leading-[1.1]">Tell me about last night</h1>
         <StoryHints className="mt-6" />
         <Label htmlFor="story" className="sr-only">
@@ -742,7 +740,7 @@ export function CheckinFlow({
     return (
       <PatientShell>
         <MoonMark className="mt-6 size-12" />
-        <h1 className="mt-5 font-display text-[36px] leading-[1.08]">Saved. Thanks, {firstName}.</h1>
+        <h1 className="mt-5 font-display text-[36px] leading-[1.08]">Saved. Thank you.</h1>
 
         <div className="mt-6 space-y-3">
           {result.watchTstMin != null && result.mismatch && !watchAnswered && (

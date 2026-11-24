@@ -18,7 +18,6 @@ export default async function PatientHome() {
   const logged = nights.some((n) => n.date === lastNight);
   const week = weekMornings(nights.map((n) => n.date), session.today);
   const daysToVisit = daysBetween(session.today, patient.visitDate);
-  const firstName = patient.name.split(" ")[0];
   const streak = dayStreak(nights.map((n) => n.date), session.today);
 
   return (
@@ -27,7 +26,7 @@ export default async function PatientHome() {
 
       {!logged ? (
         <>
-          <p className="mt-10 text-[17px] text-muted-foreground">Good morning, {firstName}</p>
+          <p className="mt-10 text-[17px] text-muted-foreground">Good morning</p>
           <h1 className="mt-1.5 font-display text-[40px] leading-[1.1]">How did you sleep?</h1>
 
           <div className="flex flex-1 flex-col items-center justify-center gap-5 py-10">
@@ -59,7 +58,7 @@ export default async function PatientHome() {
       ) : (
         <>
           <MoonMark className="mt-12 size-14" />
-          <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Last night is saved, {firstName}.</h1>
+          <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Last night is saved.</h1>
           <div className="mt-8 space-y-3">
             <WeekDots week={week} streak={streak.days} />
             <Button asChild variant="ghost" size="lg" className="w-full">
