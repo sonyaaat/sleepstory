@@ -32,16 +32,16 @@ export default async function PatientHome() {
 
       {!logged ? (
         <>
-          <p className="mt-10 text-[17px] text-muted-foreground">Good morning</p>
-          <h1 className="mt-1.5 font-display text-[40px] leading-[1.1]">How did you sleep?</h1>
+          <p className="mt-6 text-[17px] text-muted-foreground sm:mt-10">Good morning</p>
+          <h1 className="mt-1 font-display text-[32px] leading-[1.1] sm:mt-1.5 sm:text-[40px]">How did you sleep?</h1>
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-5 py-10">
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 py-6 sm:gap-5 sm:py-10">
             <Link
               href="/patient/checkin?mode=voice"
               aria-label="Start talking about your night"
-              className="flex size-[132px] items-center justify-center rounded-full bg-brand text-brand-foreground shadow-[0_0_0_14px_var(--card),0_0_0_28px_var(--surface-2)] transition-transform hover:scale-[1.03] active:scale-95"
+              className="flex size-[112px] items-center justify-center rounded-full bg-brand text-brand-foreground shadow-[0_0_0_10px_var(--card),0_0_0_20px_var(--surface-2)] transition-transform hover:scale-[1.03] active:scale-95 sm:size-[132px] sm:shadow-[0_0_0_14px_var(--card),0_0_0_28px_var(--surface-2)]"
             >
-              <Mic className="size-12" strokeWidth={2.2} />
+              <Mic className="size-11 sm:size-12" strokeWidth={2.2} />
             </Link>
             <div className="mt-4 text-center">
               <p className="font-semibold">Tap and talk for about 15 seconds</p>
@@ -68,9 +68,9 @@ export default async function PatientHome() {
         </>
       ) : (
         <>
-          <MoonMark className="mt-12 size-14" />
-          <h1 className="mt-6 font-display text-[36px] leading-[1.1]">Last night is saved.</h1>
-          <div className="mt-8 space-y-3">
+          <MoonMark className="mt-8 size-12 sm:mt-12 sm:size-14" />
+          <h1 className="mt-4 font-display text-[30px] leading-[1.1] sm:mt-6 sm:text-[36px]">Last night is saved.</h1>
+          <div className="mt-6 space-y-3 sm:mt-8">
             <WeekDots week={week} streak={streak.days} />
             <Button asChild variant="ghost" size="lg" className="w-full">
               <Link href="/patient/checkin?mode=type">
@@ -81,7 +81,7 @@ export default async function PatientHome() {
         </>
       )}
 
-      <div className="mt-8 space-y-3">
+      <div className="mt-6 space-y-3 sm:mt-8">
         {!logged && <WeekDots week={week} streak={streak.days} />}
         {logged && (
           <SoftCard className="flex gap-3">
