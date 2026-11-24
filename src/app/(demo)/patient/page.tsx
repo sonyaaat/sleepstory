@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, FlaskConical, Keyboard, ListChecks, Lock, Mic, Pencil, Send } from "lucide-react";
+import { CalendarDays, ClipboardList, FlaskConical, Keyboard, ListChecks, Lock, Mic, Pencil, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Logo, MoonMark, PatientShell, SoftCard, WeekDots } from "@/components/brand";
@@ -57,6 +57,11 @@ export default async function PatientHome() {
             <Button asChild variant="outline" size="lg" className="h-14 rounded-2xl text-base">
               <Link href="/patient/checkin?mode=quick">
                 <ListChecks /> Tap answers
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="col-span-2 h-14 rounded-2xl text-base">
+              <Link href="/patient/onboarding">
+                <ClipboardList /> Sign-up tour
               </Link>
             </Button>
           </div>
