@@ -57,10 +57,10 @@ describe("Maya's demo data", () => {
 });
 
 describe("extra students", () => {
-  it("has two lighter patients, one not shared", () => {
+  it("has one lighter patient who has shared", () => {
     const extra = extraPatients(today);
-    expect(extra).toHaveLength(2);
-    expect(extra.filter((p) => p.sharedAt === null)).toHaveLength(1);
+    expect(extra).toHaveLength(1);
+    expect(extra[0].sharedAt).not.toBeNull();
     for (const p of extra) expect(p.nights.length).toBeGreaterThan(5);
   });
 });

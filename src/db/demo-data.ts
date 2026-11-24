@@ -343,23 +343,6 @@ export function extraPatients(today: string): DemoPatient[] {
       medications: [],
       nights: lightNights(today, 7, 21, 30, 25),
     },
-    {
-      isMain: false,
-      name: "Priya Patel",
-      age: 23,
-      providerName: PROVIDER_NAME,
-      visitDate: addDays(today, 9),
-      consentAt: new Date(`${addDays(today, -15)}T09:00:00Z`),
-      usualDay: usual,
-      isiBaseline: [2, 3, 2, 2, 2, 3, 2],
-      isiPrevisit: null,
-      screening: null,
-      discuss: null,
-      sharedAt: null, // not shared yet: the provider can't open it
-      watchConnected: false,
-      medications: [],
-      nights: lightNights(today, 11, 14, 40, 35),
-    },
   ];
 }
 
