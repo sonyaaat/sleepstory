@@ -983,8 +983,8 @@ function StoryHints({ className }: { className?: string }) {
       {STORY_HINTS.map(({ icon, tone, label, example }) => (
         <li key={label} className="min-w-0 rounded-2xl bg-card px-2.5 py-2.5 ring-1 ring-border/60 sm:px-3 sm:py-3">
           <IconBadge icon={icon} tone={tone} className="size-6 sm:size-7 [&>svg]:size-3.5 sm:[&>svg]:size-4" />
-          <p className="mt-1.5 text-[13px] leading-tight font-semibold sm:mt-2">{label}</p>
-          <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{example}</p>
+          <p className="mt-1.5 text-[15px] leading-tight font-semibold sm:mt-2">{label}</p>
+          <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{example}</p>
         </li>
       ))}
     </ul>
